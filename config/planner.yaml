@@ -1,0 +1,42 @@
+# Content Planner — configuration
+# Edit THIS file, not the scripts. Values here are the only things that change.
+
+paths:
+  library: library
+  outputs: outputs
+  calendar: calendar
+  workspace: workspace   # sync this folder to iCloud — iPad opens per-video 03_diagrams/
+
+ingest:
+  whisper_model: mlx-community/whisper-large-v3-turbo
+  chunk_minutes: 45          # split audio longer than N min before Whisper
+  domain_prompt: "RAG, MLOps, LLM, LangGraph, data engineering, data science, Python, SQL, machine learning, AI agents, embeddings, vector database, production, LangChain, retrieval, fine-tuning"
+
+boards:
+  shorts:
+    number: 7
+    owner: noah-sheldon
+  long_form:
+    number: 8
+    owner: noah-sheldon
+
+board_fields:
+  status: Status
+  form: Form
+  series: Series
+  week: Week
+
+lifecycle:
+  short_form:        # board 7 status options
+    planned: "To Do"
+    in_progress: "In Progress"
+    posted: "Posted"
+    backlog: "Backlog"
+  long_form:         # board 8 status options
+    planned: "Ready"
+    in_progress: "In progress"
+    in_review: "In review"
+    done: "Done"
+
+plan:
+  default_week: "2026-08-10"   # Monday of the current plan week (W34)

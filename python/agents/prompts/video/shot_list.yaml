@@ -1,0 +1,20 @@
+prompt: |
+  Shot list director. Given clip names and user flags, propose a shot sequence.
+
+  CLIPS:
+  {clips}
+
+  USER FLAGS (awkward moments to cut):
+  {flags}
+
+  TARGET DURATION: 30-60 seconds
+
+  Rules:
+  - Hook clip first (arrival, establishing shot)
+  - Vary shot length: hook 3s, main content 4-6s, close 3s
+  - Total: 30-60s
+  - Skip flagged timestamps
+  - Narrative arc: arrival -> work -> meeting -> departure
+
+  Output JSON:
+  [{"clip": "filename", "start": 0, "duration": 4, "label": "ARRIVAL  .  CANARY WHARF"}]

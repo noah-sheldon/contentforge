@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1728, height=3072" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* ---- Course kit: tokens (canonical: ../shared/tokens.css) ---- */
+      :root {
+        --font-display: "Playfair Display", Georgia, serif;
+        --font-body: "Inter", system-ui, -apple-system, sans-serif;
+        --font-hand: "Caveat", "Patrick Hand", "Comic Sans MS", cursive;
+        --font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+        --fs-hero: 260px; --fs-header: 170px; --fs-body: 100px;
+        --fs-hand: 92px; --fs-ui: 54px;
+        /* Brand (persona.yaml): obsidian + gold */
+        --bg: #12141c; --ink: #fafafa; --accent: #d4af37; --secondary: #e9d8a6;
+        --muted: rgba(250,250,250,0.55); --faint: rgba(250,250,250,0.3);
+        --line: rgba(250,250,250,0.22);
+        --surface: rgba(212,175,55,0.08); --border: rgba(212,175,55,0.25);
+        --glow: rgba(212,175,55,0.10);
+        --pad: 96px; --gap: 48px;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1728px; height: 3072px; overflow: hidden; background: var(--bg); }
+      body { font-family: var(--font-body); color: var(--ink); }
+      #root { position: relative; width: 1728px; height: 3072px; overflow: hidden; }
+      .clip { position: absolute; inset: 0; }
+
+      /* ---- fills (on children, never the root) ---- */
+      .bg { position: absolute; inset: 0; background: var(--bg); }
+      .glow { position: absolute; inset: 0;
+        background: radial-gradient(ellipse 62% 40% at 50% 30%, var(--glow), transparent 70%); }
+
+      /* ---- brand ---- */
+      .hook-wrap, .outro-wrap { position: absolute; inset: 0; display: flex; flex-direction: column;
+        justify-content: center; padding: 0 var(--pad); }
+      .hook-tag { font-size: var(--fs-ui); font-weight: 600; letter-spacing: 8px; text-transform: uppercase;
+        color: var(--accent); margin-bottom: 48px; }
+      .hook-line { font-family: var(--font-display); font-size: var(--fs-hero); font-weight: 900;
+        line-height: 1.02; letter-spacing: 2px; }
+      .hook-line-b { color: var(--accent); }
+      .hook-kicker { margin-top: 56px; font-size: var(--fs-body); font-weight: 500; color: var(--muted);
+        letter-spacing: 1px; }
+      .corner-brand { position: absolute; top: 72px; left: 96px; display: flex; align-items: center;
+        gap: 24px; opacity: 0.4; }
+      .corner-rule { width: 56px; height: 8px; background: var(--accent); border-radius: 4px; }
+      .corner-text { font-family: var(--font-display); font-size: 44px; font-weight: 700;
+        letter-spacing: 2px; }
+
+      /* ---- whiteboard primitives ---- */
+      .wcard { position: absolute; }
+      .wcard-inner { position: relative; display: flex; flex-direction: column; justify-content: center;
+        padding: 64px 72px;
+        border: 6px solid var(--accent); border-radius: 255px 24px 225px 24px / 24px 225px 24px 255px;
+        background: var(--surface); }
+      .wcard-title { font-family: var(--font-hand); font-size: var(--fs-hand); font-weight: 600;
+        color: var(--ink); line-height: 1.15; }
+      .wcard-note { font-family: var(--font-hand); font-size: 68px; color: var(--muted); margin-top: 16px; }
+      .big-symbol { font-family: var(--font-display); font-size: 200px; font-weight: 900;
+        color: var(--accent); }
+      .scene-kicker { position: absolute; top: 200px; left: var(--pad); font-size: var(--fs-ui);
+        font-weight: 600; letter-spacing: 8px; text-transform: uppercase; color: var(--accent); }
+      .scene-caption { position: absolute; bottom: 420px; left: var(--pad); right: var(--pad);
+        font-family: var(--font-hand); font-size: var(--fs-hand); color: var(--ink); line-height: 1.3; }
+      .takeaway { position: absolute; inset: 0; display: flex; flex-direction: column;
+        justify-content: center; padding: 0 var(--pad); }
+      .takeaway-card { border: 6px solid var(--accent);
+        border-radius: 24px 255px 24px 225px / 225px 24px 255px 24px;
+        background: var(--surface); padding: 96px; }
+      .formula { font-family: var(--font-display); font-size: 150px; font-weight: 900; color: var(--ink);
+        line-height: 1.1; }
+      .formula b { color: var(--accent); font-weight: 900; }
+      .bullet { display: flex; align-items: center; gap: 48px; margin-top: 72px; }
+      .bullet-dot { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); }
+      .bullet-text { font-family: var(--font-hand); font-size: var(--fs-hand); color: var(--ink);
+        line-height: 1.2; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="45"
+         data-width="1728" data-height="3072">
+
+      <!-- HOOK 0-4s -->
+      <div id="hook" class="clip" data-start="0" data-duration="4" data-track-index="1">
+        <div class="bg"></div>
+        <div class="glow"></div>
+        <div class="corner-brand"><span class="corner-rule"></span><span class="corner-text">AI AGENTS · ZERO→HERO</span></div>
+        <div class="hook-wrap">
+          <p id="h-tag" class="hook-tag">MODULE 1 · LESSON 1</p>
+          <h1 id="h-a" class="hook-line hook-line-a">AI AGENTS</h1>
+          <h1 id="h-b" class="hook-line hook-line-b">ZERO → HERO</h1>
+          <p id="h-k" class="hook-kicker">using LangGraph</p>
+        </div>
+      </div>
+
+      <!-- BEAT 1: AGENT NE CHATBOT 4-14s -->
+      <div id="b1" class="clip" data-start="4" data-duration="10" data-track-index="1">
+        <div class="bg"></div>
+        <div class="glow"></div>
+        <div class="corner-brand"><span class="corner-rule"></span><span class="corner-text">AI AGENTS · ZERO→HERO</span></div>
+        <p id="b1-k" class="scene-kicker">Agent ≠ chatbot</p>
+        <div id="b1-a" class="wcard" style="top: 840px; left: 120px;">
+          <div class="wcard-inner" style="transform: rotate(-2deg);">
+            <p class="wcard-title">LLM — the brain</p>
+            <p class="wcard-note">it thinks</p>
+          </div>
+        </div>
+        <div id="b1-neq" class="big-symbol" style="position: absolute; top: 1290px; left: 800px;">≠</div>
+        <div id="b1-b" class="wcard" style="top: 840px; right: 120px;">
+          <div class="wcard-inner" style="transform: rotate(1.5deg);">
+            <p class="wcard-title">Chatbot — just talk</p>
+            <p class="wcard-note">no tools, no loop</p>
+          </div>
+        </div>
+        <svg id="b1-line" class="clip" style="position:absolute; top: 1710px; left: 200px; width: 1328px; height: 60px;" viewBox="0 0 1328 60">
+          <path d="M 0 30 H 1328" fill="none" stroke="#e9d8a6" stroke-width="10" stroke-linecap="round"
+                stroke-dasharray="1600" stroke-dashoffset="1600"/>
+        </svg>
+        <p id="b1-c" class="scene-caption">An agent is not a chatbot — it can DO things.</p>
+      </div>
+
+      <!-- BEAT 2: LLM + LOOP + TOOLS 14-29s -->
+      <div id="b2" class="clip" data-start="14" data-duration="15" data-track-index="1">
+        <div class="bg"></div>
+        <div class="glow"></div>
+        <div class="corner-brand"><span class="corner-rule"></span><span class="corner-text">AI AGENTS · ZERO→HERO</span></div>
+        <p id="b2-k" class="scene-kicker">The recipe</p>
+        <div id="b2-llm" class="wcard" style="top: 760px; left: 460px;">
+          <div class="wcard-inner" style="transform: rotate(-1.5deg);">
+            <p class="wcard-title">LLM</p>
+            <p class="wcard-note">thinks</p>
+          </div>
+        </div>
+        <div id="b2-loop" class="wcard" style="top: 1300px; left: 460px;">
+          <div class="wcard-inner" style="transform: rotate(1deg);">
+            <p class="wcard-title">Loop</p>
+            <p class="wcard-note">repeats</p>
+          </div>
+        </div>
+        <div id="b2-tools" class="wcard" style="top: 1300px; right: 460px;">
+          <div class="wcard-inner" style="transform: rotate(-1deg);">
+            <p class="wcard-title">Tools</p>
+            <p class="wcard-note">acts</p>
+          </div>
+        </div>
+        <svg id="b2-arrows" class="clip" style="position:absolute; top: 1010px; left: 1040px; width: 320px; height: 640px;" viewBox="0 0 320 640">
+          <path d="M 60 40 L 60 540" fill="none" stroke="#e9d8a6" stroke-width="12" stroke-linecap="round"
+                stroke-dasharray="900" stroke-dashoffset="900"/>
+          <path d="M 140 560 L 140 60" fill="none" stroke="#e9d8a6" stroke-width="12" stroke-linecap="round"
+                stroke-dasharray="900" stroke-dashoffset="900"/>
+          <path d="M 260 40 L 260 540" fill="none" stroke="#e9d8a6" stroke-width="12" stroke-linecap="round"
+                stroke-dasharray="900" stroke-dashoffset="900"/>
+        </svg>
+        <p id="b2-c" class="scene-caption">Agent = LLM + loop + tools. The loop is what makes it an agent.</p>
+      </div>
+
+      <!-- BEAT 3: TAKEAWAY 29-40s -->
+      <div id="b3" class="clip" data-start="29" data-duration="11" data-track-index="1">
+        <div class="bg"></div>
+        <div class="glow"></div>
+        <div class="corner-brand"><span class="corner-rule"></span><span class="corner-text">AI AGENTS · ZERO→HERO</span></div>
+        <div class="takeaway">
+          <div class="takeaway-card">
+            <p id="b3-k" class="scene-kicker" style="position: static; margin-bottom: 48px;">Takeaway</p>
+            <p id="b3-f" class="formula">Agent = LLM + loop + tools</p>
+            <div id="b3-b1" class="bullet"><span class="bullet-dot"></span><span class="bullet-text">LLM decides what to do</span></div>
+            <div id="b3-b2" class="bullet"><span class="bullet-dot"></span><span class="bullet-text">Loop keeps trying until it is done</span></div>
+            <div id="b3-b3" class="bullet"><span class="bullet-dot"></span><span class="bullet-text">Tools let it actually act</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OUTRO 40-45s -->
+      <div id="outro" class="clip" data-start="40" data-duration="5" data-track-index="1">
+        <div class="bg"></div>
+        <div class="glow"></div>
+        <div class="outro-wrap">
+          <p id="o-tag" class="hook-tag">NEXT LESSON</p>
+          <h1 id="o-a" class="hook-line hook-line-a">AI AGENTS</h1>
+          <h1 id="o-b" class="hook-line hook-line-b">ZERO → HERO</h1>
+          <p id="o-k" class="hook-kicker">follow for the next one</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* ---- Course kit: reveal engine (canonical: ../shared/reveal-engine.js) ---- */
+      window.__reveal = (function () {
+        function beatIn(tl, sel, at, opts) {
+          const o = opts || {};
+          const y = o.y !== undefined ? o.y : 40;
+          const x = o.x !== undefined ? o.x : 0;
+          const dur = o.dur !== undefined ? o.dur : 0.35;
+          const ease = o.ease || "power3.out";
+          tl.fromTo(sel, { autoAlpha: 0, x: x, y: y },
+            { autoAlpha: 1, x: 0, y: 0, duration: dur, ease: ease }, at);
+        }
+        function drawOn(tl, sel, at, opts) {
+          const o = opts || {};
+          const dur = o.dur !== undefined ? o.dur : 0.8;
+          const ease = o.ease || "power2.inOut";
+          const len = o.len !== undefined ? o.len : 1600;
+          tl.fromTo(sel, { strokeDashoffset: len },
+            { strokeDashoffset: 0, duration: dur, ease: ease }, at);
+        }
+        return { beatIn: beatIn, drawOn: drawOn };
+      })();
+
+      /* ---- Main timeline: beat times come from the VO transcript ---- */
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const R = window.__reveal;
+
+      /* Hook (0-4) */
+      R.beatIn(tl, "#h-tag", 0.15, { y: 20 });
+      R.beatIn(tl, "#h-a", 0.5, { y: 60 });
+      R.beatIn(tl, "#h-b", 0.9, { y: 60 });
+      R.beatIn(tl, "#h-k", 1.4, { y: 30 });
+
+      /* Beat 1: Agent ≠ chatbot (4-14) */
+      R.beatIn(tl, "#b1-k", 4.3, { y: 20 });
+      R.beatIn(tl, "#b1-a", 4.8, { x: -60 });
+      R.beatIn(tl, "#b1-neq", 5.8, { scale: 0.6, dur: 0.4, ease: "back.out(1.6)" });
+      R.beatIn(tl, "#b1-b", 6.4, { x: 60 });
+      R.drawOn(tl, "#b1-line path", 7.5, { dur: 0.9, len: 1600 });
+      R.beatIn(tl, "#b1-c", 9.0, { y: 30 });
+
+      /* Beat 2: LLM + loop + tools (14-29) */
+      R.beatIn(tl, "#b2-k", 14.4, { y: 20 });
+      R.beatIn(tl, "#b2-llm", 15.2, { y: 40 });
+      R.beatIn(tl, "#b2-loop", 16.2, { y: 40 });
+      R.beatIn(tl, "#b2-tools", 17.2, { y: 40 });
+      R.drawOn(tl, "#b2-arrows path:nth-child(1)", 18.4, { dur: 0.6, len: 900 });
+      R.drawOn(tl, "#b2-arrows path:nth-child(2)", 19.0, { dur: 0.6, len: 900 });
+      R.drawOn(tl, "#b2-arrows path:nth-child(3)", 19.6, { dur: 0.6, len: 900 });
+      R.beatIn(tl, "#b2-c", 21.0, { y: 30 });
+
+      /* Beat 3: Takeaway (29-40) */
+      R.beatIn(tl, "#b3-k", 29.4, { y: 20 });
+      R.beatIn(tl, "#b3-f", 30.2, { y: 50 });
+      R.beatIn(tl, "#b3-b1", 33.0, { x: -50 });
+      R.beatIn(tl, "#b3-b2", 34.5, { x: -50 });
+      R.beatIn(tl, "#b3-b3", 36.0, { x: -50 });
+
+      /* Outro (40-45) */
+      R.beatIn(tl, "#o-tag", 40.3, { y: 20 });
+      R.beatIn(tl, "#o-a", 40.7, { y: 60 });
+      R.beatIn(tl, "#o-b", 41.2, { y: 60 });
+      R.beatIn(tl, "#o-k", 41.7, { y: 30 });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

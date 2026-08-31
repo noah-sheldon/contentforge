@@ -1,0 +1,18 @@
+{
+  "topics": [
+    {
+      "topic": "Building RAG at Scale",
+      "date": "2026-07-18",
+      "platforms": ["linkedin"],
+      "complexity_score": 3
+    },
+    {
+      "topic": "LangGraph vs CrewAI",
+      "date": "2026-07-11",
+      "platforms": ["x", "threads"],
+      "complexity_score": 4
+    }
+  ],
+  "niche": "AI/ML engineering",
+  "complexity_max": 4
+}

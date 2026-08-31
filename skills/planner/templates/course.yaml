@@ -1,0 +1,62 @@
+course:
+  name: Production Agentic RAG from Scratch
+  repo: noah-sheldon/production-agentic-rag-from-scratch
+  tagline: "Learn it. Build it. Ship it for others."
+  thesis: "Every system built in plain Python before a single framework gets imported."
+  theme: "YOUR personal knowledge assistant"
+  scope: "production Agentic RAG only — the applied systems layer: systems from scratch (retrieval, loop, evaluation in plain Python), not models (no backprop, no attention math, no training). Agent design patterns (goal-driven, result-driven) are a future course"
+  audience: "applied AI/ML engineers"
+  math_promise: "Math, just enough — one formula per lesson, built by hand where it's used (cosine, IDF, RRF, cost arithmetic); never a derivation beyond the concept"
+  license: MIT
+  terminal_install: "npx skills add noah-sheldon/production-agentic-rag-from-scratch"
+  modules:
+    - num: 0
+      title: Setup + How to Learn
+      project: Environment ready, tutor installed
+      topics: [terminal basics, install python/git/docker, clone repo, tutor install, course mechanics]
+      lessons: 1
+    - num: 1
+      title: Production Infrastructure
+      project: Your dev lab — one-command local stack
+      topics: [Docker Compose, FastAPI + health checks, PostgreSQL, OpenSearch, Ollama, code quality]
+      lessons: 4
+    - num: 2
+      title: Data Ingestion
+      project: Read-it-later — save, parse, store your notes/articles
+      topics: [API ingestion + retries, article/PDF parsing, Airflow, metadata extraction, idempotency]
+      lessons: 4
+    - num: 3
+      title: Keyword Search First (BM25)
+      project: BM25 search over your notes
+      topics: [BM25 by hand, k1 and b, precision vs recall, filters and boosting]
+      lessons: 4
+    - num: 4
+      title: Chunking + Embeddings
+      project: Semantic index of your notes
+      topics: [chunking, section vs fixed-size, embeddings, 384 numbers, fallbacks]
+      lessons: 4
+    - num: 5
+      title: Hybrid Search (RRF)
+      project: Hybrid search over your notes
+      topics: [RRF fusion, keyword + semantic, hybrid wins, unified API]
+      lessons: 3
+    - num: 6
+      title: RAG Pipeline + Local LLM
+      project: Ask your notes — private, local
+      topics: [Ollama, prompt trimming, streaming SSE, local vs cloud]
+      lessons: 4
+    - num: 7
+      title: Observability + Caching
+      project: Cost + cache dashboard
+      topics: [tracing, Redis cache + TTL, cost per question, dashboards]
+      lessons: 3
+    - num: 8
+      title: "Agentic RAG: Tools + the Loop"
+      project: Notes assistant with tools
+      topics: [tool design, tool registry, tool calling, agent loop, guardrails, grading, query rewriting, reasoning transparency]
+      lessons: 5
+    - num: 9
+      title: Evaluation + Capstone
+      project: Measure, ship, publish your assistant
+      topics: [eval question set, scoring, grade gate, publish]
+      lessons: 3

@@ -1,0 +1,27 @@
+platform:
+  name: threads
+  max_chars: 1000
+
+tone:
+  style: "conversational, casual, behind-the-scenes"
+  avoid: ["formal language", "sales pitch", "perfect formatting"]
+  voice: "I think about this stuff and here's what I've been working on, like talking to a friend"
+
+templates:
+  conversational_take:
+    - "Start: 'I've been thinking about X' or similar"
+    - "2-3 short paragraphs with a personal angle"
+    - "End with a question or open thought, not a conclusion"
+
+  build_log:
+    - "What I built today"
+    - "One problem I ran into"
+    - "How I fixed it (or didn't)"
+    - "Open question for the community"
+
+what_works:
+  - "Casual, imperfect writing"
+  - "Behind-the-scenes content over polished takes"
+  - "Replying to existing convos gets reach"
+  - "No hashtags needed (unlike Instagram)"
+  - "Shorter is better (300-500 chars ideal)"

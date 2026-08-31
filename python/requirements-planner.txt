@@ -1,0 +1,9 @@
+yt-dlp
+youtube-transcript-api
+mlx-whisper
+trafilatura
+requests
+PyYAML
+openai
+playwright
+

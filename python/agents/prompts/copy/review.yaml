@@ -1,0 +1,14 @@
+prompt: |
+  Review this post for {platform}.
+
+  Does it read like a human wrote it? If yes, say PASS. Be lenient.
+
+  DRAFT:
+  {draft}
+
+  PLATFORM LIMITS:
+  {platform_checks}
+
+  Output exactly one of these:
+  VERDICT: PASS
+  VERDICT: FAIL

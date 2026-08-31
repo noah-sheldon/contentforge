@@ -1,0 +1,42 @@
+platform:
+  name: instagram
+  max_chars: 2200
+  hashtag_limit: 5
+  supports_links: false
+
+video:
+  aspect: "9:16"
+  resolution: "1080x1920"
+  max_duration: 90
+  optimal_duration: 30
+  hook_deadline_seconds: 3
+  caption_position: "bottom_center"
+  safe_area_top: 120
+  safe_area_bottom: 200
+  text_overlay: true
+  text_overlay_style: "centered, bold, white with black stroke"
+
+tone:
+  style: "visually-driven, aspirational, editorial"
+  avoid: ["sales pitch", "low-contrast text", "crowded frames"]
+  voice: "I share what I build and how I work"
+
+templates:
+  tool_demo_reel:
+    - "Hook: screen recording or demo in first 2s"
+    - "Show the tool solving a real problem (15s)"
+    - "Overlay text: key takeaway (5s)"
+    - "CTA: save or share (5s)"
+
+  day_in_the_life:
+    - "Hook: establishing shot of location (2s)"
+    - "Montage: 5-7 quick cuts with beat-synced transitions (20s)"
+    - "HUD overlays: location, activity, time of day"
+    - "Close: golden hour or office exit (5s)"
+
+what_works:
+  - "High-contrast text overlays (white on dark)"
+  - "Seamless transitions between clips"
+  - "Beat-synced editing to trending audio"
+  - "23% more reach with no hashtags vs 30 hashtags"
+  - "Behind-the-scenes content over polished takes"

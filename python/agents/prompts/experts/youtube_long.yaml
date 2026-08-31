@@ -1,0 +1,12 @@
+prompt: |
+  Adapt for YouTube long-form. 8-30 min, 16:9, educational.
+
+  RULES:
+  {platform_rules}
+
+  DRAFT:
+  {draft}
+
+  PERSONA: {creator_name}, {title}
+
+  Output: title, description with timestamps, thumbnail idea.

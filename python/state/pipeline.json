@@ -1,0 +1,32 @@
+{
+  "run_id": "run_20260725_220440",
+  "run_type": "manual",
+  "topic": "AI engineers who learn cloud basics stand out",
+  "status": "waiting_after_copywriter_approved",
+  "steps": {
+    "copywriter": {
+      "data": "I watched two AI engineers ship models last week. One spent hours wrestling with deployment. The other just clicked a few settings and it worked. The difference? Cloud basics. Not deep infrastructure stuff. Just knowing storage, networking, scaling. Simple things.\n\nThat second engineer kept their job simple. They understood where data lived and how requests flowed. Their model ran stable. The first engineer built a brilliant algorithm but had no idea how to get it online. Four hours wasted.\n\nI see this all the time. The AI engineers who learn cloud basics don't just build things. They make things run. That is the differentiator. It is not about being the best math person. It is about being the person who can actually launch something.",
+      "completed_at": "2026-07-25T22:04:45.129281"
+    },
+    "copywriter_approved": {
+      "data": "I watched two AI engineers ship models last week. One spent hours wrestling with deployment. The other just clicked a few settings and it worked. The difference? Cloud basics. Not deep infrastructure stuff. Just knowing storage, networking, scaling. Simple things.\n\nThat second engineer kept their job simple. They understood where data lived and how requests flowed. Their model ran stable. The first engineer built a brilliant algorithm but had no idea how to get it online. Four hours wasted.\n\nI see this all the time. The AI engineers who learn cloud basics don't just build things. They make things run. That is the differentiator. It is not about being the best math person. It is about being the person who can actually launch something.",
+      "completed_at": "2026-07-25T22:04:59.291859"
+    }
+  },
+  "output": {
+    "linkedin": {
+      "text": "I watched two AI engineers ship models last week.\n\nOne spent hours wrestling with deployment.\n\nThe other just clicked a few settings and it worked.\n\nThe difference? Cloud basics.\n\nNot deep infrastructure stuff. Just knowing storage, networking, scaling. Simple things.\n\nThat second engineer kept their job simple. They understood where data lived and how requests flowed. Their model ran stable.\n\nThe first engineer built a brilliant algorithm but had no idea how to get it online. Four hours wasted.\n\nI see this all the time. The AI engineers who learn cloud basics don't just build things. They make things run.\n\nThat is the differentiator. It is not about being the best math person. It is about being the person who can actually launch something.\n\nWhat\u2019s one cloud basic that saved your project time?",
+      "video_path": ""
+    },
+    "x": {
+      "text": "Two AI engineers shipped models last week. One struggled for hours. The other clicked a few settings. The difference? Cloud basics. Storage, networking, scaling. Simple stuff. #AI\n\n---\nThe engineer who knew cloud basics kept it simple. Understood data, requests, scaling. Model ran stable. The other built a brilliant algo but couldn't get it online. 4 hours wasted.\n\n---\nI see this all the time. AI engineers who learn cloud basics don't just build\u2014they launch. That\u2019s the differentiator. Not math skills. Ability to ship. #CloudComputing  \nWhat\u2019s one cloud concept every AI engineer should know?",
+      "video_path": ""
+    },
+    "threads": {
+      "text": "One of my teammates spent months building a really smart model. Smart on paper. But it couldn\u2019t run anywhere. No storage, no scaling, nothing. Project stalled.\n\nHe took two weekends to learn cloud basics \u2014 moving data, surviving a crash. That\u2019s it. Redeployed. Suddenly a dozen teams were using it. Not because the AI got better. Because it actually worked.\n\nCloud basics don\u2019t make you a genius. They make you useful.\n\nWhat\u2019s one cloud concept you wish you\u2019d learned sooner?",
+      "video_path": ""
+    }
+  },
+  "created_at": "2026-07-25T22:04:40.613223",
+  "updated_at": "2026-07-25T22:06:59.652172"
+}

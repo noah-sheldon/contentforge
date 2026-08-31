@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0b0f14;
+      }
+      body { font-family: "Inter", system-ui, sans-serif; color: #fff; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #0b0f14; }
+      .clip { position: absolute; inset: 0; }
+      .footage {
+        position: absolute; inset: 0;
+        background: linear-gradient(160deg, #1a2130 0%, #0e1319 100%);
+      }
+      .footage-tag {
+        position: absolute; top: 60px; left: 60px;
+        font-size: 34px; letter-spacing: 3px; color: rgba(255,255,255,0.35);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .timelabel {
+        position: absolute; bottom: 220px; left: 60px;
+        font-size: 120px; font-weight: 700; letter-spacing: 2px;
+        color: #dec261;
+      }
+      .beatline {
+        position: absolute; bottom: 100px; left: 62px;
+        font-size: 56px; font-weight: 600; letter-spacing: 1px;
+      }
+      .title-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 60px; }
+      .hook-title { font-size: 132px; font-weight: 800; line-height: 1.05; letter-spacing: 1px; }
+      .hook-sub { margin-top: 40px; font-size: 52px; font-weight: 500; color: #dec261; letter-spacing: 2px; text-transform: uppercase; }
+      .cta-title { font-size: 104px; font-weight: 800; line-height: 1.1; }
+      .cta-sub { margin-top: 36px; font-size: 48px; color: #dec261; font-weight: 600; }
+      .serial { margin-top: 28px; font-size: 40px; color: rgba(255,255,255,0.7); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="30"
+      data-width="1080"
+      data-height="1920"
+    >
+      <!-- HOOK 0-3s -->
+      <div id="hook" class="clip" data-start="0" data-duration="3" data-track-index="1">
+        <div class="title-wrap">
+          <h1 id="hook-title" class="hook-title">DAY IN<br />THE LIFE</h1>
+          <p id="hook-sub" class="hook-sub">AI Lead · Fitch Ratings</p>
+        </div>
+      </div>
+
+      <!-- BEAT 1: MORNING 3-9s -->
+      <div id="beat1" class="clip" data-start="3" data-duration="6" data-track-index="1">
+        <div id="b1-f" class="footage"><span class="footage-tag">FOOTAGE · 07:30 MORNING</span></div>
+        <div id="b1-t" class="timelabel">07:30</div>
+        <div id="b1-l" class="beatline">Coffee · Plans for the day</div>
+      </div>
+
+      <!-- BEAT 2: COMMUTE 9-15s -->
+      <div id="beat2" class="clip" data-start="9" data-duration="6" data-track-index="1">
+        <div id="b2-f" class="footage"><span class="footage-tag">FOOTAGE · 08:15 COMMUTE</span></div>
+        <div id="b2-t" class="timelabel">08:15</div>
+        <div id="b2-l" class="beatline">Elizabeth Line · Canary Wharf</div>
+      </div>
+
+      <!-- BEAT 3: WORK CORE 15-21s -->
+      <div id="beat3" class="clip" data-start="15" data-duration="6" data-track-index="1">
+        <div id="b3-f" class="footage"><span class="footage-tag">FOOTAGE · 09:30 THE WORK</span></div>
+        <div id="b3-t" class="timelabel">09:30</div>
+        <div id="b3-l" class="beatline">Screens · Standup · Model review</div>
+      </div>
+
+      <!-- PAYOFF 21-26s -->
+      <div id="payoff" class="clip" data-start="21" data-duration="5" data-track-index="1">
+        <div id="p-f" class="footage"><span class="footage-tag">FOOTAGE · 17:30 PAYOFF</span></div>
+        <div id="p-t" class="timelabel">17:30</div>
+        <div id="p-l" class="beatline">Shipped it · Heading home</div>
+      </div>
+
+      <!-- CTA 26-30s -->
+      <div id="cta" class="clip" data-start="26" data-duration="4" data-track-index="1">
+        <div class="title-wrap">
+          <h2 id="cta-title" class="cta-title">FOLLOW FOR<br />THE BUILD</h2>
+          <p id="cta-sub" class="cta-sub">Part 2?</p>
+          <p id="cta-serial" class="serial">I'll be vlogging the whole thing</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Hook: staggered title reveal
+      tl.fromTo("#hook-title", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0.15);
+      tl.fromTo("#hook-sub", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 0.55);
+
+      // Beat 1: slow push on footage + label pops
+      tl.fromTo("#b1-f", { scale: 1 }, { scale: 1.08, duration: 5.5, ease: "none" }, 3.2);
+      tl.fromTo("#b1-t", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.35, ease: "power3.out" }, 3.25);
+      tl.fromTo("#b1-l", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 3.55);
+
+      // Beat 2
+      tl.fromTo("#b2-f", { scale: 1 }, { scale: 1.08, duration: 5.5, ease: "none" }, 9.2);
+      tl.fromTo("#b2-t", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.35, ease: "power3.out" }, 9.25);
+      tl.fromTo("#b2-l", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 9.55);
+
+      // Beat 3 (work core — punch-in on label)
+      tl.fromTo("#b3-f", { scale: 1 }, { scale: 1.1, duration: 5.5, ease: "none" }, 15.2);
+      tl.fromTo("#b3-t", { opacity: 0, x: -40, scale: 1 }, { opacity: 1, x: 0, scale: 1.1, duration: 0.35, ease: "power3.out" }, 15.25);
+      tl.fromTo("#b3-l", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 15.55);
+
+      // Payoff
+      tl.fromTo("#p-f", { scale: 1 }, { scale: 1.06, duration: 4.5, ease: "none" }, 21.2);
+      tl.fromTo("#p-t", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.35, ease: "power3.out" }, 21.25);
+      tl.fromTo("#p-l", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 21.55);
+
+      // CTA
+      tl.fromTo("#cta-title", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 26.2);
+      tl.fromTo("#cta-sub", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(1.6)" }, 26.7);
+      tl.fromTo("#cta-serial", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 27.1);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

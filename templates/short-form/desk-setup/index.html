@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0b0f14;
+      }
+      body { font-family: "Inter", system-ui, sans-serif; color: #fff; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #0b0f14; }
+      .clip { position: absolute; inset: 0; }
+      .footage {
+        position: absolute; inset: 0;
+        background: linear-gradient(160deg, #171d29 0%, #0d1117 100%);
+      }
+      .footage-tag {
+        position: absolute; top: 60px; left: 60px;
+        font-size: 34px; letter-spacing: 3px; color: rgba(255,255,255,0.35);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .gear-label {
+        position: absolute; bottom: 260px; left: 60px;
+        font-size: 88px; font-weight: 800; letter-spacing: 1px;
+      }
+      .gear-price {
+        position: absolute; bottom: 150px; left: 62px;
+        font-size: 56px; font-weight: 600; color: #dec261;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .gear-why {
+        position: absolute; bottom: 90px; left: 62px;
+        font-size: 40px; color: rgba(255,255,255,0.75);
+      }
+      .title-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 60px; }
+      .hook-title { font-size: 116px; font-weight: 800; line-height: 1.08; letter-spacing: 1px; }
+      .hook-sub { margin-top: 40px; font-size: 52px; font-weight: 500; color: #dec261; letter-spacing: 2px; text-transform: uppercase; }
+      .total-num { font-size: 150px; font-weight: 800; color: #dec261; font-family: "JetBrains Mono", monospace; }
+      .total-line { margin-top: 24px; font-size: 52px; font-weight: 600; }
+      .cta-line { margin-top: 30px; font-size: 44px; color: rgba(255,255,255,0.75); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="30"
+      data-width="1080"
+      data-height="1920"
+    >
+      <!-- HOOK 0-3s -->
+      <div id="hook" class="clip" data-start="0" data-duration="3" data-track-index="1">
+        <div class="title-wrap">
+          <h1 id="hook-title" class="hook-title">MY 2026<br />DESK SETUP</h1>
+          <p id="hook-sub" class="hook-sub">Built for shipping AI work</p>
+        </div>
+      </div>
+
+      <!-- GEAR 1: MONITOR 3-8s -->
+      <div id="g1" class="clip" data-start="3" data-duration="5" data-track-index="1">
+        <div id="g1-f" class="footage"><span class="footage-tag">FOOTAGE · MONITOR</span></div>
+        <div id="g1-l" class="gear-label">MONITOR</div>
+        <div id="g1-p" class="gear-price">Studio Display · £1,499</div>
+        <div id="g1-w" class="gear-why">The main canvas</div>
+      </div>
+
+      <!-- GEAR 2: KEYBOARD 8-13s -->
+      <div id="g2" class="clip" data-start="8" data-duration="5" data-track-index="1">
+        <div id="g2-f" class="footage"><span class="footage-tag">FOOTAGE · KEYBOARD</span></div>
+        <div id="g2-l" class="gear-label">KEYBOARD</div>
+        <div id="g2-p" class="gear-price">Keychron Q3 · £189</div>
+        <div id="g2-w" class="gear-why">Typing all day, zero noise</div>
+      </div>
+
+      <!-- GEAR 3: MOUSE + MAT 13-18s -->
+      <div id="g3" class="clip" data-start="13" data-duration="5" data-track-index="1">
+        <div id="g3-f" class="footage"><span class="footage-tag">FOOTAGE · MOUSE + MAT</span></div>
+        <div id="g3-l" class="gear-label">MOUSE + MAT</div>
+        <div id="g3-p" class="gear-price">MX Master 3S · £99</div>
+        <div id="g3-w" class="gear-why">Precision for long sessions</div>
+      </div>
+
+      <!-- GEAR 4: AUDIO 18-23s -->
+      <div id="g4" class="clip" data-start="18" data-duration="5" data-track-index="1">
+        <div id="g4-f" class="footage"><span class="footage-tag">FOOTAGE · AUDIO</span></div>
+        <div id="g4-l" class="gear-label">AUDIO</div>
+        <div id="g4-p" class="gear-price">SM7B · £349</div>
+        <div id="g4-w" class="gear-why">Calls and vlogs, one mic</div>
+      </div>
+
+      <!-- WHY + CABLE PAYOFF 23-26s -->
+      <div id="why" class="clip" data-start="23" data-duration="3" data-track-index="1">
+        <div id="w-f" class="footage"><span class="footage-tag">FOOTAGE · CABLE MANAGEMENT</span></div>
+        <div class="title-wrap">
+          <p id="w-line" class="hook-title" style="font-size: 76px;">EVERYTHING HERE<br />HAS ONE JOB</p>
+          <p id="w-sub" class="hook-sub">Ship work without friction</p>
+        </div>
+      </div>
+
+      <!-- TOTAL + CTA 26-30s -->
+      <div id="total" class="clip" data-start="26" data-duration="4" data-track-index="1">
+        <div class="title-wrap">
+          <div id="t-num" class="total-num">£2,136</div>
+          <p id="t-line" class="total-line">TOTAL SETUP COST</p>
+          <p id="t-cta" class="cta-line">What should I upgrade next?</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Hook
+      tl.fromTo("#hook-title", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0.15);
+      tl.fromTo("#hook-sub", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 0.55);
+
+      // Gear 1: punch-in on gear + label pops
+      tl.fromTo("#g1-f", { scale: 1 }, { scale: 1.12, duration: 4.5, ease: "power2.out" }, 3.1);
+      tl.fromTo("#g1-l", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }, 3.2);
+      tl.fromTo("#g1-p", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, 3.5);
+      tl.fromTo("#g1-w", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 3.8);
+
+      // Gear 2
+      tl.fromTo("#g2-f", { scale: 1 }, { scale: 1.12, duration: 4.5, ease: "power2.out" }, 8.1);
+      tl.fromTo("#g2-l", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }, 8.2);
+      tl.fromTo("#g2-p", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, 8.5);
+      tl.fromTo("#g2-w", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 8.8);
+
+      // Gear 3
+      tl.fromTo("#g3-f", { scale: 1 }, { scale: 1.12, duration: 4.5, ease: "power2.out" }, 13.1);
+      tl.fromTo("#g3-l", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }, 13.2);
+      tl.fromTo("#g3-p", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, 13.5);
+      tl.fromTo("#g3-w", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 13.8);
+
+      // Gear 4
+      tl.fromTo("#g4-f", { scale: 1 }, { scale: 1.12, duration: 4.5, ease: "power2.out" }, 18.1);
+      tl.fromTo("#g4-l", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }, 18.2);
+      tl.fromTo("#g4-p", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, 18.5);
+      tl.fromTo("#g4-w", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 18.8);
+
+      // Why + cable payoff
+      tl.fromTo("#w-f", { scale: 1 }, { scale: 1.06, duration: 2.5, ease: "none" }, 23.2);
+      tl.fromTo("#w-line", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 23.25);
+      tl.fromTo("#w-sub", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 23.7);
+
+      // Total + CTA
+      tl.fromTo("#t-num", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 26.2);
+      tl.fromTo("#t-line", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 26.75);
+      tl.fromTo("#t-cta", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 27.2);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+prompt: |
+  Storyboard director. Given script, generate scene-by-scene shot list. Output JSON.
+
+  Each scene: duration (2.5-5s), camera angle, assets, overlay text.
+
+  SCRIPT:
+  {script_body}
+
+  BRAND: {brand_colors}
+
+  Output:
+  {{"scenes": [{{"scene_number": 1, "description": "", "duration_seconds": 4.0, "camera_angle": "talking_head|overhead|screen|broll", "assets_needed": ["a_roll"], "overlay_text": "", "sfx": "none"}}], "total_duration": 59, "estimated_shoot_time": "4 hours"}}

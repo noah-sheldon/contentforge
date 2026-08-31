@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0b0f14;
+      }
+      body { font-family: "Inter", system-ui, sans-serif; color: #fff; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #0b0f14; }
+      .clip { position: absolute; inset: 0; }
+      .footage {
+        position: absolute; inset: 0;
+        background: linear-gradient(160deg, #1a2130 0%, #0e1319 100%);
+      }
+      .footage-tag {
+        position: absolute; top: 60px; left: 60px;
+        font-size: 34px; letter-spacing: 3px; color: rgba(255,255,255,0.35);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .corner-tag {
+        position: absolute; top: 60px; left: 60px;
+        font-size: 56px; font-weight: 800; letter-spacing: 8px;
+      }
+      .date-tag {
+        position: absolute; top: 150px; left: 62px;
+        font-size: 44px; font-weight: 600; color: rgba(255,255,255,0.65);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .stat-num {
+        position: absolute; bottom: 320px; left: 60px;
+        font-size: 150px; font-weight: 800; font-family: "JetBrains Mono", monospace;
+      }
+      .stat-line {
+        position: absolute; bottom: 230px; left: 62px;
+        font-size: 52px; font-weight: 600;
+      }
+      .title-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 60px; }
+      .hook-title { font-size: 104px; font-weight: 800; line-height: 1.12; letter-spacing: 1px; }
+      .hook-sub { margin-top: 40px; font-size: 52px; font-weight: 500; color: #dec261; letter-spacing: 2px; text-transform: uppercase; }
+      .catalyst-title { font-size: 96px; font-weight: 800; line-height: 1.1; }
+      .catalyst-sub { margin-top: 36px; font-size: 46px; color: #dec261; font-weight: 600; }
+      .lesson-title { font-size: 84px; font-weight: 800; line-height: 1.12; }
+      .lesson-cta { margin-top: 34px; font-size: 48px; color: #dec261; font-weight: 600; }
+      .lesson-note { margin-top: 24px; font-size: 38px; color: rgba(255,255,255,0.7); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="30"
+      data-width="1080"
+      data-height="1920"
+    >
+      <!-- HOOK 0-3s -->
+      <div id="hook" class="clip" data-start="0" data-duration="3" data-track-index="1">
+        <div class="title-wrap">
+          <h1 id="hook-title" class="hook-title">I WENT FROM<br />GRAD TO<br />AI LEAD</h1>
+          <p id="hook-sub" class="hook-sub">In 6 years · Here's how</p>
+        </div>
+      </div>
+
+      <!-- BEFORE 3-10s (desaturated) -->
+      <div id="before" class="clip" data-start="3" data-duration="7" data-track-index="1">
+        <div id="be-f" class="footage" style="filter: saturate(0.25) brightness(0.8);"><span class="footage-tag">FOOTAGE · BEFORE</span></div>
+        <div id="be-t" class="corner-tag" style="color: #9aa0aa; top: 190px;">BEFORE</div>
+        <div id="be-d" class="date-tag" style="top: 280px;">2020 · Rejections · No roadmap</div>
+      </div>
+
+      <!-- TURNING POINT 10-14s -->
+      <div id="turn" class="clip" data-start="10" data-duration="4" data-track-index="1">
+        <div id="tu-bg" class="footage" style="background: radial-gradient(circle at 50% 45%, #2a2f3d 0%, #0e1319 70%);"><span class="footage-tag">FOOTAGE · THE CATALYST</span></div>
+        <div class="title-wrap">
+          <h2 id="tu-title" class="catalyst-title">ONE THING<br />CHANGED</h2>
+          <p id="tu-sub" class="catalyst-sub">I stopped waiting to be ready</p>
+        </div>
+      </div>
+
+      <!-- AFTER 14-22s (warm) -->
+      <div id="after" class="clip" data-start="14" data-duration="8" data-track-index="1">
+        <div id="af-f" class="footage" style="background: linear-gradient(160deg, #3a3222 0%, #1c1913 100%);"><span class="footage-tag" style="color: rgba(255,255,255,0.6);">FOOTAGE · AFTER</span></div>
+        <div id="af-t" class="corner-tag" style="color: #dec261; top: 190px;">AFTER</div>
+        <div id="af-d" class="date-tag" style="top: 280px;">2026 · Fitch Ratings · AI Lead</div>
+      </div>
+
+      <!-- PROOF 22-26s -->
+      <div id="proof" class="clip" data-start="22" data-duration="4" data-track-index="1">
+        <div id="pr-bg" class="footage" style="background: radial-gradient(circle at 50% 40%, #2a2f3d 0%, #0e1319 70%);"></div>
+        <div id="pr-n" class="stat-num">6 yrs</div>
+        <div id="pr-l" class="stat-line">From first line of code to leading AI</div>
+      </div>
+
+      <!-- LESSON + CTA 26-30s -->
+      <div id="lesson" class="clip" data-start="26" data-duration="4" data-track-index="1">
+        <div class="title-wrap">
+          <h2 id="le-title" class="lesson-title">THE LESSON:<br />KEEP BUILDING</h2>
+          <p id="le-cta" class="lesson-cta">Follow for the roadmap</p>
+          <p id="le-note" class="lesson-note">Comment "PLAN" for the 6-year path</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Hook
+      tl.fromTo("#hook-title", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.15);
+      tl.fromTo("#hook-sub", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 0.65);
+
+      // Before: punch-ins on struggle beats, cold grade
+      tl.fromTo("#be-f", { scale: 1 }, { scale: 1.1, duration: 6.5, ease: "none" }, 3.2);
+      tl.fromTo("#be-t", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.35, ease: "power3.out" }, 3.25);
+      tl.fromTo("#be-d", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 3.55);
+
+      // Turning point: scale-burst transition moment
+      tl.fromTo("#tu-bg", { scale: 1 }, { scale: 1.15, duration: 3.5, ease: "power2.out" }, 10.2);
+      tl.fromTo("#tu-title", { opacity: 0, scale: 0.9, y: 40 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.6)" }, 10.4);
+      tl.fromTo("#tu-sub", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 11.0);
+
+      // After: warm reveal, slow push-in
+      tl.fromTo("#af-f", { scale: 1 }, { scale: 1.08, duration: 7.5, ease: "none" }, 14.2);
+      tl.fromTo("#af-t", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.35, ease: "power3.out" }, 14.25);
+      tl.fromTo("#af-d", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 14.55);
+
+      // Proof: count-up stat
+      tl.fromTo("#pr-n", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, 22.2);
+      tl.fromTo("#pr-l", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 22.75);
+
+      // Lesson + CTA
+      tl.fromTo("#le-title", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 26.2);
+      tl.fromTo("#le-cta", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 26.8);
+      tl.fromTo("#le-note", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 27.3);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

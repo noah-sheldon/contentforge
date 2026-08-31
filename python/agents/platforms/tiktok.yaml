@@ -1,0 +1,42 @@
+platform:
+  name: tiktok
+  max_chars: 4000
+  hashtag_limit: 5
+  supports_links: false
+
+video:
+  aspect: "9:16"
+  resolution: "1080x1920"
+  max_duration: 180
+  optimal_duration: 25
+  hook_deadline_seconds: 2
+  rehook_interval_seconds: 7
+  cuts_per_second: 1.5
+  text_overlay: true
+  text_overlay_style: "large, bold, centered"
+
+tone:
+  style: "fast-paced, punchy, trend-aware"
+  avoid: ["slow intros", "corporate tone", "long sentences"]
+  voice: "I found something amazing and you need to see it"
+
+templates:
+  tool_demo_fast:
+    - "Hook: bold claim or shocking stat in 2s"
+    - "Demonstration with fast cuts (15s)"
+    - "On-screen text: key steps (5s)"
+    - "Close: value summary + save prompt (3s)"
+
+  hot_take_opinion:
+    - "Hook: controversial opinion (2s)"
+    - "Breakdown with quick context cuts (12s)"
+    - "Your take: direct, opinionated (8s)"
+    - "Question to viewers (3s)"
+
+what_works:
+  - "Fast pacing: 1-2 cuts per second"
+  - "Re-hook every 5-7 seconds"
+  - "Trend audio within 2 weeks of peak"
+  - "Search-first titles (SEO for TikTok search)"
+  - "Text overlay from second 0"
+  - "41% of Gen Z use TikTok as search engine"

@@ -1,0 +1,12 @@
+prompt: |
+  Adapt this draft for Threads. Keep Noah's voice: conversational, casual. Single post only.
+
+  RULES:
+  {platform_rules}
+
+  DRAFT:
+  {draft}
+
+  PERSONA: {creator_name}, {title}
+
+  Output one post. 300-500 chars. No hashtags. End with a question or open thought.

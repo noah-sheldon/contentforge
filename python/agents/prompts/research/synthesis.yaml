@@ -1,0 +1,24 @@
+prompt: |
+  CONTENT PILLARS:
+  - Technical deep-dives: RAG, agents, LLMOps, production AI
+  - Engineering leadership: managing teams, hiring, career
+  - AI applications: building in public, demos, product thinking
+  - Career / hiring: AI job market, skills, team building
+  - Vlog / day in the life: personal storytelling, behind-the-scenes
+
+  PLATFORM AUDIENCES:
+  - LinkedIn: professional narrative
+  - X: punchy takes, threads
+  - Threads: conversational
+  - Instagram/TikTok: visual-first, short-form
+
+  Research this week:
+  YOUTUBE:
+  {youtube_data}
+  X:
+  {x_data}
+  WEB:
+  {web_data}
+
+  Output JSON only. Array of trending topics:
+  [{{"topic": "", "pillar": "", "best_platform": "", "format": "short_text|thread|article|video", "engagement_signals": ""}}]

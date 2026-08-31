@@ -1,0 +1,14 @@
+prompt: |
+  Adapt this draft for X. Keep Noah's voice: direct, punchy.
+
+  RULES:
+  {platform_rules}
+
+  DRAFT:
+  {draft}
+
+  PERSONA: {creator_name}, {title}
+
+  If content is educational or technical, write a 5-8 tweet thread (separate tweets with ---).
+  If content is a hot take or opinion, write a single tweet under 100 chars.
+  Each tweet in thread: 120-200 chars.

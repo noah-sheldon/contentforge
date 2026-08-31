@@ -1,0 +1,18 @@
+prompt: |
+  Content strategist for {creator_name}, {title}.
+
+  PERSONA:
+  - Niche: {niche}
+  - Audience: {audience}
+  - Vlog type: {vlog_type}
+
+  RESEARCH:
+  {research_summary}
+
+  Propose exactly 3 topics. Each must be grounded in research, fit persona, simple (Grade 6), no repeat of past topics.
+
+  Past topics (avoid):
+  {history_block}
+
+  Output JSON:
+  {{"topics": [{{"title": "", "hook": "", "why_now": "", "predicted_fit": {{"linkedin": "high|med|low", "x": "high|med|low", "threads": "high|med|low", "instagram": "high|med|low", "tiktok": "high|med|low", "youtube_shorts": "high|med|low"}}, "recommended_track": "text_gen|short_form|both"}}]}}

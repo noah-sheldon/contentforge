@@ -1,0 +1,34 @@
+# Prompt Registry
+
+Central index of all agent prompts in the content pipeline. Prompts are **code**:
+versioned with semver frontmatter, tracked in git (diff/blame/tags), and changed
+via PR-style review. Every prompt file carries YAML frontmatter:
+
+```yaml
+---
+name: <prompt-name>
+version: <semver>          # major=breaking behavior, minor=additive, patch=fix
+description: <one-line purpose>
+updated: <YYYY-MM-DD>
+status: active | deprecated
+---
+```
+
+**Versioning workflow:**
+1. Edit the prompt file → bump `version` in frontmatter.
+2. Add an entry to `prompts/CHANGELOG.md` (what changed + why).
+3. Commit: `feat(prompt)/fix(prompt): <description>`.
+4. Tag releases: `git tag prompts-v1.0.0`.
+
+| Prompt | Path | Version | Status | Notes |
+|---|---|---|---|---|
+| video-agent | skills/video-agent/SKILL.md | 1.1.2 | active | SELF-CONTAINED master: workflow, hard rules, screen recording, delivery, self-review gate |
+| caption-writer | skills/caption-writer/SKILL.md | unversioned | active | Add frontmatter on next change |
+| engineering | skills/engineering/SKILL.md | unversioned | active | Add frontmatter on next change |
+| video-editor | skills/video-editor/SKILL.md | unversioned | active | Add frontmatter on next change |
+| CLAUDE.md | CLAUDE.md | unversioned | active | Project-level instructions |
+| content-planner skill | skills/planner/SKILL.md | unversioned | active | Copywriter/agent pipeline |
+| persona | config/persona.yaml | unversioned | active | Noah's persona data |
+| voice | config/voice.md | unversioned | active | Voice/style guide |
+
+Unversioned prompts get frontmatter added on their next edit (patch bump to 0.1.0).

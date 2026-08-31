@@ -1,0 +1,58 @@
+[project]
+name = "contentforge-python"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "openai>=1.50.0",
+    "requests>=2.32.0",
+    "ddgs>=7.0.0",
+    "feedparser>=6.0.11",
+    "python-dotenv>=1.0.1",
+    "arize-otel>=0.13.0",
+    "openinference-instrumentation-openai>=0.1.50",
+    "yt-dlp",
+    "youtube-transcript-api",
+    "trafilatura",
+    "PyYAML",
+    "playwright",
+    "mlx-whisper; sys_platform == 'darwin'",
+    "faster-whisper; sys_platform != 'darwin'",
+]
+
+[dependency-groups]
+dev = ["ruff>=0.5.0"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "D"]
+ignore = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D107",
+    "N801",
+    "N802",
+    "N803",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN", "D"]
+"scripts/*" = ["ANN", "D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+suppress-none-returning = true

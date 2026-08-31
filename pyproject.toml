@@ -1,0 +1,4 @@
+# ContentForge — uv workspace root
+# Members: python/ (agents + pipeline scripts), apps/ (web, P4), services/ (API, P2), workers/ (P2)
+[workspace]
+members = ["python"]

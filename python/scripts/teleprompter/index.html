@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VO Teleprompter — AI Agents Zero→Hero</title>
+<style>
+  :root {
+    --bg: #12141C;          /* obsidian */
+    --text: #FAFAFA;        /* alabaster */
+    --gold: #D4AF37;        /* accent */
+    --muted: #6B7280;       /* silent gray */
+    --panel: #1B1E29;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Setup panel ─────────────────────────────── */
+  #setup {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg); z-index: 20;
+  }
+  #setup.hidden { display: none; }
+  .setup-card {
+    background: var(--panel); border: 1px solid rgba(212,175,55,.25);
+    border-radius: 12px; padding: 28px; width: min(640px, 92vw);
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .setup-card h1 { font-size: 20px; color: var(--gold); font-weight: 600; }
+  .setup-card textarea {
+    background: #0D0F16; color: var(--text); border: 1px solid #2A2E3D;
+    border-radius: 8px; padding: 12px; font-size: 15px; line-height: 1.6;
+    font-family: inherit; min-height: 240px; resize: vertical;
+  }
+  .setup-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: var(--gold); color: #12141C; border: none; border-radius: 8px;
+    padding: 10px 18px; font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  button.secondary { background: transparent; color: var(--text); border: 1px solid #2A2E3D; }
+  button:hover { filter: brightness(1.1); }
+  .file-label {
+    border: 1px dashed #2A2E3D; border-radius: 8px; padding: 10px 18px;
+    font-size: 14px; color: var(--muted); cursor: pointer; text-align: center; flex: 1;
+  }
+  .file-label:hover { border-color: var(--gold); color: var(--text); }
+  #file-input { display: none; }
+
+  /* ── Prompter ────────────────────────────────── */
+  #stage { flex: 1; display: flex; flex-direction: column; position: relative; }
+  #stage.hidden { display: none; }
+  #counter {
+    position: absolute; top: 14px; left: 20px;
+    font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums;
+    display: flex; gap: 16px; z-index: 5;
+  }
+  #counter .active { color: var(--gold); }
+  #controls {
+    position: absolute; top: 14px; right: 20px;
+    display: flex; gap: 8px; align-items: center; z-index: 5;
+  }
+  #controls select, #controls input[type=range] {
+    background: var(--panel); color: var(--text); border: 1px solid #2A2E3D;
+    border-radius: 6px; padding: 4px 8px; font-size: 12px;
+  }
+  #controls label { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  #beats {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 0 10vw;
+  }
+  #line {
+    font-size: 44px; line-height: 1.35; text-align: center; max-width: 80vw;
+    transition: opacity .15s ease; user-select: none;
+  }
+  #line.fade { opacity: 0; }
+  #line .hint { color: var(--muted); font-size: 26px; }
+  #pace {
+    position: absolute; bottom: 14px; left: 20px; font-size: 13px; color: var(--muted);
+    font-variant-numeric: tabular-nums; z-index: 5;
+  }
+  #pace.good { color: var(--gold); }
+  #hint {
+    position: absolute; bottom: 14px; right: 20px; font-size: 12px; color: var(--muted); z-index: 5;
+    text-align: right; line-height: 1.6;
+  }
+  kbd {
+    background: var(--panel); border: 1px solid #2A2E3D; border-radius: 4px;
+    padding: 1px 6px; font-family: inherit; font-size: 11px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Setup -->
+<div id="setup">
+  <div class="setup-card">
+    <h1>VO Teleprompter — AI Agents Zero→Hero</h1>
+    <label for="script-select">Load a script from the server</label>
+    <select id="script-select">
+      <option value="">— select a script —</option>
+    </select>
+    <textarea id="paste" placeholder="…or paste the vo_script here (or load the .md file).
+
+Rules: one sentence per line, period = pause, blank line = beat change."></textarea>
+    <div class="setup-row">
+      <label class="file-label">Load vo_script file
+        <input type="file" id="file-input" accept=".md,.txt">
+      </label>
+      <button id="start-btn">Start</button>
+    </div>
+  </div>
+</div>
+
+<!-- Prompter -->
+<div id="stage" class="hidden">
+  <div id="counter">
+    <span><b class="active" id="c-line">1</b> / <span id="c-total">0</span> lines</span>
+    <span id="c-beat">beat 1</span>
+  </div>
+  <div id="controls">
+    <label>wpm <input type="range" id="wpm" min="110" max="190" value="150"></label>
+    <label>size <input type="range" id="size" min="28" max="72" value="44"></label>
+    <select id="mirror"><option value="0">normal</option><option value="1">mirror</option></select>
+    <button id="reset-btn" class="secondary">Reset</button>
+  </div>
+  <div id="beats"><div id="line"></div></div>
+  <div id="pace">—</div>
+  <div id="hint">
+    <kbd>Space</kbd> start/pause · <kbd>←</kbd><kbd>→</kbd> step line<br>
+    <kbd>R</kbd> restart beat · <kbd>M</kbd> mirror
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const setup = $('setup'), stage = $('stage');
+  const lineEl = $('line'), paceEl = $('pace');
+  const cLine = $('c-line'), cTotal = $('c-total'), cBeat = $('c-beat');
+
+  let lines = [];        // { text, isBeat } — isBeat = blank-line boundary marker
+  let idx = 0;           // current line index
+  let beatNo = 1;
+  let timer = null, running = false;
+  let lineStart = 0, expectedLineEnd = 0;
+
+  // ── Server script picker (loads from serve_teleprompter.py) ──
+  const scriptSelect = $('script-select');
+  let scripts = [];      // cached from /api/scripts
+
+  function rankSort(a, b) {
+    // newest / most relevant first: tech teardown first, then higher modules,
+    // long-forms before shorts within a module.
+    const prio = (p) => {
+      const n = p.toLowerCase();
+      if (n.includes('tech')) return 0;
+      const m = n.match(/m(\d)-longform/);
+      if (m) return 1 + (6 - parseInt(m[1], 10));      // m6=1 … m1=6
+      const ms = n.match(/m(\d)l(\d)/);
+      if (ms) return 10 + (6 - parseInt(ms[1], 10));    // shorts after long-forms
+      return 20;
+    };
+    return (prio(a.name) - prio(b.name)) || a.label.localeCompare(b.label);
+  }
+
+  async function loadScriptList() {
+    try {
+      const res = await fetch('/api/scripts');
+      if (!res.ok) return;
+      scripts = await res.json();
+      scripts.sort(rankSort);
+      scripts.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.path;
+        opt.textContent = s.label + (s.name.includes('longform') ? '  (Long-form)' : '  (Short)');
+        scriptSelect.appendChild(opt);
+      });
+    } catch (e) {
+      // Not served by the server — silent, file-paste still works.
+    }
+  }
+
+  async function loadScriptFromServer(path) {
+    try {
+      const res = await fetch(path);
+      if (!res.ok) return;
+      $('paste').value = await res.text();
+    } catch (e) { /* ignore */ }
+  }
+
+  scriptSelect.addEventListener('change', () => {
+    const p = scriptSelect.value;
+    if (p) loadScriptFromServer(p);
+  });
+
+  loadScriptList();
+
+  // ── Auto-load a script from ?path= (clicked from the picker index) ──
+  (function loadFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const p = params.get('path');
+    if (p) loadScriptFromServer('/read?path=' + encodeURIComponent(p));
+  })();
+
+  // ── Parse ──────────────────────────────────────
+  function parse(text) {
+    const raw = text.split(/\r?\n/).map(l => l.trim());
+    const out = [];
+    for (let i = 0; i < raw.length; i++) {
+      const line = raw[i];
+      const isPause = line === '' || /^\[PAUSE\]$/i.test(line) || /^[-—–=*_#]+$/.test(line);
+      const t = line.replace(/^#+\s*/, '').trim();
+      if (isPause) {
+        if (out.length && !out[out.length-1].isBeat) {
+          out.push({ text: '', isBeat: true });
+        }
+      } else if (t && !/^\[PAUSE\]$/i.test(t)) {
+        out.push({ text: t, isBeat: false });
+      }
+    }
+    return out;
+  }
+
+  // ── Timing: period = pause, blank = beat pause ─
+  function lineDuration(line) {
+    const words = line.text.split(/\s+/).filter(Boolean).length;
+    const wpm = +$('wpm').value || 150;
+    let secs = (words / wpm) * 60;
+    // sentence punctuation adds a beat of silence
+    const pauses = (line.text.match(/[.!?](?:\s|$)/g) || []).length;
+    secs += pauses * 0.35;
+    // commas and dashes: tiny breath
+    secs += (line.text.match(/[,;—–]/g) || []).length * 0.12;
+    return secs;
+  }
+  function beatPause() { return 1.1; }
+
+  // ── Render ─────────────────────────────────────
+  function render() {
+    const l = lines[idx];
+    if (!l) return;
+    if (l.isBeat) {
+      lineEl.innerHTML = '<span class="hint" style="color: var(--gold); font-size: 28px; letter-spacing: 0.1em;">⏸ (1s Pause / Breath)</span>';
+      cBeat.textContent = `beat ${beatNo}`;
+    } else {
+      // split long sentences into two visual lines without breaking the pause rule
+      lineEl.textContent = l.text;
+      cBeat.textContent = `beat ${beatNo}`;
+    }
+    cLine.textContent = idx + 1;
+    cTotal.textContent = lines.length;
+    lineEl.style.fontSize = $('size').value + 'px';
+  }
+
+  function step(forward) {
+    if (running) pause();
+    idx = forward ? idx + 1 : idx - 1;
+    if (idx < 0) idx = 0;
+    if (idx >= lines.length) { idx = lines.length - 1; pause(); return; }
+    if (lines[idx].isBeat) beatNo++;
+    render();
+  }
+
+  // ── Run loop ───────────────────────────────────
+  function scheduleNext() {
+    const l = lines[idx];
+    if (!l) { finish(); return; }
+    const dur = l.isBeat ? beatPause() : lineDuration(l);
+    lineStart = performance.now();
+    expectedLineEnd = lineStart + dur * 1000;
+    timer = setTimeout(advance, dur * 1000);
+  }
+
+  function advance() {
+    lineEl.classList.add('fade');
+    setTimeout(() => {
+      lineEl.classList.remove('fade');
+      idx++;
+      if (idx >= lines.length) { finish(); return; }
+      if (lines[idx].isBeat) beatNo++;
+      render();
+      scheduleNext();
+    }, 120);
+  }
+
+  function start() {
+    if (idx >= lines.length) return;
+    running = true;
+    lineEl.classList.remove('fade');
+    scheduleNext();
+    requestAnimationFrame(paceTick);
+  }
+  function pause() {
+    running = false;
+    clearTimeout(timer);
+    paceEl.textContent = '—';
+    paceEl.classList.remove('good');
+  }
+  function toggle() { running ? pause() : start(); }
+  function finish() {
+    pause();
+    idx = 0; beatNo = 1; render();
+    paceEl.textContent = 'done ✓  (space to restart)';
+    paceEl.classList.add('good');
+  }
+  function reset() {
+    pause();
+    idx = 0; beatNo = 1;
+    render();
+  }
+
+  // pace = are you ahead/behind the teleprompter?
+  function paceTick(now) {
+    if (!running) return;
+    const diff = (now - lineStart) - (expectedLineEnd - lineStart);
+    const ahead = -diff / 1000;
+    if (Math.abs(ahead) < 0.5) { paceEl.textContent = 'on pace'; paceEl.classList.add('good'); }
+    else { paceEl.textContent = ahead > 0 ? `+${ahead.toFixed(1)}s ahead` : `${ahead.toFixed(1)}s behind`; paceEl.classList.remove('good'); }
+    requestAnimationFrame(paceTick);
+  }
+
+  // ── Controls ───────────────────────────────────
+  $('start-btn').addEventListener('click', () => {
+    const text = $('paste').value.trim();
+    if (!text) return;
+    lines = parse(text);
+    if (!lines.length) return;
+    idx = 0; beatNo = 1;
+    setup.classList.add('hidden');
+    stage.classList.remove('hidden');
+    render();
+  });
+  $('file-input').addEventListener('change', (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => { $('paste').value = r.result; };
+    r.readAsText(f);
+  });
+  $('reset-btn').addEventListener('click', reset);
+  $('wpm').addEventListener('input', () => { if (running) { pause(); start(); } });
+  $('size').addEventListener('input', () => lineEl.style.fontSize = $('size').value + 'px');
+  $('mirror').addEventListener('change', (e) => {
+    stage.style.transform = e.target.value === '1' ? 'scaleX(-1)' : '';
+    lineEl.style.transform = e.target.value === '1' ? 'scaleX(-1)' : '';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'TEXTAREA' || setup.classList.contains('hidden') === false && e.target.tagName !== 'BUTTON') return;
+    if (stage.classList.contains('hidden')) return;
+    switch (e.code) {
+      case 'Space': e.preventDefault(); toggle(); break;
+      case 'ArrowRight': step(true); break;
+      case 'ArrowLeft': step(false); break;
+      case 'KeyR': reset(); break;
+      case 'KeyM': $('mirror').value = $('mirror').value === '1' ? '0' : '1'; $('mirror').dispatchEvent(new Event('change')); break;
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+prompt: |
+  Quality review. Review rough cut specs and flag issues.
+
+  CLIPS USED:
+  {clips}
+
+  TOTAL DURATION: {duration}s
+
+  CHECK:
+  - Pacing: is clip duration varied? (not metronome)
+  - Hook: is first clip the strongest?
+  - Narrative: arrival -> work -> close?
+  - Too long: any clip over 8s?
+  - Too short: any clip under 2s?
+
+  Output:
+  PASS or ISSUES
+  ISSUES: one-line per problem

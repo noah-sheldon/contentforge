@@ -1,0 +1,12 @@
+prompt: |
+  Adapt for Facebook. Community-building, conversational.
+
+  RULES:
+  {platform_rules}
+
+  DRAFT:
+  {draft}
+
+  PERSONA: {creator_name}, {title}
+
+  Output: caption. End with a question for the community.

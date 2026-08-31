@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1728, height=3072" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* ---- Course kit: tokens (canonical: ../shared/tokens.css) ---- */
+      :root {
+        --font-display: "Playfair Display", Georgia, serif;
+        --font-body: "Inter", system-ui, -apple-system, sans-serif;
+        --font-hand: "Caveat", "Patrick Hand", "Comic Sans MS", cursive;
+        --font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+        --fs-hero: 260px; --fs-header: 170px; --fs-body: 100px;
+        --fs-hand: 92px; --fs-ui: 54px;
+        /* Brand (persona.yaml): obsidian + gold */
+        --bg: #12141c; --ink: #fafafa; --accent: #d4af37; --secondary: #e9d8a6;
+        --muted: rgba(250,250,250,0.55); --faint: rgba(250,250,250,0.3);
+        --line: rgba(250,250,250,0.22);
+        --surface: rgba(212,175,55,0.08); --border: rgba(212,175,55,0.25);
+        --glow: rgba(212,175,55,0.10);
+        --pad: 96px; --gap: 48px;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1728px; height: 3072px; overflow: hidden; background: var(--bg); }
+      body { font-family: var(--font-body); color: var(--ink); }
+      #root { position: relative; width: 1728px; height: 3072px; overflow: hidden; }
+      .clip { position: absolute; inset: 0; }
+
+      .bg { position: absolute; inset: 0; background: var(--bg); }
+      .glow { position: absolute; inset: 0;
+        background: radial-gradient(ellipse 62% 40% at 50% 30%, var(--glow), transparent 70%); }
+
+      /* ---- brand ---- */
+      .hook-wrap, .outro-wrap { position: absolute; inset: 0; display: flex; flex-direction: column;
+        justify-content: center; padding: 0 var(--pad); }
+      .hook-tag { font-size: var(--fs-ui); font-weight: 600; letter-spacing: 8px; text-transform: uppercase;
+        color: var(--accent); margin-bottom: 48px; }
+      .hook-line { font-family: var(--font-display); font-size: var(--fs-hero); font-weight: 900;
+        line-height: 1.02; letter-spacing: 2px; }
+      .hook-line-b { color: var(--accent); }
+      .hook-kicker { margin-top: 56px; font-size: var(--fs-body); font-weight: 500; color: var(--muted);
+        letter-spacing: 1px; }
+      .corner-brand { position: absolute; top: 72px; left: 96px; display: flex; align-items: center;
+        gap: 24px; opacity: 0.4; }
+      .corner-rule { width: 56px; height: 8px; background: var(--accent); border-radius: 4px; }
+      .corner-text { font-family: var(--font-display); font-size: 44px; font-weight: 700;
+        letter-spacing: 2px; }
+
+      /* ---- graph primitives ---- */
+      .scene-kicker { position: absolute; top: 200px; left: var(--pad); font-size: var(--fs-ui);
+        font-weight: 600; letter-spacing: 8px; text-transform: uppercase; color: var(--accent); }
+      .state-pill { position: absolute; top: 620px; left: 50%; transform: translateX(-50%);
+        display: flex; align-items: center; gap: 40px; padding: 32px 64px;
+        border: 5px solid var(--accent); border-radius: 999px; background: var(--surface); }
+      .state-label { font-size: var(--fs-ui); font-weight: 700; letter-spacing: 6px; color: var(--accent); }
+      .state-value { font-family: var(--font-hand); font-size: 76px; color: var(--ink); }
+      .gnode { position: absolute; }
+      .gnode-inner { position: relative; display: flex; flex-direction: column; justify-content: center;
+        align-items: center; gap: 12px; width: 808px; height: 300px; padding: 40px 64px;
+        border: 6px solid var(--accent); border-radius: 56px; background: var(--surface); }
+      .gnode-title { font-family: var(--font-hand); font-size: var(--fs-hand); font-weight: 600;
+        color: var(--ink); line-height: 1.1; }
+      .gnode-note { font-size: var(--fs-ui); letter-spacing: 2px; color: var(--muted); }
+      .edge-label { font-family: var(--font-hand); font-size: 68px; color: var(--secondary); }
+      .takeaway { position: absolute; inset: 0; display: flex; flex-direction: column;
+        justify-content: center; padding: 0 var(--pad); }
+      .takeaway-card { border: 6px solid var(--accent); border-radius: 56px;
+        background: var(--surface); padding: 96px; }
+      .formula { font-family: var(--font-display); font-size: 150px; font-weight: 900; color: var(--ink);
+        line-height: 1.1; }
+      .formula b { color: var(--accent); font-weight: 900; }
+      .bullet { display: flex; align-items: center; gap: 48px; margin-top: 72px; }
+      .bullet-dot { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); }
+      .bullet-text { font-family: var(--font-hand); font-size: var(--fs-hand); color: var(--ink);
+        line-height: 1.2; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="40"
+         data-width="1728" data-height="3072">
+
+      <!-- HOOK 0-4s -->
+      <div id="hook" class="clip" data-start="0" data-duration="4" data-track-index="1">
+        <div class="bg"></div>
+        <div class="glow"></div>
+        <div class="corner-brand"><span class="corner-rule"></span><span class="corner-text">AI AGENTS · ZERO→HERO</span></div>
+        <div class="hook-wrap">
+          <p id="h-tag" class="hook-tag">MODULE 3 · LESSON 1</p>
+          <h1 id="h-a" class="hook-line hook-line-a">AI AGENTS</h1>
+          <h1 id="h-b" class="hook-line hook-line-b">ZERO → HERO</h1>
+          <p id="h-k" class="hook-kicker">using LangGraph</p>
+        </div>
+      </div>
+
+      <!-- BEAT 1: BUILD THE GRAPH 4-28s -->
+      <div id="b1" class="clip" data-start="4" data-duration="24" data-track-index="1">
+        <div class="bg"></div>
+        <div class="glow"></div>
+        <div class="corner-brand"><span class="corner-rule"></span><span class="corner-text">AI AGENTS · ZERO→HERO</span></div>
+        <p id="b1-k" class="scene-kicker">A graph where nodes think, edges decide</p>
+
+        <!-- state -->
+        <div id="b1-state" class="state-pill">
+          <span class="state-label">STATE</span>
+          <span class="state-value">the shared memory</span>
+        </div>
+
+        <!-- nodes -->
+        <div id="b1-think" class="gnode" style="top: 1080px; left: 460px;">
+          <div class="gnode-inner">
+            <p class="gnode-title">THINK</p>
+            <p class="gnode-note">the LLM node</p>
+          </div>
+        </div>
+        <div id="b1-act" class="gnode" style="top: 1560px; left: 460px;">
+          <div class="gnode-inner">
+            <p class="gnode-title">ACT</p>
+            <p class="gnode-note">the tool node</p>
+          </div>
+        </div>
+        <div id="b1-obs" class="gnode" style="top: 2040px; left: 460px;">
+          <div class="gnode-inner">
+            <p class="gnode-title">OBSERVE</p>
+            <p class="gnode-note">read the result</p>
+          </div>
+        </div>
+
+        <!-- edges: forward flow + return loop (SVG user space: screen = user + 470/1180) -->
+        <svg id="b1-edges" class="clip" style="position:absolute; top: 1180px; left: 470px; width: 900px; height: 1060px;" viewBox="0 0 900 1060">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="26" markerHeight="26" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#d4af37"/>
+            </marker>
+          </defs>
+          <!-- think -> act (screen 1380-1560) -->
+          <path d="M 24 200 L 24 380" fill="none" stroke="#d4af37" stroke-width="12" stroke-linecap="round"
+                marker-end="url(#arrow)" stroke-dasharray="900" stroke-dashoffset="900"/>
+          <!-- act -> observe (screen 1860-2040) -->
+          <path d="M 24 680 L 24 860" fill="none" stroke="#d4af37" stroke-width="12" stroke-linecap="round"
+                marker-end="url(#arrow)" stroke-dasharray="900" stroke-dashoffset="900"/>
+          <!-- observe -> think (loop edge on the right: user 798,1010 -> 798,50) -->
+          <path d="M 798 1010 C 880 860 880 200 798 50" fill="none" stroke="#d4af37" stroke-width="12"
+                stroke-linecap="round" marker-end="url(#arrow)" stroke-dasharray="1400" stroke-dashoffset="1400"/>
+        </svg>
+        <p id="b1-el1" class="edge-label" style="position: absolute; top: 1430px; left: 540px;">decides</p>
+        <p id="b1-el2" class="edge-label" style="position: absolute; top: 1950px; left: 540px;">observes</p>
+        <p id="b1-el3" class="edge-label" style="position: absolute; top: 1600px; right: 150px;">repeats</p>
+
+        <p id="b1-c" class="scene-kicker" style="top: auto; bottom: 300px;">state flows through nodes — that is LangGraph</p>
+      </div>
+
+      <!-- BEAT 2: TAKEAWAY 28-35s -->
+      <div id="b2" class="clip" data-start="28" data-duration="7" data-track-index="1">
+        <div class="bg"></div>
+        <div class="glow"></div>
+        <div class="corner-brand"><span class="corner-rule"></span><span class="corner-text">AI AGENTS · ZERO→HERO</span></div>
+        <div class="takeaway">
+          <div class="takeaway-card">
+            <p id="b2-k" class="scene-kicker" style="position: static; margin-bottom: 48px;">Takeaway</p>
+            <p id="b2-f" class="formula">State · nodes · edges</p>
+            <div id="b2-b1" class="bullet"><span class="bullet-dot"></span><span class="bullet-text">nodes think and act</span></div>
+            <div id="b2-b2" class="bullet"><span class="bullet-dot"></span><span class="bullet-text">edges decide what comes next</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OUTRO 35-40s -->
+      <div id="outro" class="clip" data-start="35" data-duration="5" data-track-index="1">
+        <div class="bg"></div>
+        <div class="glow"></div>
+        <div class="outro-wrap">
+          <p id="o-tag" class="hook-tag">NEXT LESSON</p>
+          <h1 id="o-a" class="hook-line hook-line-a">AI AGENTS</h1>
+          <h1 id="o-b" class="hook-line hook-line-b">ZERO → HERO</h1>
+          <p id="o-k" class="hook-kicker">follow for the next one</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* ---- Course kit: reveal engine (canonical: ../shared/reveal-engine.js) ---- */
+      window.__reveal = (function () {
+        function beatIn(tl, sel, at, opts) {
+          const o = opts || {};
+          const y = o.y !== undefined ? o.y : 40;
+          const x = o.x !== undefined ? o.x : 0;
+          const dur = o.dur !== undefined ? o.dur : 0.35;
+          const ease = o.ease || "power3.out";
+          tl.fromTo(sel, { autoAlpha: 0, x: x, y: y },
+            { autoAlpha: 1, x: 0, y: 0, duration: dur, ease: ease }, at);
+        }
+        function drawOn(tl, sel, at, opts) {
+          const o = opts || {};
+          const dur = o.dur !== undefined ? o.dur : 0.8;
+          const ease = o.ease || "power2.inOut";
+          const len = o.len !== undefined ? o.len : 1600;
+          tl.fromTo(sel, { strokeDashoffset: len },
+            { strokeDashoffset: 0, duration: dur, ease: ease }, at);
+        }
+        return { beatIn: beatIn, drawOn: drawOn };
+      })();
+
+      /* ---- Main timeline: beat times come from the VO transcript ---- */
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const R = window.__reveal;
+
+      /* Hook (0-4) */
+      R.beatIn(tl, "#h-tag", 0.15, { y: 20 });
+      R.beatIn(tl, "#h-a", 0.5, { y: 60 });
+      R.beatIn(tl, "#h-b", 0.9, { y: 60 });
+      R.beatIn(tl, "#h-k", 1.4, { y: 30 });
+
+      /* Beat 1: build the graph (4-28) */
+      R.beatIn(tl, "#b1-k", 4.3, { y: 20 });
+      R.beatIn(tl, "#b1-state", 5.2, { y: 30 });
+      R.beatIn(tl, "#b1-think", 8.0, { y: 40 });
+      R.beatIn(tl, "#b1-act", 11.0, { y: 40 });
+      R.beatIn(tl, "#b1-obs", 14.0, { y: 40 });
+      R.drawOn(tl, "#b1-edges path:nth-child(1)", 17.0, { dur: 0.7, len: 900 });
+      R.beatIn(tl, "#b1-el1", 18.0, { y: 20 });
+      R.drawOn(tl, "#b1-edges path:nth-child(2)", 19.5, { dur: 0.7, len: 900 });
+      R.beatIn(tl, "#b1-el2", 20.5, { y: 20 });
+      R.drawOn(tl, "#b1-edges path:nth-child(3)", 22.0, { dur: 1.0, len: 1400 });
+      R.beatIn(tl, "#b1-el3", 23.5, { y: 20 });
+      /* finite pulse on the active node — 2 iterations, never repeat:-1 */
+      tl.fromTo("#b1-think", { scale: 1 }, { scale: 1.03, duration: 0.3, yoyo: true, repeat: 1 }, 25.0);
+      R.beatIn(tl, "#b1-c", 26.0, { y: 30 });
+
+      /* Beat 2: takeaway (28-35) */
+      R.beatIn(tl, "#b2-k", 28.3, { y: 20 });
+      R.beatIn(tl, "#b2-f", 29.0, { y: 50 });
+      R.beatIn(tl, "#b2-b1", 31.0, { x: -50 });
+      R.beatIn(tl, "#b2-b2", 32.5, { x: -50 });
+
+      /* Outro (35-40) */
+      R.beatIn(tl, "#o-tag", 35.3, { y: 20 });
+      R.beatIn(tl, "#o-a", 35.7, { y: 60 });
+      R.beatIn(tl, "#o-b", 36.2, { y: 60 });
+      R.beatIn(tl, "#o-k", 36.7, { y: 30 });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

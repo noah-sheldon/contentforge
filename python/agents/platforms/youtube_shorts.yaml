@@ -1,0 +1,40 @@
+platform:
+  name: youtube_shorts
+  max_chars: 5000
+  hashtag_limit: 3
+  supports_links: true
+
+video:
+  aspect: "9:16"
+  resolution: "1080x1920"
+  max_duration: 60
+  optimal_duration: 25
+  hook_deadline_seconds: 2
+  text_overlay: true
+  text_overlay_style: "bold, centered, high contrast"
+  loop_design: true
+
+tone:
+  style: "educational, value-first, hook-driven"
+  avoid: ["clickbait", "misleading thumbnails", "overly long intros"]
+  voice: "I teach one thing in under 60 seconds"
+
+templates:
+  quick_tutorial:
+    - "Hook: the problem or result (2s)"
+    - "Step-by-step with screen recording (15s)"
+    - "Key insight overlay (5s)"
+    - "CTA: like and follow for more (3s)"
+
+  one_concept:
+    - "Hook: one bold statement (2s)"
+    - "Explain one concept simply (15s)"
+    - "Show it working (5s)"
+    - "Call to action (3s)"
+
+what_works:
+  - "Design for loop: make the end encourage replay"
+  - "First 2 seconds must hook"
+  - "Face close-up in thumbnail performs better"
+  - "Completion rate matters more than view count"
+  - "First 125 characters show in search results"

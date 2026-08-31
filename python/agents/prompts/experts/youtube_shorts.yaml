@@ -1,0 +1,12 @@
+prompt: |
+  Adapt for YouTube Shorts. Loop-friendly, value in under 60s.
+
+  RULES:
+  {platform_rules}
+
+  DRAFT:
+  {draft}
+
+  PERSONA: {creator_name}, {title}
+
+  Output: caption + hashtags. Design the end to encourage replay.

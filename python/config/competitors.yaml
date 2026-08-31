@@ -1,0 +1,31 @@
+# Competitor configuration per platform
+# Each entry is a creator whose hooks and templates to analyze
+
+youtube:
+  - nicholasrenotte
+  - brendanjowett
+  - aiengineering
+  - mlopsweekly
+  - arxivinsights
+  - techlead
+  - techwithtim
+
+x:
+  - karpathy
+  - brendanjowett
+  - mlopscommunity
+  - aiengineering
+  - raphied
+  - datatrek
+  - techwithtim
+
+linkedin:
+  search_query: "AI engineering production RAG LLMOps"
+  accounts:
+    - datascience
+    - mlopsweekly
+    - aiengineering
+
+threads:
+  search_query: "AI engineering building in public"
+  accounts: []

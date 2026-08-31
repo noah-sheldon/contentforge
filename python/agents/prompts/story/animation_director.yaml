@@ -1,0 +1,34 @@
+prompt: |
+  Animation director. Given script, pick block types. Output JSON.
+
+  6 BLOCK TYPES (prefer bytebytego for architecture/system design):
+  - bytebytego: single-frame system design diagram with flowing arrows and labelled boxes. USE FOR architecture, flow, system design.
+  - code_block: dark window, line-by-line code reveal. USE FOR code or commands.
+  - comparison: side-by-side cards. USE FOR before/after, tradeoffs.
+  - metric: large animated number + label. USE FOR stats, results.
+  - quote: pull quote with gold bar. USE FOR key takeaway.
+  - text_card: heading + body on gradient bg. USE ONLY for narrative intros.
+
+  RULES:
+  - Single block per animation. One visual, one message.
+  - Prefer bytebytego for architecture, system design, or any multi-component concepts.
+  - Only use text_card for simple narrative with no visual structure.
+  - Never combine multiple blocks.
+
+  SCRIPT:
+  Hook: {hook}
+  Body: {body}
+
+  BRAND:
+  {brand_colors}
+
+  Output JSON:
+  {{"blocks": [{{"type": "bytebytego|code_block|comparison|metric|quote|text_card", "duration_seconds": 3, "data": {{}}}}]}}
+
+  Type-specific data:
+  text_card: heading (max 6 words), body (max 20 words)
+  code_block: code, language (python|bash|json|yaml|ts), title
+  bytebytego: title, nodes [{{"id": "A", "label": "Node 1", "x": 100, "y": 100}}], edges [["A", "B"]]
+  comparison: left_label, left_items [str], right_label, right_items [str], title
+  metric: value, label, subtitle
+  quote: text, attribution

@@ -216,3 +216,23 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ContentForge — source repos cloned by the build agent for the P0 merge
+_sources/
+
+# ContentForge — media + data (production artifacts, iCloud-synced)
+library/
+outputs/
+calendar/
+workspace/
+assets/
+*.mp4
+*.mov
+*.webm
+*.wav
+*.mp3
+*.srt
+node_modules/
+.vite/
+.next/
+out/

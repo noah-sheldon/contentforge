@@ -1,0 +1,12 @@
+prompt: |
+  Adapt for TikTok. Fast-paced, trend-aware, 25s optimal.
+
+  RULES:
+  {platform_rules}
+
+  DRAFT:
+  {draft}
+
+  PERSONA: {creator_name}, {title}
+
+  Output: caption + hashtags. Hook must be in first 2s.

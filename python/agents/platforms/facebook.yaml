@@ -1,0 +1,39 @@
+platform:
+  name: facebook
+  max_chars: 63206
+  hashtag_limit: 5
+  supports_links: true
+
+video:
+  aspect: "9:16"
+  resolution: "1080x1920"
+  max_duration: 240
+  optimal_duration: 60
+  hook_deadline_seconds: 3
+  text_overlay: true
+  text_overlay_style: "colorful, bold, emoji-light"
+
+tone:
+  style: "community-building, conversational, authentic"
+  avoid: ["low-contrast text", "overly produced", "corporate tone"]
+  voice: "I share what I am learning and building"
+
+templates:
+  story_time:
+    - "Hook: what happened today (3s)"
+    - "The story with b-roll cuts (30s)"
+    - "The insight or lesson learned (15s)"
+    - "Question for the community (5s)"
+
+  behind_the_scenes:
+    - "Hook: what I am working on (3s)"
+    - "Quick tour of workspace or code (20s)"
+    - "Challenge or problem I am solving (20s)"
+    - "Ask for input from community (5s)"
+
+what_works:
+  - "Native upload (+477% share rate vs YouTube links)"
+  - "Tap for sound prompt in text overlay"
+  - "Building community through comments"
+  - "Authentic over polished"
+  - "Group sharing for extended reach"

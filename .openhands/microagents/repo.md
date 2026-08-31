@@ -15,10 +15,11 @@ ContentForge merges two existing pipelines:
 - agentic-video-editing (production: tighten, transcribe, HyperFrames compose, render, deliver)
 
 SOURCE REPOS
-At the start of P0, clone the sources INTO this workspace (siblings outside the workspace are NOT reachable):
+First: `git pull` — ensure this workspace is on latest main (brief updates land this way).
+Then clone the sources INTO this workspace (siblings outside the workspace are NOT reachable; the repos are private, so GH_TOKEN or gh auth is required):
 `gh repo clone noah-sheldon/content-planner _sources/content-planner`
 `gh repo clone noah-sheldon/agentic-video-editing _sources/agentic-video-editing`
-Add `_sources/` to .gitignore. Merge FROM these, never commit them.
+`_sources/` is already in .gitignore. Merge FROM these, never commit them.
 
 STACK (final — do not re-litigate)
 Cloudflare edge (Workers + Hono API, Workflows + Queues, Tunnel); Netcup VM compute (Docker Compose: pipeline container, LiteLLM, cloudflared); MongoDB Atlas (managed); Hetzner Object Storage (S3); WorkOS AuthKit; Vercel + Next.js web; uv workspace. Render queue concurrency = 1 (4 vCPU / 8 GB VM).
@@ -29,11 +30,14 @@ For each phase:
 1. `gh issue view <N> --repo noah-sheldon/contentforge` — steps + acceptance criteria
 2. Implement against the ACs. Keep PLAN.md/docs accurate when behavior changes.
 3. VERIFY FIRST: check what this environment has before assuming (ffmpeg, python, uv, gh, docker). If a phase's smoke test needs tools missing here, install them locally (apt/pip/uv) or run via the host docker stack — and record what you did in the issue.
-4. Update the board when done:
+4. Update the board when done (Status option IDs are fixed):
    - `gh project item-list 10 --owner noah-sheldon` (item ids)
-   - `gh project item-edit --id <item> --project-id PVT_kwHOAjJfWs4BiCHD --field-id PVTSSF_lAHOAjJfWs4BiCHDzhg7k5E --single-select-option-id <InProgress|Done>`
-   - If gh is unavailable here, use the GitHub REST API with GITHUB_TOKEN (curl), or post progress to the issue — never skip the update.
-5. Conventional commits (feat/fix/docs/chore), push to origin/main.
+   - In Progress = 5a2a940d, In Review = 17cdc8f4, Done = 7c52fed2, Backlog = b2d15d63, Ready = 014d707c
+   - `gh project item-edit --id <item> --project-id PVT_kwHOAjJfWs4BiCHD --field-id PVTSSF_lAHOAjJfWs4BiCHDzhg7k5E --single-select-option-id <id>`
+   - If gh is unavailable here, use the GitHub GraphQL API (projects v2) with GITHUB_TOKEN via `curl api.github.com/graphql`, or post progress to the issue — never skip the update.
+5. Before the first commit, set repo-local git identity (commits must be authored by the owner):
+   `git config user.name "Noah Sheldon"` and `git config user.email noahsheldon06@gmail.com`
+6. Conventional commits (feat/fix/docs/chore), push to origin/main.
 
 P0 SCOPE (issue #1)
 - uv workspace layout: apps/web, services/api, workers/pipeline, workers/litellm, python/, skills/, prompts/, templates/, config/, docs/, deploy/
@@ -43,7 +47,7 @@ P0 SCOPE (issue #1)
 - Port missing scripts referenced by video-agent: build_thumbnails.py, verify_pip.py, audit_pip_collisions.py, tighten_words.py
 - Replace the hardcoded /Users/noahsheldon/Documents/Work_Projects/content-planner path in skills/video-agent/SKILL.md with a config setting
 - Unified requirements + .env.example
-AC: every script from both pipelines runs from contentforge; zero cross-repo absolute paths; one persona/voice/brand source; CI smoke test (capture + tighten + transcribe dry run) exits 0.
+AC: every script from both pipelines runs from contentforge; zero cross-repo absolute paths; one persona/voice/brand source; a LOCAL smoke test (capture + tighten + transcribe dry run) exits 0 — no CI wiring needed in P0 (GitHub Actions comes in P2).
 
 RULES
 - No emoji in any file. Follow existing code conventions. SOLID/KISS/DRY.

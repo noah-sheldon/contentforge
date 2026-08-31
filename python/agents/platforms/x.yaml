@@ -1,0 +1,29 @@
+platform:
+  name: x
+  max_chars: 280
+  thread_format: true
+  best_post_length: "120-200 chars per tweet, 5-8 tweets per thread"
+
+tone:
+  style: "direct, punchy, conversational"
+  avoid: ["long sentences", "corporate speak", "soft words"]
+  voice: "I teach one technical thing at a time"
+
+templates:
+  educational_thread:
+    - "Tweet 1: Hook — one problem or bold claim"
+    - "Tweet 2-4: Breakdown — facts, steps, or analysis"
+    - "Tweet 5: Key takeaway or insight"
+    - "Tweet 6: CTA — question or link"
+
+  single_tweet_take:
+    - "One strong opinion in under 100 chars"
+    - "Rare — only for hot takes, not teaching"
+
+what_works:
+  - "Educational threads (+73% engagement YoY)"
+  - "5-8 tweet threads get 58% completion rate"
+  - "100 chars single tweet for reach; 5-8 tweet thread for authority"
+  - "Breakdown threads get bookmarked as reference"
+  - "No more than 1-2 hashtags"
+  - "Single tweet for trend-hopping; thread for teaching"

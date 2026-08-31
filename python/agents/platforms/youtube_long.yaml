@@ -1,0 +1,43 @@
+platform:
+  name: youtube_long
+  max_chars: 5000
+  hashtag_limit: 3
+  supports_links: true
+
+video:
+  aspect: "16:9"
+  resolution: "3840x2160"
+  optimal_duration: 480
+  max_duration: 1800
+  hook_deadline_seconds: 5
+  interest_spike_seconds: 90
+  chapter_minimum: 3
+  end_screen_elements: 2
+
+tone:
+  style: "educational, in-depth, authoritative"
+  avoid: ["fluff intros", "off-topic tangents", "poor audio quality"]
+  voice: "I teach you how to build production AI systems"
+
+templates:
+  build_x_in_y_minutes:
+    - "Hook: show the finished product (5s)"
+    - "Problem statement and why it matters (30s)"
+    - "Step-by-step build with code (10-15 min)"
+    - "Testing and results (3 min)"
+    - "Key takeaways and code link (1 min)"
+
+  deep_dive:
+    - "Hook: one question or problem (5s)"
+    - "Context and background (2 min)"
+    - "Deep technical explanation (10-15 min)"
+    - "Real production considerations (3 min)"
+    - "Summary and next steps (1 min)"
+
+what_works:
+  - "Interest spike every 60-90 seconds"
+  - "3+ chapters with timestamps mandatory"
+  - "20-40% drop-off in first 30 seconds"
+  - "End screen in last 5-20 seconds"
+  - "Search-optimized titles and descriptions"
+  - "Thumbnail with face close-up and text"

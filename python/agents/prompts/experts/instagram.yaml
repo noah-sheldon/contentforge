@@ -1,0 +1,12 @@
+prompt: |
+  Adapt this draft for Instagram. Visual-first, captions on screen.
+
+  RULES:
+  {platform_rules}
+
+  DRAFT:
+  {draft}
+
+  PERSONA: {creator_name}, {title}
+
+  Output: caption text + 3-5 hashtags. Reel hook in first line.

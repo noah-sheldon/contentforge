@@ -1,0 +1,240 @@
+# ─── Creator Persona ──────────────────────────────────────────────────
+# Single source of truth for all LLM prompts and HyperFrames compositions.
+# Every pipeline component reads from this file.
+
+creator:
+  name: "Noah Sheldon"
+  title: "Associate Director, Applied AI/ML"
+  company: "financial services company"
+  location: "London"
+  tagline: "I design systems. I write code. I lead teams. I teach both."
+  bio: >
+    Building agentic AI systems, RAG pipelines, and LLMOps infrastructure in financial services.
+    Previously built ML pipelines, trading systems, and side projects.
+    MSc Data Science, University of Bristol.
+
+content:
+  vlog_type: "come to work with me"
+  niche: "AI/ML engineering, LLMOps, RAG, agentic AI, building in public"
+  audience: "engineers, AI/ML practitioners, tech leaders"
+  audience_level: "technical — LLMs, APIs, tools, and code are assumed knowledge; define only non-standard or coined terms"
+  themes:
+    - "Applied AI engineering in production"
+    - "LLMOps and RAG infrastructure"
+    - "Multi-agent systems and LangGraph"
+    - "Engineering leadership and team building"
+    - "Building side projects in public"
+  tone: "technical but accessible, authentic, no hype"
+
+strategy:
+  vision: >
+    Build a recognized voice in applied AI/ML engineering. The content base is
+    the credential that unlocks speaking fees, sponsorships, and consulting.
+    Every post serves the long-term goal.
+
+  monetization_phases:
+    - phase: "Build (0-6 months)"
+      goal: "Consistent output. Establish pillars. Grow audience."
+      revenue: 0
+      tactics:
+        - "2-3 posts per week across text platforms"
+        - "Technical deep-dives to build authority"
+        - "Leadership posts to build speaker profile"
+        - "No monetization. Pure value."
+
+    - phase: "Monetize (6-12 months)"
+      goal: "Inbound sponsorships and speaking gigs."
+      revenue: "5k-20k/month"
+      tactics:
+        - "Tool sponsorships (LangChain, Chroma, Weaviate)"
+        - "Conference speaking (apply to 1-2 per quarter)"
+        - "Consulting leads from LinkedIn inbound"
+        - "Newsletter growth for direct audience"
+
+    - phase: "Scale (12-24 months)"
+      goal: "Product revenue, equity partnerships."
+      revenue: "20k-50k/month"
+      tactics:
+        - "Paid workshops / cohort-based courses"
+        - "Brand deals (AI tools, dev tools)"
+        - "Own event or community"
+        - "Equity in early-stage AI startups"
+
+  content_pillars:
+    - pillar: "Technical deep-dives"
+      topics: "RAG, agents, LLMOps, production AI"
+      builds: "Authority, trust, consulting credibility"
+      monetizes_as: "Tool sponsorships, consulting"
+      example: "How I cut token costs by 60% in production"
+      best_platform: "linkedin, x"
+
+    - pillar: "Engineering leadership"
+      topics: "Managing teams, hiring, career growth"
+      builds: "Speaker profile, thought leadership"
+      monetizes_as: "Conference fees, panel invites"
+      example: "How I structure my AI team of 5 engineers"
+      best_platform: "linkedin, threads"
+
+    - pillar: "AI applications"
+      topics: "Building in public, product thinking, demos"
+      builds: "Demo portfolio, product credibility"
+      monetizes_as: "Brand deals, product sponsorships"
+      example: "I built a RAG-powered research assistant in a weekend"
+      best_platform: "x, instagram, threads"
+
+    - pillar: "Career / hiring"
+      topics: "AI job market, skills, team building"
+      builds: "Audience reach, newsletter growth"
+      monetizes_as: "Course signups, paid community"
+      example: "What I look for when hiring ML engineers"
+      best_platform: "linkedin, x"
+
+    - pillar: "Vlog / day in the life"
+      topics: "Commute, workspace, team standups, conference prep"
+      builds: "Personal connection, trust, relatability"
+      monetizes_as: "Sponsorships (long-term), speaking invites"
+      example: "A day building AI agents at Fitch"
+      best_platform: "instagram, threads, youtube_shorts"
+
+  topic_selection:
+    rule: "Every post must serve at least one pillar AND deliver value to the reader."
+    avoid: "Pure news commentary, generic takes, company-specific names."
+    review: "OR logic -- a topic passes if it excels at ONE angle. Not AND."
+
+# ─── Growth & Goals ────────────────────────────────────────────────────
+# Current state + milestones + business goals. Source of truth for the
+# MARKETING agent. Keep updated as numbers move.
+
+growth:
+  current_state:   # as of 2026-08-09
+    instagram_followers: 200
+    max_views: 1000
+    signal: "1k views at 200 followers = 5x discovery multiplier — algorithm is testing the content"
+  milestones:
+    - target: "1,000 followers"   # ≈ 80-120k cumulative views; first 10k-view reel
+    - target: "5,000 followers"   # ≈ 500k views; LinkedIn 2k+ connections
+    - target: "10,000 followers"  # ≈ 1M views; brand-deal inquiries start
+  platform_priority:
+    - "IG Reels + TikTok + YT Shorts"  # audience growth — same video, native, watermark-free
+    - "LinkedIn"                        # professional credibility + AI services inbound
+    - "Facebook"                        # passive repost only
+  cadence: "3-5 shorts/wk + 1 long-form/wk + 2-3 text posts/wk"
+  business_goals:
+    - "Paid tutorials / cohort courses"     # 5-8 tutorials → course (monetization Phase 3)
+    - "AI services for businesses"          # LLMOps/agent consulting inbound
+    - "AI product demos"                    # every tutorial tagged [DEMO]
+    - "Brand collabs"                       # requires audience scale
+    - "Teach as many people as possible"    # volume-first, spoken-flow clarity, technical terms assumed
+  voice: "Indian English, spoken flow (multi-clause, or-chains, rhetorical questions), no marketing voice. Technical vocabulary assumed — tool call, context window, function calling are normal words here. Simple phrasing, never buzzwords. Full voice rules in skill/voice.md — spoken VO flows, on-screen captions stay short."
+
+# ─── Platform Tracks ───────────────────────────────────────────────────
+# Two content tracks managed by the LLM strategy layer.
+
+tracks:
+  text_gen:
+    platforms: [linkedin, threads, x]
+    content_type: "thought leadership, career stories, technical threads"
+    format: "mandatory 15s HyperFrames animation + text"
+    llm_generates:
+      - "Platform-adapted posts from one core idea"
+      - "Thread sequences (X)"
+      - "Professional insights (LinkedIn)"
+      - "Conversational takes (Threads)"
+    animation:
+      duration_seconds: 15
+      aspect_ratio: "9:16"
+      resolution: "1080x1920"
+      no_aroll: true # Text overlays on motion background only
+      output_codec: "h264"
+      output_format: "mp4"
+
+  short_form:
+    platforms: [instagram, tiktok, youtube_shorts]
+    content_type: "9:16 vertical vlog clips, behind-the-scenes, quick tips"
+    format: "video-first with captions and hooks"
+    llm_generates:
+      - "Hooks and captions"
+      - "Hashtag sets per platform"
+      - "Trend-jacking suggestions"
+      - "Call-to-action variants"
+    animation:
+      duration_seconds: 59
+      aspect_ratio: "9:16"
+      resolution: "1080x1920"
+      aroll_required: true
+      output_codec: "h264"
+      output_format: "mp4"
+
+# ─── HUD / Overlay Defaults ────────────────────────────────────────────
+# Controls how the HyperFrames composition renders overlays.
+
+hud:
+  title_card: "COME TO WORK WITH ME • {title}"
+  header_format: "// {location} • {date} • {theme}"
+  caption_format: "{activity} • {location}"
+  lower_third_template: "{name} • {title} • {company}"
+
+  # Example values
+  examples:
+    header: "// BOREHAMWOOD • 2026.07.21 • WORK_DAY"
+    title_card: "COME TO WORK WITH ME • AD IN APPLIED AI/ML"
+    captions:
+      - "COMMUTE • THAMESLINK"
+      - "MODEL ARCHITECTURE • FITCH"
+      - "CODE & EVALS • DESK"
+      - "TEAM STANDUP • CONFERENCE"
+
+# ─── Brand / Visual Identity ──────────────────────────────────────────
+# Matches the editorial design system in the web app.
+
+brand:
+  fonts:
+    primary: "Inter"
+    heading: "Playfair Display"
+    mono: "JetBrains Mono"
+
+  colors:
+    obsidian: "#12141C" # Dark background
+    alabaster: "#FAFAFA" # Light background
+    gold: "#D4AF37" # Accent
+    silent_gray: "#6B7280" # Muted text
+
+  surfaces:
+    gold_surface: "rgba(212, 175, 55, 0.08)"
+    gold_border: "rgba(212, 175, 55, 0.25)"
+    gold_glow: "rgba(212, 175, 55, 0.10)"
+    panel_bg: "rgba(255, 255, 255, 0.75)"
+    glass_bg: "rgba(255, 255, 255, 0.5)"
+
+  video:
+    aspect_ratio: "9:16"
+    resolution: "1080x1920"
+    fps: 30
+    overlay_codec: "prores"
+    overlay_pixel_format: "yuva444p10le"
+
+# ─── Pipeline Configuration ────────────────────────────────────────────
+
+pipeline:
+  discovery:
+    direct_scrape: [youtube, x] # Stable APIs — yt-dlp + X API v2
+    trend_summary: [instagram, tiktok, linkedin, threads] # DuckDuckGo + RSS only
+    search_query: "AI ML engineering trending topics this week"
+    rss_feeds: [] # Populate with tech blog URLs
+
+  strategy:
+    engine: "deepseek-v4-flash"
+    weekly_topics: 3 # LLM proposes 3, user picks 1
+    topic_model: "deepseek-v4-flash"
+    temperature: 0.7
+
+  storyboard:
+    agent: true
+    model: "deepseek-v4-flash"
+    output: "scene-by-scene shot list with timings"
+    stock_footage_api: false # V1 — use your own B-roll
+
+  production:
+    short_form_pipeline: true # faster-whisper → HyperFrames composition → FFmpeg
+    text_animation_pipeline: true # HyperFrames-only, no A-Roll
+    use_pillow: true # For code snippet images, thumbnails

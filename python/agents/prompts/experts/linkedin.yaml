@@ -1,0 +1,12 @@
+prompt: |
+  Adapt this draft for LinkedIn. Keep Noah's voice: short sentences, simple words, first person.
+
+  RULES:
+  {platform_rules}
+
+  DRAFT:
+  {draft}
+
+  PERSONA: {creator_name}, {title}
+
+  Output adapted post only.

@@ -1,0 +1,29 @@
+platform:
+  name: linkedin
+  max_chars: 3000
+  hashtag_limit: 5
+  supports_links: true
+
+tone:
+  style: "professional but personal"
+  avoid: ["hype words", "corporate jargon", "emoji chains", "sales pitch"]
+  voice: "I build things at work and share what I learned, simple words"
+
+templates:
+  hook_insight_cta:
+    - "Hook: One line about a problem you faced at work"
+    - "Insight: What you learned (2-3 short paragraphs, simple words)"
+    - "CTA: One question or takeaway for the reader"
+
+  lesson_learned:
+    - "Setup: What I was trying to build"
+    - "Problem: What went wrong or surprised me"
+    - "Fix: How I solved it"
+    - "Takeaway: One thing you can use tomorrow"
+
+what_works:
+  - "Personal stories, not generic advice"
+  - "Specific numbers, not vague claims"
+  - "Short paragraphs with blank lines between"
+  - "One idea per paragraph"
+  - "Questions get more comments than statements"

@@ -1,0 +1,42 @@
+/* ============================================================
+   AI Agents Zero→Hero — Course Kit: Design Tokens
+   Canonical source. Inline into each template's <style>.
+   Canvas: 1728x3072 (3K vertical). Fonts ~55% larger than 1080p.
+
+   Brand: persona.yaml (single source of truth) — gold marker on
+   obsidian, Playfair display, Inter body, JetBrains Mono code.
+   ============================================================ */
+
+:root {
+  /* ---- Fonts (stacks only — bundle fonts/*.woff2 before render) ---- */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-hand: "Caveat", "Patrick Hand", "Comic Sans MS", cursive;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+
+  /* ---- FONT_SCALE (3K minimums — see 3k-font-sizing rule) ---- */
+  --fs-hero: 260px;   /* title lockup lines */
+  --fs-header: 170px; /* scene headers */
+  --fs-body: 100px;   /* body / card text */
+  --fs-hand: 92px;    /* hand-drawn labels */
+  --fs-ui: 54px;      /* kickers, tags, corner brand */
+
+  /* ---- Brand palette (persona.yaml) ---- */
+  --bg: #12141C;        /* obsidian */
+  --ink: #FAFAFA;       /* alabaster */
+  --accent: #D4AF37;    /* gold — marker strokes, chalk, accents */
+  --secondary: #E9D8A6; /* pale gold — soft highlights, edge labels */
+  --muted: rgba(250, 250, 250, 0.55);
+  --faint: rgba(250, 250, 250, 0.3);
+  --line: rgba(250, 250, 250, 0.22);
+
+  /* ---- Gold surfaces (persona.yaml) ---- */
+  --surface: rgba(212, 175, 55, 0.08);  /* card backgrounds */
+  --border: rgba(212, 175, 55, 0.25);   /* card borders */
+  --glow: rgba(212, 175, 55, 0.10);     /* radial glows */
+
+  /* ---- Layout ---- */
+  --pad: 96px;        /* outer margin (1728 wide) */
+  --safe-bottom: 24%; /* platform UI zone — keep content above */
+  --gap: 48px;
+}
