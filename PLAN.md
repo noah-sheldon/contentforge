@@ -145,23 +145,23 @@ Acceptance criteria:
 - Invalid config rejected with actionable errors
 - Sample tenant renders a demo video end-to-end from config alone
 
-## P2 — Cloudflare API + pipeline services
+## P2 — Cloudflare API + VM pipeline services
 
-Edge API on Workers (Hono); pipeline as Cloud Run services; Workflows orchestrates. Full detail: docs/lld.md.
+Edge API on Workers (Hono); pipeline on the Netcup VM; Workflows orchestrates via Tunnel. Full detail: docs/lld.md.
 
 Steps:
-1. Workers API (Hono + Zod + Drizzle): /runs, /projects, /tenant/config, /media, HITL approve/reject — WorkOS JWT at the edge, D1-backed
-2. Cloudflare Workflows + Queues orchestrate runs (durable steps, step.waitForEvent at HITL checkpoints)
-3. D1 (SQLite via Drizzle) for tenants, projects, runs, jobs, meters
-4. R2 (S3 API) media with per-tenant prefixes + signed URLs
-5. Cloud Run pipeline container (FastAPI): ingest / plan / capture / transcribe / tighten / compose / render / deliver — reuses existing python/ code as-is
-6. LiteLLM proxy container: agent-agnostic LLM layer, per-tenant virtual keys, hosted + BYOK
+1. Workers API (Hono + Zod + mongoose): /runs, /projects, /tenant/config, /media, HITL approve/reject — WorkOS JWT at the edge, MongoDB-backed
+2. Cloudflare Workflows + Queues orchestrate runs (durable steps, step.waitForEvent at HITL checkpoints, format_direction branch)
+3. MongoDB Atlas (mongoose): tenants, projects, runs, jobs, meters — schema per docs/lld.md
+4. Hetzner Object Storage (S3 API) media with per-tenant prefixes + signed URLs
+5. Netcup VM Docker Compose stack: pipeline container (FastAPI entrypoints reusing existing python/ code), LiteLLM container, cloudflared — zero public ports
+6. LiteLLM: agent-agnostic LLM layer, per-tenant virtual keys, hosted + BYOK
 7. HITL checkpoints as API endpoints — replaces state/pipeline.json
 
 Acceptance criteria:
-- Full pipeline runs headless via API with job status tracking
+- Full pipeline runs headless via API with job status tracking, all format_direction values
 - HITL approvals flow through the API
-- Artifacts land in R2; run state survives restarts in D1
+- Artifacts land in Hetzner OBJ; run state survives restarts in MongoDB
 
 ## P3 — Multi-tenant layer
 
@@ -169,9 +169,9 @@ WorkOS orgs + per-tenant isolation + metering.
 
 Steps:
 1. Auth: WorkOS AuthKit — orgs = tenants, RBAC roles, MFA, social login (1M MAU free)
-2. Tenant isolation: D1 queries scoped by tenant_id, R2 prefixes, LiteLLM virtual key per tenant
-3. Tenant provisioning API (WorkOS org + config blob + R2 prefixes + LiteLLM key)
-4. Usage metering: runs, renders, LLM spend via LiteLLM budgets + meters table
+2. Tenant isolation: MongoDB queries scoped by tenant_id, OBJ prefixes, LiteLLM virtual key per tenant
+3. Tenant provisioning API (WorkOS org + config blob + OBJ prefixes + LiteLLM key)
+4. Usage metering: runs, renders, LLM spend via LiteLLM budgets + meters collection
 
 Acceptance criteria:
 - Two tenants never share data or config
@@ -217,15 +217,20 @@ Acceptance criteria:
 | Auth | WorkOS AuthKit | 1M MAU free; orgs + RBAC + MFA built in |
 | Public API | Cloudflare Workers + Hono (TypeScript) | Edge auto-scale; Python on Workers is beta |
 | Orchestration | Cloudflare Workflows + Queues | Durable steps; replaces Celery/Redis entirely |
-| Database | Cloudflare D1 (SQLite + Drizzle) | $5/mo; relational escape hatch to Postgres |
-| Object store | Cloudflare R2 | Free egress = free MP4 delivery |
-| LLM gateway | LiteLLM proxy | Agent-agnostic; per-tenant virtual keys + budgets; BYOK; MIT |
-| Compute | Google Cloud Run (one pipeline image) | Only runtime for ffmpeg/Playwright/whisper; scale-to-zero |
+| Database | MongoDB Atlas Flex (managed) | No infra overhead (solo founder); document-shaped state per db_design.md |
+| Object store | Hetzner Object Storage (S3) | 1 TB storage + 1 TB egress included; EU; free ingress |
+| LLM gateway | LiteLLM proxy (SQLite, on VM) | Agent-agnostic; per-tenant keys + budgets; BYOK; MIT |
+| Compute | Netcup VM — one Docker Compose stack | Already owned, cheap, no cold starts; pipeline + renders + LiteLLM |
+| VM reachability | Cloudflare Tunnel | Zero public ports |
+| Burst path | Cloudflare Containers (same image) | Config swap, not rewrite |
 | Web | Vercel + Next.js + shadcn/ui | Existing deferred dashboard plan |
+| MVP | Full pipeline, dynamic format_direction | short / long / long_to_short / short_to_long — user picks per run (build_shorts.py exists) |
 | Billing (P5) | Stripe | Standard |
-| Errors / observability | Sentry + Arize OTEL + CF Web Analytics | Existing Arize wiring reused |
+| Errors / observability | Sentry + Arize OTEL + CF Web Analytics + UptimeRobot | Existing Arize wiring reused |
 | Docs (P4+) | Mintlify | Instant docs site |
 
-**Remaining open:** pricing model (per-render credits vs seats), product branding/domain, WorkOS custom auth domain ($99/mo — defer to post-launch).
+**Launch cost: ~10-20/mo** (free-tier-first: Vercel Hobby, CF free tier, Atlas M0 dev; paid tiers only when real usage arrives).
 
-Full rationale, numbers, and diagrams: [docs/hld.md](docs/hld.md), [docs/lld.md](docs/lld.md).
+**Remaining open:** pricing model (per-render credits vs seats), product branding/domain, Netcup VM specs (cores/RAM — needed to size render concurrency), WorkOS custom auth domain ($99/mo — defer).
+
+Full rationale, numbers, risks: [docs/hld.md](docs/hld.md), [docs/lld.md](docs/lld.md).
