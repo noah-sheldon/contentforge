@@ -27,6 +27,19 @@ Pipeline: INGEST -> ANALYZE -> MARKETING -> IDEATE -> RESEARCH (parallel) ->
 SCRIPT -> DIRECTOR (storyboard + diagram specs) -> PLAN -> board sync via
 `gh` (GitHub Projects v2, boards 7 = shorts, 8 = long-form).
 
+```mermaid
+flowchart LR
+    SRC[URL / playlist / audio / text / course module] --> ING[1 INGEST]
+    ING --> ANA[2 ANALYZE]
+    ING --> MKT[2b MARKETING]
+    ANA --> IDE[3 IDEATE]
+    IDE --> RES[4 RESEARCH - parallel agents]
+    RES --> SCR[5 SCRIPT]
+    SCR --> DIR[5b DIRECTOR - storyboard + diagram specs]
+    SCR --> PLA[6 PLAN - calendar + items.json]
+    PLA --> BRD[gh board sync - projects 7 shorts / 8 long]
+```
+
 Data dirs (gitignored): `library/`, `outputs/`, `calendar/`, `workspace/`.
 
 ### 2.2 agentic-video-editing (production pipeline, v1.1.2)
@@ -44,6 +57,20 @@ Pipeline: footage -> tighten (word-accurate) -> transcribe (faster-whisper)
 lint/check` -> render CRF 10 master -> CRF 14 social -> SRT + thumbnails +
 captions -> self-review gate -> deliver.
 
+```mermaid
+flowchart LR
+    FTG[Footage folder] --> TIG[Tighten - word-accurate]
+    TIG --> TRS[Transcribe - faster-whisper]
+    TRS --> BTM[Beat-map scenes to speech]
+    BTM --> COM[Compose - HyperFrames index.html]
+    COM --> LNT[hyperframes lint + check]
+    LNT --> REN[Render CRF 10 master]
+    REN --> SOC[ffmpeg CRF 14 social]
+    SOC --> DEL[SRT + thumbnails + captions]
+    DEL --> REV[Self-review gate]
+    REV --> OUT[Deliver + update post tracker]
+```
+
 Supporting scripts (all ported, present in `python/scripts/`): `tighten*`,
 `transcribe*`, `clean_vo`, `audio_master`, `slice`, `remap_timeline`,
 `build_shorts`, `gen_captions`, `build_thumbnails`, `verify_pip`,
@@ -59,6 +86,15 @@ uv workspace root (`pyproject.toml`, member `python/`), merged `skills/`
 voice, planner), `prompts/` (registry), `templates/` (short-form, courses),
 `docs/`, `deploy/`, unified `.env.example`. No `apps/`, `services/`, or
 `workers/` yet (those are P2/P4 targets).
+
+```mermaid
+flowchart LR
+    A[content-planner<br/>planning: ingest, research, script, capture, board] --> M[contentforge<br/>uv workspace monorepo]
+    B[agentic-video-editing<br/>production: tighten, transcribe, compose, render, deliver] --> M
+    M --> C[config/ - single source<br/>persona + voice + brand]
+    M --> D[skills/ - planner + video-agent + caption-writer]
+    M --> E[python/ - agents + services + scripts]
+```
 
 ## 4. P0 merge audit — findings to fix before building on top
 
@@ -87,6 +123,16 @@ end-to-end on a synthetic fixture, (d) greps for any root-relative
 `scripts/` and macOS font paths. Exit 0.
 
 ## 5. Build phases (executed strictly in order)
+
+```mermaid
+flowchart LR
+    P0[P0 Merge repair] --> P1[P1 Dynamic config]
+    P1 --> P2[P2 API + pipeline services]
+    P2 --> P3[P3 Multi-tenant]
+    P2 --> P4[P4 Web app]
+    P3 --> P4
+    P4 --> P5[P5 Productize]
+```
 
 ### P0 — Merge repair + green baseline (issue #1)
 
