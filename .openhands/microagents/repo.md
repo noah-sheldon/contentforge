@@ -1,36 +1,44 @@
 ---
 name: contentforge
-description: ContentForge build instructions — read first. Phased SaaS build (P0-P5) tracked on GitHub board #10. Do not start work without reading PLAN.md, docs/hld.md, docs/lld.md.
+description: ContentForge build brief — read first. Build the two merged pipelines into a full SaaS (board #10, phases P0-P5). Do not start work before reading PLAN.md, docs/hld.md, docs/lld.md.
 ---
 
-You are the ContentForge build agent, running on the Netcup VPS (4 vCPU / 8 GB).
+You are the ContentForge build agent. Mission: build the two existing pipelines into a full-blown, sellable SaaS. Everything is planned and tracked on GitHub board #10 — execute, don't re-plan.
 
-READ FIRST: PLAN.md, docs/hld.md, docs/lld.md, then the project board:
-`gh project view 10 --owner noah-sheldon`
+READ FIRST, in order:
+1. PLAN.md, docs/hld.md, docs/lld.md (architecture, stack, risks)
+2. Board + issues: `gh project view 10 --owner noah-sheldon` and `gh issue list --repo noah-sheldon/contentforge`
 
 CONTEXT
-ContentForge is a sellable, fully dynamic, multi-tenant content production SaaS, merging two existing pipelines:
-- content-planner (planning: ingest, research, script, Playwright capture) — sibling dir `../content-planner`
-- agentic-video-editing (production: tighten, transcribe, HyperFrames compose, render) — sibling dir `../agentic-video-editing`
-Working repo: this repo (contentforge). The board tracks phases P0-P5 as issues #1-#6.
+ContentForge merges two existing pipelines:
+- content-planner (planning: ingest, research, script, Playwright capture)
+- agentic-video-editing (production: tighten, transcribe, HyperFrames compose, render, deliver)
 
-STACK (final — do not re-litigate): Cloudflare edge (Workers + Hono API, Workflows + Queues, Tunnel); Netcup VM compute (Docker Compose: pipeline container, LiteLLM, cloudflared); MongoDB Atlas (managed); Hetzner Object Storage (S3); WorkOS AuthKit; Vercel + Next.js web; uv workspace. Render queue concurrency = 1 (VM is 4 vCPU / 8 GB).
+SOURCE REPOS
+At the start of P0, clone the sources INTO this workspace (siblings outside the workspace are NOT reachable):
+`gh repo clone noah-sheldon/content-planner _sources/content-planner`
+`gh repo clone noah-sheldon/agentic-video-editing _sources/agentic-video-editing`
+Add `_sources/` to .gitignore. Merge FROM these, never commit them.
+
+STACK (final — do not re-litigate)
+Cloudflare edge (Workers + Hono API, Workflows + Queues, Tunnel); Netcup VM compute (Docker Compose: pipeline container, LiteLLM, cloudflared); MongoDB Atlas (managed); Hetzner Object Storage (S3); WorkOS AuthKit; Vercel + Next.js web; uv workspace. Render queue concurrency = 1 (4 vCPU / 8 GB VM).
 
 YOUR JOB
-Execute phases in order, one at a time. Start with P0 (issue #1). For each phase:
-1. `gh issue view <N> --repo noah-sheldon/contentforge` — read steps + acceptance criteria
+Execute phases strictly in order: P0 -> P1 -> P2 -> P3 -> P4 -> P5 (issues #1-#6). One phase at a time.
+For each phase:
+1. `gh issue view <N> --repo noah-sheldon/contentforge` — steps + acceptance criteria
 2. Implement against the ACs. Keep PLAN.md/docs accurate when behavior changes.
-3. Verify: run the phase's acceptance checks for real (scripts must execute).
+3. VERIFY FIRST: check what this environment has before assuming (ffmpeg, python, uv, gh, docker). If a phase's smoke test needs tools missing here, install them locally (apt/pip/uv) or run via the host docker stack — and record what you did in the issue.
 4. Update the board when done:
-   `gh project item-list 10 --owner noah-sheldon` (get item ids)
-   `gh project item-edit --id <item> --project-id PVT_kwHOAjJfWs4BiCHD --field-id PVTSSF_lAHOAjJfWs4BiCHDzhg7k5E --single-select-option-id <option>`
-   (option: In Progress while working, Done when ACs pass)
-5. Conventional commits (feat/fix/docs/chore) matching existing history. Push.
+   - `gh project item-list 10 --owner noah-sheldon` (item ids)
+   - `gh project item-edit --id <item> --project-id PVT_kwHOAjJfWs4BiCHD --field-id PVTSSF_lAHOAjJfWs4BiCHDzhg7k5E --single-select-option-id <InProgress|Done>`
+   - If gh is unavailable here, use the GitHub REST API with GITHUB_TOKEN (curl), or post progress to the issue — never skip the update.
+5. Conventional commits (feat/fix/docs/chore), push to origin/main.
 
 P0 SCOPE (issue #1)
-- Create the uv workspace layout: apps/web, services/api, workers/pipeline, workers/litellm, python/, skills/, prompts/, templates/, config/, docs/, deploy/
-- Move content-planner content in (skill/, scripts/; library/ outputs/ calendar/ workspace/ become gitignored data dirs)
-- Move agentic-video-editing content in (skills/video-agent, python/agents, python/services, config/settings.py, templates/, prompts/, docs/)
+- uv workspace layout: apps/web, services/api, workers/pipeline, workers/litellm, python/, skills/, prompts/, templates/, config/, docs/, deploy/
+- Merge content-planner in (skill/, scripts/; library/ outputs/ calendar/ workspace/ become gitignored data dirs)
+- Merge agentic-video-editing in (skills/video-agent, python/agents, python/services, config/settings.py, templates/, prompts/, docs/)
 - Dedupe: ONE config/persona.yaml, ONE voice/caption ruleset, brand tokens as config
 - Port missing scripts referenced by video-agent: build_thumbnails.py, verify_pip.py, audit_pip_collisions.py, tighten_words.py
 - Replace the hardcoded /Users/noahsheldon/Documents/Work_Projects/content-planner path in skills/video-agent/SKILL.md with a config setting
@@ -40,7 +48,6 @@ AC: every script from both pipelines runs from contentforge; zero cross-repo abs
 RULES
 - No emoji in any file. Follow existing code conventions. SOLID/KISS/DRY.
 - P0 -> P1 -> P2 strictly sequential; do not start P2 deployment work before P1 ACs pass.
-- Autonomous on implementation details inside a phase. STOP and post to the issue before changing architecture or the decided stack.
-- Run pipeline work through the host docker compose stack (docker.sock is mounted) — do not reinstall ffmpeg/whisper inside the sandbox.
+- Autonomous on implementation details. STOP and post to the issue before changing architecture or the decided stack.
 - Keep the repo green: run available checks before each commit.
-- After P0, continue to P1 (dynamic config layer), then P2 (Cloudflare API + VM pipeline). Update issues as you progress.
+- After P0, continue P1 (dynamic config layer), then P2 (Cloudflare API + VM pipeline). Update issues as you progress.

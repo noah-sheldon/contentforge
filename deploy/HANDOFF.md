@@ -1,80 +1,52 @@
-# ContentForge — VPS Development Handoff (OpenHands)
+# ContentForge — VPS Build Handoff (OpenHands)
 
-Run the build on your Netcup VPS with a persistent OpenHands agent. Everything below is turnkey; the docs in this repo (PLAN.md, docs/hld.md, docs/lld.md) and board #10 are the single source of truth.
+OpenHands is already running on the Netcup VPS. This doc is about driving the build, not setup. The plan and stack live in PLAN.md + docs/hld.md + docs/lld.md; progress lives on board #10.
 
-## 1. Provision the VPS (one command)
+## Quick reference
 
-On a fresh Ubuntu 24.04 / Debian 12 Netcup VPS, as root:
+| Thing | Where |
+|---|---|
+| OpenHands UI | http://localhost:3000 (or your Cloudflare Tunnel URL) |
+| Workspace (mounted) | `/workspace` = `~/contentforge` on the host |
+| Build brief | `.openhands/microagents/repo.md` — auto-loaded by the agent |
+| Board | #10 — `gh project view 10 --owner noah-sheldon` |
+| Repo | github.com/noah-sheldon/contentforge |
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/noah-sheldon/contentforge/main/deploy/bootstrap-dev.sh | bash
+## Kickoff (one message in a new OpenHands conversation)
+
+Open the contentforge workspace in OpenHands and send:
+
+```text
+Start P0.
 ```
 
-Installs: git, ffmpeg, Docker + compose, Node 22, uv, GitHub CLI, tmux; creates a non-root `dev` user; clones `contentforge`; enables UFW (SSH only) + fail2ban.
+The microagent loads automatically and drives the build: reads the docs + board, executes P0 (monorepo merge of the two source systems into the uv workspace), verifies acceptance criteria, updates the board, commits, pushes — then proceeds P1, P2, ... in order. It stops and posts to the issue before any architecture change.
 
-## 2. Configure secrets + GitHub (one-time)
+If the microagent does not auto-load in your OpenHands version, paste the contents of `.openhands/microagents/repo.md` as the first message instead.
 
-```bash
-su - dev
-gh auth login        # device flow — needed for private repo clones + board access
-cd ~/contentforge && cp .env.example .env && nano .env   # set DEEPSEEK_API_KEY (and others)
-export GITHUB_TOKEN="<classic PAT with repo + project scopes>"   # for OpenHands GitHub integration
-```
+## Supervision
 
-## 3. Start OpenHands (detached, survives disconnects)
+- **Watch progress**: the board (Backlog -> In Progress -> Done) and the issue threads.
+- **Blockers**: the agent posts to the issue and waits. Answer there — that is its go/no-go channel.
+- **RAM budget** (8 GB box): OpenHands ~1-2 GB + one render at a time (3-4 GB). Never run parallel renders.
+- **Backups** (from P2): nightly `mongodump` to Hetzner OBJ; Netcup COW snapshots for the VM.
 
-```bash
-su - dev
-cd ~/contentforge
-./deploy/openhands-run.sh     # starts OpenHands on port 3000, repo mounted at /workspace
-docker logs openhands | grep -i password   # first-run access password
-```
+## What the agent will build (in order)
 
-- **The build brief is a microagent**: `.openhands/microagents/repo.md` — OpenHands loads it automatically when it works in the repo. Nothing to paste.
-- **Phone access**: Termius port-forward (`3000`) or a Cloudflare Tunnel:
-  `cloudflared tunnel --url http://localhost:3000`
-- **Restart after reboot**: `docker start openhands` (or add `--restart unless-stopped` to the run command).
-- **Stop/start**: `docker stop openhands` / `./deploy/openhands-run.sh` again.
+- **P0** — merge content-planner + agentic-video-editing into the contentforge uv workspace; dedupe persona/voice/brand; port missing scripts; kill hardcoded paths. (Issue #1)
+- **P1** — dynamic config layer: TenantConfig (Pydantic), prompt/template/recipe registries; runtime generation instead of hand-authored videos. (Issue #2)
+- **P2** — Cloudflare Workers API (Hono) + Workflows orchestration + VM pipeline container + LiteLLM; HITL checkpoints as API. (Issue #3)
+- **P3** — WorkOS orgs/tenants, isolation, metering. (Issue #4)
+- **P4** — Next.js dashboard + brand studio on Vercel. (Issue #5)
+- **P5** — Stripe billing, onboarding, security review, sellable demo. (Issue #6)
 
-Clone the merge sources (the agent needs them as siblings):
-
-```bash
-cd ~ && gh repo clone noah-sheldon/content-planner && gh repo clone noah-sheldon/agentic-video-editing
-```
-
-## 4. The agent brief (what the microagent instructs)
-
-The microagent tells the agent to:
-1. Read PLAN.md, docs/hld.md, docs/lld.md and board #10 first.
-2. Execute phases **P0 -> P1 -> P2** strictly in order (issues #1-#3, then #4-#6 later).
-3. For each phase: implement against the issue's acceptance criteria, verify by actually running the checks, update the board (`gh project item-edit` → In Progress / Done), commit conventional, push.
-4. Stop and post to the issue before any architecture change; autonomous on implementation details.
-
-P0 in short: merge `content-planner` + `agentic-video-editing` into the uv workspace, dedupe persona/voice/brand, port the missing scripts, kill hardcoded paths. Full steps + ACs: issue #1.
-
-## 5. Development loop
-
-- Agent works in `/workspace` (mounted from `~/contentforge`), pushes to GitHub, updates board #10 after each phase.
-- Pipeline work runs through the host docker compose stack (docker.sock is mounted to the sandbox) — same images as production.
-- Scratch media lives under `~/contentforge/workspace/` (gitignored); clean weekly:
-  `find ~/contentforge/workspace -type f -mtime +14 -delete`
-- Dev database: MongoDB Atlas M0 (free) or a local `mongo` container — never point dev at production data.
-
-## 6. Security + maintenance
-
-- SSH: keys only; set `PasswordAuthentication no` once key auth is confirmed.
-- UFW allows only SSH; the OpenHands UI is reached via port-forward or Tunnel, never exposed publicly.
-- RAM budget (8 GB total): OpenHands ~1-2 GB + one render at a time (3-4 GB). Keep the render queue at concurrency 1; do not run parallel renders on this box.
-- Nightly backups (from P2): `mongodump` to Hetzner OBJ; Netcup COW snapshots for the VM.
-- Updates: `apt update && apt upgrade`; `docker compose pull`; `docker pull ghcr.io/all-hands-ai/openhands:main` — weekly.
-
-## 7. Troubleshooting
+## Troubleshooting
 
 | Problem | Fix |
 |---|---|
-| OpenHands not starting | `docker logs openhands` — check LLM_API_KEY / GITHUB_TOKEN are set |
-| Access password lost | `docker logs openhands | grep -i password` |
-| Private repo clone fails | `gh auth login` again; `gh auth status` |
-| Docker permission denied | `sudo usermod -aG docker dev` then re-login |
-| Agent stuck on a decision | Answer on the issue — the agent posts blockers there |
-| Want a lighter agent instead | Qwen CLI alternative: `tmux new -s dev` then `qwen` (auth via `~/.qwen/settings.json` or `/auth`) |
+| Agent can't find source repos | They must be inside the workspace: `~/contentforge/_sources/` (the brief clones them at P0 start) |
+| Missing tools in the sandbox (ffmpeg/gh/python) | Brief is written to verify first and install locally or use the host docker stack; check the issue for what it recorded |
+| Board not updating | gh missing or GITHUB_TOKEN not reaching the sandbox — agent falls back to the GitHub REST API / issue posts; ensure GITHUB_TOKEN is set on the host env |
+| OpenHands container down | `docker start openhands` (host) |
+| Disconnected | Reconnect via Termius; the UI is a web app, nothing runs in your terminal |
+| Agent stuck / looping | Open the conversation in the UI, steer it, or cancel and start a new conversation with "Start P0" again (state lives in git + the board) |
