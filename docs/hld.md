@@ -200,7 +200,7 @@ Free-tier-first: build on free tiers, pay only when real usage arrives.
 | Cloudflare | Free — 100k req/day, Workers + Queues | Paid 5/mo |
 | MongoDB Atlas | M0 — 512 MB, dev only | Flex 8-30/mo (production) |
 | Hetzner Object Storage | n/a — base ~2-3/mo (1 TB incl.) | ~2-3/mo |
-| Netcup VM | already owned | ~5-10/mo |
+| Netcup VM (VPS 1000 G12, owned) | 4 vCPU / 8 GB — 10.37/mo | 10.37/mo |
 | WorkOS | 1M MAU free | 0 |
 | LiteLLM | MIT, on VM | 0 |
 | LLM inference | usage (DeepSeek is cheap) | usage |
@@ -218,8 +218,8 @@ Cost discipline: DeepSeek `deepseek-v4-flash` as the default hosted model keeps 
 
 ## 9. Known Risks (self-review, 2026-08-31)
 
-1. **Single VM = single point of failure.** The whole production brain lives on one host. Mitigation: portability to Cloudflare Containers (config swap), nightly Mongo backups to Hetzner OBJ (RPO ≤ 24h), `compose up` rebuild from image. Acceptable at launch; revisit before paying customers.
-2. **Concurrency ceiling.** One VM = N cores; a 1080p render pins 2-4 cores for minutes. Expected: 2-4 concurrent renders. Render queue must throttle to VM capacity or runs back up. Mitigation: concurrency limit on the render job, per-render metering to cap abuse, CF Containers burst.
+1. **Single VM = single point of failure.** The whole production brain lives on one host. Mitigation: portability to Cloudflare Containers (config swap), nightly Mongo backups to Hetzner OBJ (RPO ≤ 24h), Netcup COW snapshots included, `compose up` rebuild from image. Acceptable at launch; revisit before paying customers.
+2. **Concurrency ceiling.** VM = 4 vCPU / 8 GB (Netcup VPS 1000 G12, verified). Chromium + ffmpeg per render needs ~3-4 GB → usable headroom ≈ 5-6 GB → **1 concurrent render (throttle queue to 1), 2 max with lighter jobs**. A 30-200s render ≈ 3-5 min wall → a few renders/hour at launch. Fine for early customers; burst = Cloudflare Containers (same image). Render queue concurrency is a config value, sized to the VM.
 3. **Workflows → VM connectivity** depends on Cloudflare Tunnel being a first-class component (it is in this design). Tunnel adds one moving part and ~30-80ms hop; acceptable.
 4. **Hetzner egress is not free** (unlike R2): 1 TB/mo included, then ~EUR 1/TB. A 100 MB MP4 x 10k downloads = 1 TB. Monitor; still cheap, and the free ingress + S3 API calls keep uploads at zero.
 5. **LiteLLM on SQLite** = single-instance key admin. Fine on one VM; Postgres upgrade only if the proxy becomes a bottleneck.

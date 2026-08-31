@@ -137,7 +137,7 @@ flowchart TD
     H3 -.->|reject| S5
 ```
 
-Workflow steps call VM endpoints through the Cloudflare Tunnel (private hostname). Heavy stages (capture/transcribe/render) run on the VM; pure-LLM stages can run in-step via LiteLLM. Step payloads carry keys, not media. Render concurrency is throttled by a queue limit sized to VM cores (see HLD Known Risks).
+Workflow steps call VM endpoints through the Cloudflare Tunnel (private hostname). Heavy stages (capture/transcribe/render) run on the VM; pure-LLM stages can run in-step via LiteLLM. Step payloads carry keys, not media. **Render concurrency is throttled to 1** (VM: 4 vCPU / 8 GB — VPS 1000 G12; each render needs ~3-4 GB); burst path = Cloudflare Containers with the same image.
 
 ## 5. VM Stack (Docker Compose on Netcup)
 
