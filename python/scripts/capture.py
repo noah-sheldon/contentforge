@@ -7,8 +7,6 @@ Supports action recipes (scrolling, clicking, typing, highlighting, waiting).
 import argparse
 import json
 import os
-import sys
-import time
 from pathlib import Path
 
 from common import ROOT
@@ -60,13 +58,13 @@ def execute_action_recipe(page, recipe_actions):
             selector = action.get("selector")
             if selector:
                 page.evaluate(
-                    f"""(sel) => {{
+                    """(sel) => {
                     const el = document.querySelector(sel);
-                    if (el) {{
+                    if (el) {
                         el.classList.add('opencode-spotlight-highlight');
-                        el.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
-                    }}
-                }}""",
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }""",
                     selector,
                 )
 
@@ -74,10 +72,10 @@ def execute_action_recipe(page, recipe_actions):
             selector = action.get("selector")
             if selector:
                 page.evaluate(
-                    f"""(sel) => {{
+                    """(sel) => {
                     const el = document.querySelector(sel);
                     if (el) el.classList.remove('opencode-spotlight-highlight');
-                }}""",
+                }""",
                     selector,
                 )
             else:

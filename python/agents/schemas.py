@@ -4,12 +4,9 @@ S: Every agent has explicit input/output types. No dict passing.
 O: New agent = new model. Existing models never change.
 """
 
-from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field
-
 
 # ─── Enums ────────────────────────────────────────────────────────────
 
@@ -41,7 +38,7 @@ class BrandColors(BaseModel):
     obsidian: str = "#12141C"
     alabaster: str = "#FAFAFA"
     gold: str = "#D4AF37"
-    silentGray: str = "#6B7280"
+    silent_gray: str = "#6B7280"
 
 
 class Persona(BaseModel):

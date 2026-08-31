@@ -21,7 +21,7 @@ User pastes a URL, file path, or text and asks to plan content from it. Or asks 
 ## Pipeline
 
 ```
-[1] INGEST     scripts/ingest.py <input>        -> library/<slug>/raw_transcript.md + metadata.json
+[1] INGEST     python/scripts/ingest.py <input>        -> library/<slug>/raw_transcript.md + metadata.json
 [2] ANALYZE    agent  (agents/analyze.md)      -> outputs/<slug>/analysis.md + parsed_concepts.json
 [2b] MARKETING agent  (agents/marketing.md)    -> outputs/<slug>/platform_playbook.md
 [3] IDEATE     agent  (agents/ideate.md)       -> outputs/<slug>/ideas.md + ideas.json
@@ -31,7 +31,7 @@ User pastes a URL, file path, or text and asks to plan content from it. Or asks 
 [5b] DIRECTOR  agent  (agents/director.md)     -> outputs/<slug>/storyboard.md + diagram specs
                 (generated into the video's workspace/03_diagrams/ at materialize time)
 [6] PLAN       agent  (agents/plan.md)         -> calendar/<Wxx>_plan.md + calendar/items.json
-                then: python3 scripts/board.py --project 7|8 --owner noah-sheldon calendar/items.json
+                then: python3 python/scripts/board.py --project 7|8 --owner noah-sheldon calendar/items.json
 ```
 
 ## Rules
@@ -42,7 +42,7 @@ User pastes a URL, file path, or text and asks to plan content from it. Or asks 
 4. **Platform profiles, not separate pipelines** — one asset, per-platform variants (caption/hashtags/CTA/aspect).
 5. **Batch filming** — plans group shorts + long-form into batch filming days, not daily filming.
 6. **Visual tags** in every script beat: `[EXCALIDRAW] [CODE] [SCREEN] [CAM]` — the director maps them to OBS scenes.
-7. **Code only for deterministic, stable mechanics** — `scripts/` holds just the glue (ingest, diagram, board, workspace) that never changes per-run. Everything creative is an agent (`skill/agents/*.md`); everything configurable lives in `config.yaml` / `../../config/persona.yaml`. If a script's logic would change per run, it belongs in an agent instead.
+7. **Code only for deterministic, stable mechanics** — `python/scripts/` holds just the glue (ingest, diagram, board, workspace) that never changes per-run. Everything creative is an agent (`skill/agents/*.md`); everything configurable lives in `config.yaml` / `../../config/persona.yaml`. If a script's logic would change per run, it belongs in an agent instead.
 8. **Originality — never re-tell the source.** Ingested material is raw material for gaps, angles, and verified facts ONLY. No copied framing, structure, code, or examples from the source — in scripts, storyboards, demos, or demo code. Every build is Noah's own, written from scratch, tested by him, said in his words. If an idea is "the source explained again", kill it.
 9. **User topics win — Noah's topics are the curriculum.** When he provides topics (e.g. "framework vs from scratch — trade-offs", "what's an agent loop"), build research/scripts/storyboards around HIS topics. Skip IDEATE when topics are given; gap-ideas are fillers he can reject, never substitutes.
 

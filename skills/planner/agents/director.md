@@ -61,7 +61,7 @@ Write `outputs/<slug>/storyboard.md`:
 2. **Title + thumbnail lock** — pick ONE title and ONE thumbnail concept from the idea's 3 options, with a one-line rationale.
 3. **OBS scene plan** — which scene preset each shot uses ("Code", "Whiteboard", "Camera", "Camera+Code", "Camera Offline / Code Only").
 4. **B-roll list** + **CTA overlay placement** + **thumbnail suggestion** (visual concept, not image generation).
-5. **Diagram spec** — for every `[EXCALIDRAW]` beat, a JSON spec for `scripts/diagram.py`:
+5. **Diagram spec** — for every `[EXCALIDRAW]` beat, a JSON spec for `python/scripts/diagram.py`:
 ```json
 {
   "title": "<shot name>",

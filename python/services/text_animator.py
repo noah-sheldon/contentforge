@@ -7,7 +7,6 @@ DRY: Brand config from persona.yaml. Block logic from AnimationDirector.
 """
 
 import json
-import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -16,7 +15,7 @@ from typing import Optional
 from agents.storyboard.animation_director import AnimationDirector, Block
 from config.settings import PYTHON_ROOT, load_persona
 
-OUTPUT_DIR = PYTHON_ROOT.parent / "output"
+OUTPUT_DIR = PYTHON_ROOT.parent / "outputs"
 
 FPS = 30
 

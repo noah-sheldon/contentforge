@@ -1,5 +1,5 @@
 ---
-description: "Write per-platform social captions for a video or topic. Reads persona.yaml for voice, platform YAMLs for rules, docs/platform-caption-limits.md for verified char limits. Outputs one caption per platform."
+description: "Write per-platform social captions for a video or topic. Reads config/persona.yaml for voice, platform YAMLs for rules, docs/platform-caption-limits.md for verified char limits. Outputs one caption per platform."
 ---
 
 # Caption Writer
@@ -14,7 +14,7 @@ Writes captions for every platform from one source video or topic. Human voice, 
 
 ## Source of Truth (read these)
 
-1. `persona.yaml` — creator name, title, tone, content pillars
+1. `config/persona.yaml` — creator name, title, tone, content pillars
 2. `python/agents/platforms/<platform>.yaml` — per-platform tone, char limits, hooks, what_works
 3. `docs/platform-caption-limits.md` — VERIFIED char limits + design rules (single source of truth)
 4. `python/agents/prompts/copy/copywriter.yaml` — the voice prompt (Grade 5-6, first person, messy/typed feel)

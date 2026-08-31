@@ -157,7 +157,7 @@ def main():
 
     httpd = http.server.ThreadingHTTPServer((args.host, args.port), Handler)
     host_display = args.host if args.host != "0.0.0.0" else "your LAN IP"
-    print(f"Teleprompter server running:")
+    print("Teleprompter server running:")
     print(f"  -> http://{host_display}:{args.port}/        (pick a script)")
     print(f"  -> http://{host_display}:{args.port}/prompter (direct prompter UI)")
     print(f"  {len(scripts)} script(s) available")

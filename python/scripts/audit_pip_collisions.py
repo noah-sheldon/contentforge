@@ -23,9 +23,7 @@ CASES = [
 
 def parse_clip(html, name, sel):
     """Return (start, end) for the first element matching name+sel, or None."""
-    # find the element's data-start/duration in its own tag block
-    pat = re.compile(r'<' + name + r'[^>]*' + re.escape(sel.split("#")[-1]) + r'[^>]*>')
-    # simpler: find any tag containing the id
+    # find any tag containing the id
     m = re.search(r'<[^>]*\bid="' + re.escape(sel.lstrip("#")) + r'"[^>]*>', html)
     if not m:
         return None

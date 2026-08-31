@@ -24,7 +24,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from common import CONFIG, OUTPUTS, CALENDAR, ROOT, slugify
+from common import CALENDAR, CONFIG, OUTPUTS, ROOT, slugify
 
 WORKSPACE = Path(__file__).resolve().parent.parent / \
     CONFIG.get("paths", {}).get("workspace", "workspace")
@@ -70,17 +70,17 @@ def extract_short(text, idea_id):
     """Extract one short's section from the combined script_shorts.md."""
     lines = text.splitlines()
     start = None
-    for i, l in enumerate(lines):
-        if re.match(rf"^##\s+{re.escape(idea_id)}\s+·", l):
+    for i, line in enumerate(lines):
+        if re.match(rf"^##\s+{re.escape(idea_id)}\s+·", line):
             start = i
             break
     if start is None:
         return None
     out = [lines[start]]
-    for l in lines[start + 1:]:
-        if re.match(r"^##\s+s\d+\s+·", l):
+    for line in lines[start + 1:]:
+        if re.match(r"^##\s+s\d+\s+·", line):
             break
-        out.append(l)
+        out.append(line)
     return "\n".join(out)
 
 
@@ -231,8 +231,8 @@ def main():
         ideas = json.loads(ideas_path.read_text(encoding="utf-8"))
         for s in ideas.get("shorts", []):
             research_map[re.sub(r"^Day\s*\d+\s*·\s*", "", s["title"]).strip()] = s["id"]
-        for l in ideas.get("longs", []):
-            research_map[l["title"]] = l["id"]
+        for long in ideas.get("longs", []):
+            research_map[long["title"]] = long["id"]
 
     materialize(shorts, "short-form", slug, a.week, a.owner, cards7, research_map)
     materialize(longs, "long-form", slug, a.week, a.owner, cards8, research_map)

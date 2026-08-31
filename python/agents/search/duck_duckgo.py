@@ -6,6 +6,7 @@ L: Swappable with any SearchInterface implementation.
 """
 
 import logging
+
 from ddgs import DDGS
 
 from agents.base import SearchInterface, SearchResult

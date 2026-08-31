@@ -80,8 +80,8 @@ def main() -> None:
     n = len(kept)
     fc = (
         ";".join(parts_v + parts_a)
-        + f";" + "".join(f"[v{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=0[vout]"
-        + f";" + "".join(f"[a{i}]" for i in range(n)) + f"concat=n={n}:v=0:a=1[aout]"
+        + ";" + "".join(f"[v{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=0[vout]"
+        + ";" + "".join(f"[a{i}]" for i in range(n)) + f"concat=n={n}:v=0:a=1[aout]"
     )
     r = subprocess.run(
         ["ffmpeg", "-y", "-v", "error", "-i", args.video,

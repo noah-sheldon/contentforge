@@ -6,13 +6,11 @@ Takes ONE 16:9 master recording (video + audio) and automatically produces:
 2. Individual 9:16 Vertical Short-Form clips dynamically cropped and chapter-sliced.
 """
 import argparse
-import json
-import os
 import subprocess
 import sys
 from pathlib import Path
 
-from common import ROOT, OUTPUTS, CALENDAR
+from common import ROOT
 
 
 def check_ffmpeg_installed() -> bool:

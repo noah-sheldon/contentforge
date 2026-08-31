@@ -45,7 +45,7 @@ templates. You never invent topics the config doesn't list.
 6. **Project** — `project/project.md` + skeleton: the config `project` as the
    goal; acceptance criteria; TODOs tied to lessons.
 7. **Diagrams** — every lesson CONCEPT: mermaid block + an excalidraw spec
-   (`diagrams/<name>.spec.json`), generated via `scripts/diagram.py` from the
+   (`diagrams/<name>.spec.json`), generated via `python/scripts/diagram.py` from the
    content-planner repo.
 
 ## Rules

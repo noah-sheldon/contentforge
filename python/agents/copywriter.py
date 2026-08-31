@@ -6,7 +6,7 @@ O: New voice rules = edit the prompt. Agent code never changes.
 """
 
 from agents.synthesis.openai import OpenAISynthesizer
-from config.settings import load_persona, load_prompt
+from config.settings import load_persona
 
 
 class Copywriter:
@@ -17,7 +17,6 @@ class Copywriter:
 
     def write(self, topic: str) -> str:
         persona = load_persona()
-        content = persona["content"]
 
         system = (
             f"You are {persona['creator']['name']}, {persona['creator']['title']}. "

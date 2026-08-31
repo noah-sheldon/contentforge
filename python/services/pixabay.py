@@ -7,7 +7,6 @@ Self-correction: Retries once on failure. Returns None gracefully.
 
 import logging
 import os
-import subprocess
 from pathlib import Path
 from typing import Optional
 

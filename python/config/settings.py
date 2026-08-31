@@ -16,7 +16,7 @@ SERVICES_DIR = PYTHON_ROOT / "services"
 SCRIPTS_DIR = PYTHON_ROOT / "scripts"
 TESTS_DIR = PYTHON_ROOT / "tests"
 
-PERSONA_PATH = PROJECT_ROOT / "persona.yaml"
+PERSONA_PATH = PROJECT_ROOT / "config" / "persona.yaml"
 PROMPTS_DIR = AGENTS_DIR / "prompts"
 ENV_PATH = PYTHON_ROOT / ".env"
 

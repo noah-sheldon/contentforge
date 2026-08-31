@@ -236,3 +236,6 @@ node_modules/
 .vite/
 .next/
 out/
+
+# Runtime state (P2: DB-backed)
+python/state/*.json

@@ -80,8 +80,5 @@ def complexity_check(topics: list[dict], max_score: int = 4) -> list[dict]:
 
 def format_filter(data: dict) -> dict:
     """Filter research to only text-friendly formats."""
-    persona = load_persona()
-    audience = persona["content"]["audience"].lower()
-
     # Currently no format filter -- all research is text-based
     return data

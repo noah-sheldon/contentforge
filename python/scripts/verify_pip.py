@@ -2,7 +2,6 @@
 """Measure the pip wrapper geometry in both compositions to verify it is a true circle."""
 import argparse
 import json
-import sys
 
 from playwright.sync_api import sync_playwright
 

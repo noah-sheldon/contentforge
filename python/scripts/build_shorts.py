@@ -5,8 +5,6 @@ Each short plays its corresponding beat segment of the tightened master
 footage in portrait, with a top talking-head video band, narration audio
 (HyperFrames <audio>), and a speech-synced motion-graphics screen.
 """
-import json
-import shutil
 import subprocess
 from pathlib import Path
 
@@ -348,8 +346,8 @@ def build_reveals(short):
     seg = short["seg_start"]
     locals = [local(t, seg) for _, t in short["reveals"]]
     js = REVEAL_JS[short["type"]]
-    for i, l in enumerate(locals):
-        js = js.replace("{" + str(i) + "}", str(l))
+    for i, v in enumerate(locals):
+        js = js.replace("{" + str(i) + "}", str(v))
     # Replace remaining bracket placeholders in apps/react types
     return js.replace("[0]", str(locals[0]) if len(locals) > 0 else "0") \
              .replace("[1]", str(locals[1]) if len(locals) > 1 else "0") \

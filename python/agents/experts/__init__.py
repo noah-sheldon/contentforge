@@ -7,9 +7,8 @@ D: Reads platform rules from YAML, depends on SynthesizerInterface.
 
 import yaml
 
-from config.settings import load_prompt, AGENTS_DIR
 from agents.synthesis.openai import OpenAISynthesizer
-
+from config.settings import AGENTS_DIR, load_prompt
 
 PLATFORMS_DIR = AGENTS_DIR / "platforms"
 

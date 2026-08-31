@@ -30,7 +30,7 @@ graph TD
 
 1. **Tighten** — word-accurate (never clips a word):
    ```bash
-   python scripts/tighten_words.py <transcript.json> <master.mp4> <tight.mp4> --lead 0.35 --tail 0.35
+   python/scripts/tighten_words.py <transcript.json> <master.mp4> <tight.mp4> --lead 0.35 --tail 0.35
    ```
    Uses whisper word timestamps (transcript.json). Cut ONLY between words; keeps 0.35s breathing each side; removes only gaps >0.7s. Amplitude-only `silencedetect` tightening is BANNED (clips word tails).
 2. **Transcribe the tightened file** — new word timestamps (never reuse old beat timings after any media change).

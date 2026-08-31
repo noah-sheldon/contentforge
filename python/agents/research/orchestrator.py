@@ -87,7 +87,8 @@ def run_research():
         temperature=0.5,
     )
     # Parse JSON synthesis
-    import re, json
+    import json
+    import re
     match = re.search(r"\[.*\]", raw, re.DOTALL)
     synthesis = json.loads(match.group()) if match else []
     print("done")
