@@ -8,4 +8,4 @@ Built by merging two existing pipelines:
 
 Everything is generated at runtime from validated config + LLM — nothing hardcoded per video — and every tenant customizes brand, voice, and templates.
 
-See **[PLAN.md](PLAN.md)** for the architecture, mermaid diagrams, and phased build roadmap (tracked on the ContentForge — Build GitHub project).
+See **[PLAN.md](PLAN.md)** for the phased build roadmap (tracked on the ContentForge — Build GitHub project), **[docs/hld.md](docs/hld.md)** for the high-level design (Cloudflare-first: Workers API, Workflows, D1, R2; Cloud Run compute; WorkOS auth; LiteLLM BYOK gateway), and **[docs/lld.md](docs/lld.md)** for the low-level design (schemas, endpoints, LLM layer, package map).

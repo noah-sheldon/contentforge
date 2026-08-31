@@ -17,37 +17,46 @@ flowchart LR
     DEL --> PUB[Publish]
 ```
 
-## Target Architecture
+## Target Architecture (Cloudflare-first)
 
 ```mermaid
 flowchart TD
-    subgraph WEB[Vercel — Next.js app]
+    subgraph WEB[Vercel - Next.js + shadcn/ui]
         DASH[Dashboard + brand studio]
         HITL[Approval checkpoints]
     end
-    subgraph API[FastAPI backend]
-        ORCH[Pipeline orchestrator]
-        TEN[Tenant + config service]
-        JOB[Job queue]
+    subgraph CF[Cloudflare]
+        API[Hono API - Workers]
+        WF[Workflows - pipeline orchestrator]
+        Q[Queues]
+        D1[(D1 - tenant config + run state)]
+        R2[(R2 - media, free egress)]
     end
-    subgraph WRK[Async workers]
-        W1[Ingest / research / write]
-        W2[Capture - Playwright]
-        W3[Transcribe / tighten]
-        W4[Compose - HyperFrames]
-        W5[Render - Chromium + ffmpeg]
+    subgraph CR[Cloud Run - one pipeline image]
+        ING[Ingest / plan / write]
+        CAP[Capture - Playwright]
+        TR[Transcribe / tighten]
+        COM[Compose - HyperFrames]
+        REN[Render - Chromium + ffmpeg]
     end
-    subgraph DAT[Persistence]
-        DB[(MongoDB)]
-        OBJ[(Object store S3)]
+    subgraph LLM[LLM tier - agent agnostic]
+        LP[LiteLLM proxy - BYOK + hosted]
     end
+    AUTH[WorkOS AuthKit]
     DASH --> API
     HITL --> API
-    ORCH --> JOB
-    JOB --> WRK
-    WRK --> OBJ
-    WRK --> DB
+    API --> AUTH
+    API --> D1
+    API --> WF
+    WF --> Q
+    WF --> CR
+    CR --> LP
+    CR --> R2
+    CR --> D1
+    API --> R2
 ```
+
+Detailed design: **[docs/hld.md](docs/hld.md)** (high-level) and **[docs/lld.md](docs/lld.md)** (low-level: schemas, endpoints, workflows, LLM layer).
 
 ## Dynamic Model
 
@@ -67,24 +76,24 @@ Nothing per-video is hardcoded. A tenant is a validated config blob; the pipelin
 
 ## Render Tier
 
-Neither Vercel nor Cloudflare Workers can run Chromium/ffmpeg renders. Vercel hosts the app; renders run on HyperFrames' native cloud target.
+Research-verified: Cloudflare Workers cannot encode video (5 min CPU ceiling, 128 MB isolates) and Cloudflare Browser Run cannot record video (screenshots/PDF only). Rendering and capture both run on Cloud Run; everything else is Cloudflare.
 
 ```mermaid
 flowchart LR
-    APP[Vercel app] -->|render job| API[FastAPI]
-    API -->|enqueue| QUEUE[(Job queue)]
-    QUEUE -->|dispatch| CR[Google Cloud Run - Chromium + ffmpeg]
-    CR -->|MP4 / webm| OBJ[(Object store)]
-    CR -->|webhook| API
-    API -->|status| APP
+    APP[Vercel app] -->|render job| API[Workers API]
+    API --> WF[Workflow step]
+    WF -->|dispatch| CR[Cloud Run - Chromium + ffmpeg]
+    CR -->|MP4| R2[(R2 - free egress)]
+    CR -->|result| WF
 ```
 
 | Option | Role | Verdict |
 |---|---|---|
 | Vercel | Next.js app, dashboard, brand studio | Use for the web app |
-| Cloudflare Workers | Edge runtime, no Chromium | Not for rendering; optional edge caching later |
-| Google Cloud Run | HyperFrames `cloudrun` target: Docker + Chromium + ffmpeg, scale-to-zero, long timeouts | Primary render workers |
-| AWS Lambda | HyperFrames `lambda` target (Remotion-Lambda pattern) | Alternative render backend |
+| Cloudflare Workers | API, Workflows, Queues, D1, R2 | Primary platform |
+| Cloudflare Browser Run | Edge browser | Not for video (no recording) — capture stays on Cloud Run Playwright |
+| Google Cloud Run | Pipeline + render container (Chromium + ffmpeg, scale-to-zero) | Primary compute |
+| Cloudflare Containers | CF-native container runtime | Watch — potential Cloud Run replacement |
 
 ## Roadmap
 
@@ -106,7 +115,7 @@ P0-P2 are the foundation and must land in order. P3 (tenant isolation) and P4 (d
 Merge both repos into `contentforge`; resolve duplication; everything runs from one place.
 
 Steps:
-1. Monorepo layout: `apps/web/`, `services/api/`, `workers/`, `python/` (agents + scripts from both), `skills/`, `prompts/`, `templates/`, `config/`, `docs/`
+1. Monorepo layout (uv workspace): `apps/web/` (Next.js), `services/api/` (Workers + Hono), `workers/pipeline/` (FastAPI on Cloud Run), `workers/litellm/`, `python/` (agents + scripts from both), `skills/`, `prompts/`, `templates/`, `config/`, `docs/` (hld.md + lld.md live here)
 2. Move `content-planner`: `skill/` (v2.1.0), `scripts/` (ingest, diagram, board, workspace, capture, transcribe, tighten, slice, gen_captions, audio_master, build_shorts, serve_teleprompter), `library/` + `outputs/` + `calendar/` + `workspace/` as gitignored data dirs
 3. Move `agentic-video-editing`: `skills/video-agent` (v1.1.2), `python/agents`, `python/services`, `python/config/settings.py`, `templates/`, `prompts/`, `docs/`
 4. Dedupe: one `config/persona.yaml` (merge content-planner `skill/persona.yaml` + video root `persona.yaml`), one voice/caption ruleset, brand tokens as config (obsidian / alabaster / gold / silentGray)
@@ -136,32 +145,33 @@ Acceptance criteria:
 - Invalid config rejected with actionable errors
 - Sample tenant renders a demo video end-to-end from config alone
 
-## P2 — Backend services (FastAPI)
+## P2 — Cloudflare API + pipeline services
 
-Expose the pipeline as an API with async jobs.
+Edge API on Workers (Hono); pipeline as Cloud Run services; Workflows orchestrates. Full detail: docs/lld.md.
 
 Steps:
-1. FastAPI app: `/ingest` `/plan` `/research` `/capture` `/transcribe` `/tighten` `/compose` `/render` `/deliver`
-2. Job queue + async workers (Celery + Redis vs arq — ADR)
-3. Persistence: MongoDB per `docs/db_design.md` (ADR: Mongo vs Postgres)
-4. Object store: S3-compatible for media + renders
-5. HITL checkpoints as API endpoints (approve / reject / resume) — replaces `state/pipeline.json`
-6. ADRs: queue, DB, storage, render infra
+1. Workers API (Hono + Zod + Drizzle): /runs, /projects, /tenant/config, /media, HITL approve/reject — WorkOS JWT at the edge, D1-backed
+2. Cloudflare Workflows + Queues orchestrate runs (durable steps, step.waitForEvent at HITL checkpoints)
+3. D1 (SQLite via Drizzle) for tenants, projects, runs, jobs, meters
+4. R2 (S3 API) media with per-tenant prefixes + signed URLs
+5. Cloud Run pipeline container (FastAPI): ingest / plan / capture / transcribe / tighten / compose / render / deliver — reuses existing python/ code as-is
+6. LiteLLM proxy container: agent-agnostic LLM layer, per-tenant virtual keys, hosted + BYOK
+7. HITL checkpoints as API endpoints — replaces state/pipeline.json
 
 Acceptance criteria:
 - Full pipeline runs headless via API with job status tracking
 - HITL approvals flow through the API
-- Artifacts land in object store; job state survives restarts
+- Artifacts land in R2; run state survives restarts in D1
 
 ## P3 — Multi-tenant layer
 
-Isolation, auth, metering.
+WorkOS orgs + per-tenant isolation + metering.
 
 Steps:
-1. Auth: orgs/tenants + users + API keys (provider ADR: Supabase Auth vs Auth0 vs custom)
-2. Tenant isolation: config, media, jobs, renders, meters
-3. Tenant provisioning API
-4. Usage metering: jobs, render minutes, credits
+1. Auth: WorkOS AuthKit — orgs = tenants, RBAC roles, MFA, social login (1M MAU free)
+2. Tenant isolation: D1 queries scoped by tenant_id, R2 prefixes, LiteLLM virtual key per tenant
+3. Tenant provisioning API (WorkOS org + config blob + R2 prefixes + LiteLLM key)
+4. Usage metering: runs, renders, LLM spend via LiteLLM budgets + meters table
 
 Acceptance criteria:
 - Two tenants never share data or config
@@ -199,11 +209,23 @@ Acceptance criteria:
 
 ---
 
-## Open Decisions
+## Decided Stack (research-backed 2026-08-31)
 
-- DB: MongoDB (per db_design.md) vs Postgres
-- Queue: Celery + Redis vs arq (Redis)
-- Auth: Supabase Auth vs Auth0 vs custom
-- Monorepo tooling: uv / Poetry / plain venv
-- Pricing model: per-render credits vs seats vs usage
-- Product branding: ContentForge name, domain, public identity
+| Decision | Choice | Why |
+|---|---|---|
+| Monorepo tooling | uv workspace | Modern, fast; both repos are plain venv today |
+| Auth | WorkOS AuthKit | 1M MAU free; orgs + RBAC + MFA built in |
+| Public API | Cloudflare Workers + Hono (TypeScript) | Edge auto-scale; Python on Workers is beta |
+| Orchestration | Cloudflare Workflows + Queues | Durable steps; replaces Celery/Redis entirely |
+| Database | Cloudflare D1 (SQLite + Drizzle) | $5/mo; relational escape hatch to Postgres |
+| Object store | Cloudflare R2 | Free egress = free MP4 delivery |
+| LLM gateway | LiteLLM proxy | Agent-agnostic; per-tenant virtual keys + budgets; BYOK; MIT |
+| Compute | Google Cloud Run (one pipeline image) | Only runtime for ffmpeg/Playwright/whisper; scale-to-zero |
+| Web | Vercel + Next.js + shadcn/ui | Existing deferred dashboard plan |
+| Billing (P5) | Stripe | Standard |
+| Errors / observability | Sentry + Arize OTEL + CF Web Analytics | Existing Arize wiring reused |
+| Docs (P4+) | Mintlify | Instant docs site |
+
+**Remaining open:** pricing model (per-render credits vs seats), product branding/domain, WorkOS custom auth domain ($99/mo — defer to post-launch).
+
+Full rationale, numbers, and diagrams: [docs/hld.md](docs/hld.md), [docs/lld.md](docs/lld.md).
