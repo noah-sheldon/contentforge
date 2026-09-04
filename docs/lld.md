@@ -50,13 +50,13 @@ Tooling: `uv` workspace; `wrangler` (Workers/Queues/Workflows/Tunnel), `docker c
 
 ```mermaid
 flowchart LR
-    R[REST /api/v1] --> E1[POST /runs - start pipeline, format_direction]
+    R[REST /api/v1] --> E1[POST /runs - start run, input kind + format_direction]
     R --> E2[GET /runs/:id - status + artifacts]
     R --> E3[POST /runs/:id/approve or reject - HITL]
     R --> E4[GET /projects]
     R --> E5[GET or PUT /tenant/config - brand studio]
     R --> E6[POST /capture/recipes - generate recipe]
-    R --> E7[GET /media/* - signed Hetzner OBJ URLs]
+    R --> E7[GET or PUT /media/* - signed OBJ URLs]
     E1 & E2 & E3 & E4 & E5 & E6 & E7 --> JWT[WorkOS JWT - JWKS verify]
     E1 --> WF[Start Workflow instance]
     E2 & E5 --> M[(MongoDB Atlas - mongoose)]
@@ -64,6 +64,22 @@ flowchart LR
 ```
 
 Every request: WorkOS JWT verified at the edge, tenant from `org_id` claim, Mongo queries scoped by `tenant_id`, Zod validation.
+
+`POST /runs` body (input modes are run-level, like `format_direction`):
+
+```json
+{
+  "project_id": "p_01",
+  "input": { "kind": "script", "script": { "source": "user", "text": "60s hook..." } },
+  "format_direction": "short"
+}
+```
+
+`input.kind`: `idea` | `url` | `script` | `assets` — the workflow enters at
+the matching stage (idea/url -> research, script -> plan shots, assets ->
+edit); `input.assets[]` holds OBJ keys uploaded via PUT /media/* (assets
+mode). All modes share the same edit/compose/render core.
+
 
 ## 3. Data Model (MongoDB, mongoose)
 
@@ -95,6 +111,8 @@ erDiagram
         string state "pending, checkpoint, running, done, failed"
         string checkpoint "topic, draft, final"
         string format_direction "short, long, long_to_short, short_to_long"
+        string input_kind "idea, url, script, assets"
+        string script_ref "user script text/direction or asset ref (script/hybrid modes)"
     }
     jobs {
         ObjectId _id PK
@@ -111,7 +129,7 @@ erDiagram
     }
 ```
 
-Indexes: `tenant_id` on every collection; `run_id` on jobs. Media keys in Hetzner OBJ: `tenants/{tenant_id}/{project_id}/{run_id}/{artifact}`. `format_direction` is run-level config — the pipeline branches on it (section 4).
+Indexes: `tenant_id` on every collection; `run_id` on jobs. Media keys in Hetzner OBJ: `tenants/{tenant_id}/{project_id}/{run_id}/{artifact}`. `format_direction` and `input_kind` are run-level config — the pipeline branches on both (section 4).
 
 ## 4. Pipeline Orchestration (Cloudflare Workflows → VM via Tunnel)
 

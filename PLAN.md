@@ -76,6 +76,36 @@ flowchart LR
 
 Nothing per-video is hardcoded. A tenant is a validated config blob; the pipeline reads config + registries and generates the composition, copy, and capture recipes at runtime.
 
+## Run input modes — all four supported
+
+The product accepts any of four inputs on a run; every mode converges on
+the same edit/compose/render core. `input.kind` only chooses where the run
+enters the pipeline, so supporting a mode is config, never new pipeline code.
+
+```mermaid
+flowchart LR
+    RES[Ingest + research] --> WRI[Write script]
+    WRI --> PLN[Plan shots + storyboard]
+    PLN --> CAP[Capture web footage]
+    CAP --> ED[Edit: tighten + transcribe]
+    ED --> CMP[Compose + render] --> DEL[Deliver]
+    ID[idea] -. enter here .-> RES
+    UR[url] -. enter here .-> RES
+    SC[user script] -. enter here .-> PLN
+    AS[user assets] -. enter here .-> ED
+```
+
+| Mode | Customer gives | Run enters at | Notes |
+|---|---|---|---|
+| idea | a topic | research / write | fully generated; approvals at checkpoints |
+| url | a source URL | ingest / research | research grounded in the URL's material |
+| script | their final script (or direction) | plan shots | `script.source = user | hybrid`; visuals from web capture or their assets |
+| assets | footage / clips (plus optional script or direction) | edit | tighten + transcribe their media; brand + format from tenant config |
+
+Phasing: P1 makes this data-driven (`RunInput` in the config schema), P1.5
+proves script- and assets-modes on fixtures, P2 wires real asset upload
+(Hetzner OBJ presigned PUT), P4 adds the customer-facing intake UI.
+
 ## Render Tier
 
 Research-verified: Cloudflare Workers cannot encode video (5 min CPU ceiling, 128 MB isolates) and Cloudflare Browser Run cannot record video (screenshots/PDF only). Rendering and capture both run on the **Netcup VM**; everything else is Cloudflare.
@@ -216,6 +246,7 @@ Steps:
 5. Netcup VM Docker Compose stack: pipeline container (FastAPI entrypoints reusing existing python/ code), LiteLLM container, cloudflared — zero public ports
 6. LiteLLM: agent-agnostic LLM layer, per-tenant virtual keys, hosted + BYOK
 7. HITL checkpoints as API endpoints — replaces state/pipeline.json
+8. Asset upload (assets mode): presigned PUT /media/*; POST /runs accepts `input.kind` = idea / url / script / assets and optional script text or direction
 
 Acceptance criteria:
 - Full pipeline runs headless via API with job status tracking, all format_direction values
@@ -263,6 +294,7 @@ Steps:
 3. Brand studio: per-tenant editor for brand, voice, templates, recipes, models
 4. Media library + capture recipe builder
 5. Public landing page (seed for P5)
+6. Per-run intake UI: start from an idea / URL, paste a script or direction, or upload assets
 
 Acceptance criteria:
 - User runs a full pipeline from the browser
@@ -307,7 +339,7 @@ Acceptance criteria:
 | VM reachability | Cloudflare Tunnel | Zero public ports |
 | Burst path | Cloudflare Containers (same image) | Config swap, not rewrite |
 | Web | Vercel + Next.js + shadcn/ui | Existing deferred dashboard plan |
-| MVP | Full pipeline, dynamic format_direction | short / long / long_to_short / short_to_long — user picks per run (build_shorts.py exists) |
+| MVP | Full pipeline, dynamic format_direction + all input modes | short / long / long_to_short / short_to_long; every run starts from idea, url, script, or assets — user picks (build_shorts.py exists) |
 | Billing (P5) | Stripe | Standard |
 | Errors / observability | Sentry + Arize OTEL + CF Web Analytics + UptimeRobot | Existing Arize wiring reused |
 | Docs (P4+) | Mintlify | Instant docs site |

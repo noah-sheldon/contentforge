@@ -9,9 +9,13 @@ merged monorepo (2026-08-31), not from assumptions. Companion doc:
 
 The product is one pipeline with a planning half and a production half,
 currently orchestrated by two skills that must merge into one runtime.
+Every run starts from one of four customer inputs — an idea, a URL, the
+customer's own script, or their footage/assets — and the input only picks
+where the run enters; all modes converge on the same edit/compose/render
+core.
 
 ```
-source (URL / video / audio / text / idea / course module)
+input: idea / url / script / customer assets   (mode picks the entry stage)
   -> PLAN    ingest -> analyze -> ideate -> research -> script -> storyboard
   -> PRODUCE capture (live web) -> tighten -> transcribe -> compose (HyperFrames)
              -> render -> slice -> caption + thumbnail -> deliver
@@ -106,13 +110,14 @@ derives `tenant_id` from the `org_id` claim. Mongo queries are scoped by
 
 | Endpoint | Purpose |
 |---|---|
-| POST /runs | start a pipeline run (`source`, `tenant`, `format_direction`) |
+| POST /runs | start a pipeline run (`input.kind` = idea / url / script / assets, optional user script or direction, `tenant`, `format_direction`) |
 | GET /runs/:id | status + artifacts |
 | POST /runs/:id/approve\|reject | HITL checkpoints |
 | GET /projects | project list |
 | GET/PUT /tenant/config | brand studio |
 | POST /capture/recipes | generate a capture recipe from a URL |
-| GET /media/* | presigned Hetzner OBJ URLs |
+| GET /media/* | presigned Hetzner OBJ URLs (download) |
+| PUT /media/* | upload customer assets (assets mode) |
 
 Workflows + Queues do durable orchestration: `step.waitForEvent` pauses at
 HITL checkpoints; the workflow branches on `format_direction`
@@ -122,13 +127,13 @@ HITL checkpoints; the workflow branches on `format_direction`
 
 ```mermaid
 flowchart LR
-    R[REST /api/v1] --> E1[POST /runs - start pipeline]
+    R[REST /api/v1] --> E1[POST /runs - start run, any input mode]
     R --> E2[GET /runs/:id - status + artifacts]
     R --> E3[POST /runs/:id/approve or reject - HITL]
     R --> E4[GET /projects]
     R --> E5[GET or PUT /tenant/config - brand studio]
     R --> E6[POST /capture/recipes - generate recipe]
-    R --> E7[GET /media/* - signed OBJ URLs]
+    R --> E7[GET or PUT /media/* - signed OBJ URLs]
     E1 --> WF[Start Workflow instance]
     E2 & E5 --> M[(MongoDB Atlas - mongoose)]
     E7 --> O[(Hetzner OBJ - presigned)]
@@ -205,7 +210,10 @@ tenant:
 New tenant = validated blob + LiteLLM virtual key + OBJ prefixes, zero code
 changes. Invalid config fails fast with actionable errors. The registries
 (prompts, templates, recipes) are data files with semver; `prompts/
-registry.yaml` already establishes the pattern.
+registry.yaml` already establishes the pattern. A run adds `RunInput`:
+`input.kind` (idea | url | script | assets), optional user script /
+direction (`script.source` = generated | user | hybrid) and asset refs —
+the same edit/compose/render core is used regardless of mode.
 
 ## 5. Data model (MongoDB Atlas)
 
@@ -272,7 +280,7 @@ sequenceDiagram
     participant L as LiteLLM
     participant D as MongoDB
     participant O as Hetzner OBJ
-    C->>A: POST /runs (source, tenant, format_direction)
+    C->>A: POST /runs (input kind, tenant, format_direction)
     A->>D: load tenant config
     A->>F: start run workflow
     F->>V: ingest + plan stage

@@ -195,12 +195,19 @@ Everything becomes data: tenant config, prompts, templates, recipes.
   slugs, A6).
 - Recipe library: capture recipes as data; LLM generates a recipe from a
   URL/script.
+- Run input model (`RunInput`): every run declares `input.kind` = idea |
+  url | script | assets and, for script/hybrid modes, `script.source`
+  (generated | user | hybrid) + optional text/direction or asset refs.
+  The input selects the entry stage only (idea/url -> research, script ->
+  plan shots, assets -> edit); all modes converge on the same core.
 - Config overrides + fail-fast validation; `config/settings.py` becomes a
   thin loader over the schema.
 
 AC: new tenant = new validated config blob, zero code changes; invalid
 config rejected with actionable errors; a sample tenant renders a demo
-video end-to-end from config alone.
+video end-to-end from config alone. Input modes `idea`, `url`, and
+`script` proven end-to-end from config alone (`assets` via local file
+refs in P1.5); each mode only selects a different entry stage.
 
 ### P1.5 — Pipeline hardening: correct, not just runnable (issue #2 scope)
 
@@ -220,6 +227,9 @@ anything is allowed to serve it.
 - Editing-quality gates: tightening respects word boundaries and pads; SRT /
   captions align to the tightened timeline; round-PiP and brand tokens come
   from config, never code.
+- Input-mode matrix on fixtures: script-mode (customer script or direction
+  -> plan shots -> edit/render) and assets-mode (local file refs ->
+  tighten/transcribe -> compose). Real asset upload is P2.
 - Font policy (A5): resolve fonts from config with a cross-platform fallback
   (bundle Inter / JetBrains Mono / Playfair as the source repos did); kill
   `/System/Library/Fonts` assumptions.
@@ -227,7 +237,8 @@ anything is allowed to serve it.
   check catches silent regressions.
 - Repo hygiene: `make lint` + `make test` + `make smoke` all green locally.
 
-AC: fixture suite green; `format_direction` matrix proven; golden render
+AC: fixture suite green; `format_direction` matrix proven; input-mode
+matrix (script + assets) proven on fixtures; golden render
 reproducible from config alone; zero hardcoded per-video content.
 
 ### P2 — API + pipeline services (issue #3) — deferred, gated on P1.5
@@ -254,6 +265,8 @@ and `docs/lld.md`.
 - Netcup VM Docker Compose: pipeline + LiteLLM + cloudflared, zero public
   ports; render queue concurrency = 1.
 - HITL checkpoints as API endpoints, replacing `python/state/pipeline.json`.
+- Asset upload: presigned PUT /media/*; `POST /runs` accepts `input.kind`
+  (idea | url | script | assets) and optional script text/direction.
 
 AC: full pipeline runs headless via API with job status tracking, all four
 `format_direction` values; HITL approvals flow through the API; artifacts
