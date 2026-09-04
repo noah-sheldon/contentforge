@@ -124,9 +124,9 @@ HITL checkpoints; the workflow branches on `format_direction`
 flowchart LR
     R[REST /api/v1] --> E1[POST /runs - start pipeline]
     R --> E2[GET /runs/:id - status + artifacts]
-    R --> E3[POST /runs/:id/approve|reject - HITL]
+    R --> E3[POST /runs/:id/approve or reject - HITL]
     R --> E4[GET /projects]
-    R --> E5[GET|PUT /tenant/config - brand studio]
+    R --> E5[GET or PUT /tenant/config - brand studio]
     R --> E6[POST /capture/recipes - generate recipe]
     R --> E7[GET /media/* - signed OBJ URLs]
     E1 --> WF[Start Workflow instance]

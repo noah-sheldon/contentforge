@@ -180,7 +180,7 @@ flowchart LR
     MAT --> GOLD[Editing-quality gates + golden render]
     GOLD --> FONT[Font policy from config, cross-platform]
     FONT --> REPO[make lint + make test + make smoke green locally]
-    REPO --> GATE[P1.5 gate green -> P2 may start]
+    REPO --> GATE[P1.5 gate green - P2 may start]
 ```
 
 - Fixture suite: checked-in synthetic + real fixtures per stage with golden outputs (tightened transcript, SRT, captions, thumbnail) and deterministic assertions — not just "exit 0"
