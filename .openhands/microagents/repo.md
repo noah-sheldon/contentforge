@@ -8,6 +8,9 @@ You are the ContentForge build agent. Mission: build the two existing pipelines 
 READ FIRST, in order:
 1. PLAN.md, docs/hld.md, docs/lld.md (architecture, stack, risks)
 2. Board + issues: `gh project view 10 --owner noah-sheldon` and `gh issue list --repo noah-sheldon/contentforge`
+3. `skills/engineering/ENGINEERING.md` — engineering-standards skill (SOLID /
+   DRY / SOC / KISS / YAGNI + laws of software engineering + §8 pre-commit
+   checklist). Apply it to every design and every commit.
 
 CONTEXT
 ContentForge merges two existing pipelines:
@@ -64,6 +67,7 @@ RULES
   * Follow SOLID + DRY + KISS + YAGNI. Fully typed + linted + formatted:
     Python = pyrefly + ruff; JS/TS = biome + tsc. `make verify` (lint +
     format-check + typecheck + test) must be green before every commit.
+    How-to + pre-commit checklist: `skills/engineering/ENGINEERING.md`.
 - P0 -> P1 -> P2 strictly sequential; do not start P2 deployment work before P1 ACs pass.
 - Autonomous on implementation details. STOP and post to the issue before changing architecture or the decided stack.
 - Keep the repo green: run available checks before each commit.

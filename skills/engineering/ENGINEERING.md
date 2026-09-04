@@ -1,304 +1,136 @@
 ---
-description: "SOLID, KISS, DRY, YAGNI + design patterns + HLD/LLD + shadcn/ui"
+name: engineering-standards
+description: Engineering standards skill for contentforge. SOLID, DRY, SOC, KISS, YAGNI, laws of software engineering, small-file/folder structure, and the pre-commit review checklist. Load before designing, adding, or refactoring any module.
 ---
 
-# Engineering & Architecture Standards
+# ContentForge — Engineering & Architecture Standards
 
-## Core Principles (Ordered)
+Current as of the P0 green baseline (2026-08-31). This is the "how we
+write code" skill. It is binding together with the quality gates in the
+root Makefile and the rules in `.openhands/microagents/repo.md`. When a
+reviewer or agent disagrees with code, the principles below decide.
 
-### 1. SOLID
-| Principle | Rule | Example |
+## 0. The system in one picture (know what you are coding against)
+
+- `python/` = the pipeline (the only product code today): `agents/`
+  (typed agents + research + copy), `services/` (text_animator, pixabay,
+  arize), `scripts/` (one stage per script), config via `config/*.yaml`
+  and `python/config/settings.py`.
+- `skills/`, `prompts/`, `templates/`, `config/` = runbooks, prompt
+  registry, HyperFrames templates, persona/voice/brand tokens.
+- Serving track (Cloudflare + VM + MongoDB + Hetzner + apps/services/
+  workers) is **deferred to P2-P5**. Do not build for it before the P1.5
+  proof gate (PLAN.md Roadmap).
+- No speculative frameworks were added (no Celery/Redis/CrewAI/DB yet);
+  each was considered and rejected until a phase needs it (YAGNI).
+
+## 1. SOLID (applied, with real anchors)
+
+- **S — Single responsibility.** One file, one job. Split, don't grow
+  (§6). `python/scripts/capture.py` only captures; `schemas.py` only
+  declares contracts.
+- **O — Open/closed.** A new platform/format/template is a new subclass or
+  registry entry, not a new branch in existing code (experts/, platforms/,
+  `text_animator.py` template selection).
+- **L — Liskov.** Every implementation satisfies its base contract:
+  scraper -> `list[SearchResult]`, publisher/expert -> its payload type
+  from `agents/schemas.py`.
+- **I — Interface segregation.** Typed, narrow interfaces
+  (`agents/base.py` ABCs); no god-objects, no unused methods.
+- **D — Dependency inversion.** Depend on the ABC/protocol, not on a
+  concrete module: callers get clients via shared factories, never by
+  importing deep internals.
+
+## 2. DRY (applied)
+
+- Rule of three: extract on the third repetition, not before — DRY is
+  balanced by YAGNI.
+- One home per concern: schemas in `agents/schemas.py`, shared
+  behaviour/decorators in `agents/base.py`, config in `config/` +
+  `python/config/settings.py`, prompts in the `prompts/` registry,
+  clients via shared factory functions.
+- Forbidden: per-video hardcoding (audit A6). Everything per run comes
+  from config + registries at runtime, never pasted per video.
+- Never copy a script between repos/tools; a missing capability is ported
+  once into `python/`, then shared.
+
+## 3. SOC (applied)
+
+| Concern | Home | Rule |
 |---|---|---|
-| **S**ingle Responsibility | One file, one job | `researcher.py` searches only. |
-| **O**pen/Closed | New platform = new class. Never touch existing code. | Add Reddit: `RedditScraper(BaseScraper)`. Zero edits to YouTube/X. |
-| **L**iskov Substitution | Every scraper implements `search(query)`. Swappable. | `InstagramPublisher` and `LinkedInPublisher` both implement `publish()`. |
-| **I**nterface Segregation | Dont implement methods you dont use. | `TextAnimation.tsx` has no video logic. |
-| **D**ependency Inversion | Depend on ABCs, not concretions. | Strategist depends on `SearchInterface`. Swap DuckDuckGo for Exa = one import change. |
+| Data contracts | `python/agents/schemas.py` | Typed Pydantic models; no bare dicts across boundaries |
+| ABCs + shared behaviour | `python/agents/base.py` | Interfaces only, no business logic |
+| Agent logic | `python/agents/{domain}/*.py` | One job per file |
+| Prompts | `prompts/` registry + `agents/prompts/` | Template text only, never Python logic |
+| Config | `config/` YAML + settings loader | Persona/voice/brand/tokens as data |
+| Stage orchestration | `python/scripts/*.py` | Thin CLI over services/agents |
+| Reusable engines | `python/services/*.py` | No CLI, no per-run hardcoding |
 
-### 2. KISS
-- No Kubernetes. Docker Compose is enough.
-- No microservices. One FastAPI app + Celery workers.
-- No RabbitMQ. Redis is sufficient.
-- No complex config. `persona.yaml` + `.env` covers everything.
-- V1: one platform. Prove the loop before scaling.
-- Junior test: can a junior engineer understand the file in 5 minutes?
+Folders mirror bounded contexts; new context = new folder, never a loose
+file at the repo root.
 
-### 3. DRY
-| What | DRY solution |
-|---|---|
-| Retry logic | `@retry_on_failure` decorator on `BasePublisher` |
-| LLM prompts | Individual `{domain}/{name}.yaml` files in `prompts/` |
-| Credentials | `.env` only. Never scattered across files. |
-| File paths | `Path` constants in `config/settings.py`. Never hardcoded. |
-| API clients | `get_client()` in `search/web.py`. Shared DuckDuckGo client. |
-| Schemas | All Pydantic models in `agents/schemas.py`. |
+## 4. KISS
 
-### 4. YAGNI (You Aint Gonna Need It)
-- Never build V2 before V1 works.
-- Never add a framework just in case.
-- No database until JSON files become insufficient.
-- No dashboard until CLI proves the pipeline works.
-- No auto-publisher until manual posting is validated.
-- If you are unsure whether you need it, you dont need it.
-- Add abstraction only when you have three identical blocks, not before.
+- Junior test: can a junior engineer understand the file in five minutes?
+- Smallest change that satisfies the current phase's acceptance criteria.
+- Stack stays small and proven (uv, ruff/pyrefly, OpenAI SDK, feedparser,
+  playwright, faster-whisper, HyperFrames). Anything else needs a phase
+  decision first.
 
-## Design Patterns
+## 5. YAGNI
 
-| Pattern | Where Used | Why |
-|---|---|---|
-| **Factory** | `get_expert(platform)` in `experts/__init__.py` | Creates right adapter without callers knowing subclasses |
-| **Strategy** | All `SearchInterface` implementations | Swap YouTube for Reddit without changing research loop |
-| **Template Method** | `PlatformExpert` base class with `adapt()` | Subclasses inherit shared logic, override only differences |
-| **Decorator** | `@retry_on_failure()` in `base.py` | Adds retry to any function without modifying it |
-| **Singleton** | `get_client()` in `search/web.py` | One DuckDuckGo client shared across all scrapers |
-| **Registry** | HyperFrames template selection in `text_animator.py` | New block type = one template clause. No changes to the render loop |
-| **Facade** | `run_research()` in `research/orchestrator.py` | Single function hiding scrape-filter-synthesise-generate-review cycle |
-| **Value Object** | All Pydantic models in `schemas.py` | Immutable data contracts. No dicts floating around. |
+- Build what the current phase's ACs need, nothing more. No DB before P2,
+  no queue before P2, no dashboard before P4, no multi-tenant before P3,
+  no billing before P5.
+- No config knob, flag, or abstraction until a second concrete user of it
+  exists. Don't future-proof public APIs against guesses.
+- If unsure whether you need it, you don't need it yet.
 
-## Naming Conventions (Mandatory)
+## 6. Small files and folder structure (SRP as architecture)
 
-### No underscore prefixes
-- Do NOT use `_name` for "private" methods or variables.
-- Python's `_` prefix convention is **not used** in this project.
-- Methods: `def scrape()`, not `def _scrape()`
-- Variables: `self.cache`, not `self._cache`
-- Helpers: `def format_data()`, not `def _format_data()`
+- One responsibility per file; stay roughly under ~250 lines. When a file
+  does a second job or grows unwieldy, it becomes a folder with
+  subfolders — split, don't extend.
+- Organize by bounded context (see §0/§3). P2+ adds `apps/`, `services/`,
+  `workers/` as their own contexts.
+- Never dump loose files at the repo root; a new top-level directory
+  means a new bounded context, not tidiness.
 
-### Everything else follows standard Python
-- `snake_case` for functions and variables
-- `PascalCase` for classes
-- `UPPER_CASE` for constants
-- `self.thing` for instance attributes (no `self._thing`)
+## 7. Laws of software engineering (applied checklist)
 
-## Autonomous Agents (CrewAI)
+1. Conway's law — structure follows the work: file/folder boundaries match
+   stage boundaries (plan / produce / publish), and later the serving
+   track, so teams and system can evolve together.
+2. Gall's law — working complex systems evolve from working simple ones:
+   P0-P1.5 make the pipeline correct first; the serving system is built on
+   a proven core, never the other way around.
+3. Law of Demeter — modules talk to immediate collaborators only
+   (agent -> service/script -> config); no reaching through layers.
+4. Brooks's law — late added effort is costly and pipeline work is
+   serial: one render at a time (queue concurrency = 1); concurrency is a
+   P2 decision, not a P1 invention.
+5. Postel's law — be strict at the boundary: validate config input
+   fail-fast (Pydantic), keep internal invariants tight and trusted.
+6. Liskov + interface segregation — see SOLID §1.
+7. Avoid bikeshedding — product decisions live in the PLAN.md decision
+   register; resolve open items at phase gates, not in code review.
 
-Agents run sequentially in a Crew. Each has a role, goal, and backstory.
+## 8. Pre-commit checklist (the "correct way" gate)
 
-| Agent | Role | Output |
-|---|---|---|
-| Researcher | Senior Content Researcher | Raw scraped data + LLM trend synthesis |
-| Strategist | Content Strategy Director | 3 topic proposals with platform-fit scores |
-| Storyboard Director | Video Storyboard Director | Scene-by-scene shot list with timings |
-| Producer | Content Production Director | Rendered video files + captions |
+Before every commit or PR:
 
-Agents are defined in `python/agents/` with CrewAI `Agent` + `Task` classes.
-The Crew runs weekly. User reviews outputs at each checkpoint.
+- [ ] `make verify` green — ruff lint + format, pyrefly types, biome,
+      tsc (armed), pytest.
+- [ ] Self-review against §1-§5: SOLID satisfied, no duplication (check
+      `agents/base.py`, `schemas.py`, `services/` first), SOC respected,
+      no speculative abstraction, nothing hardcoded that should come from
+      config/registries.
+- [ ] Small file / right folder; no loose files at root.
+- [ ] No stale references to removed architecture (Cloud Run, CrewAI,
+      Celery, Redis, MinIO, pre-P2 DB, hardcoded source paths).
+- [ ] Non-trivial change: run the code-review checklist (code-review
+      skill) before merging; P1.5+ behavioural changes add fixture
+      coverage.
 
-## KISS (Keep It Simple, Stupid)
-
-- **No Kubernetes.** Docker Compose is enough.
-- **No microservices.** One FastAPI app + Celery workers.
-- **No RabbitMQ.** Redis is sufficient.
-- **No complex config.** `persona.yaml` + `.env` covers everything.
-- **V1: one platform.** Instagram Reels only. Prove the loop before scaling.
-- **Junior test:** can a junior engineer understand the file in 5 minutes?
-
-## DRY (Don't Repeat Yourself)
-
-| What | DRY solution |
-|---|---|
-| Retry logic | `@retry_on_failure` decorator on `BasePublisher` |
-| LLM prompts | `prompts.yaml` or `PromptRegistry` class. One place to edit. |
-| Credentials | `.env` only. Never scattered across files. |
-| File paths | `Path` constants in `config.py`. Never hardcoded strings. |
-| API wrappers | `BaseScraper` with shared rate-limit handling, auth, error logging. |
-
-## SOC (Separation of Concerns)
-
-| Concern | File | Rule |
-|---|---|---|
-| Data contracts | `agents/schemas.py` | All Pydantic models. Every agent has typed input/output. |
-| ABCs + decorators | `agents/base.py` | Interfaces and shared behavior. Never business logic. |
-| Agent logic | `agents/{domain}/{agent}.py` | One job per file. Never inline prompts. |
-| Prompts | `agents/prompts/{domain}/{name}.yaml` | Template text only. Never Python logic. |
-| Config | `config/settings.py` | Paths, persona loader, prompt loader. Never agent code. |
-
-## Naming Conventions (Mandatory)
-
-### No underscore prefixes
-
-## High-Level Design (HLD)
-
-```
-┌─────────────┐    ┌──────────────┐    ┌──────────────┐    ┌────────────────┐
-│  Researcher  │───▶│  Strategist  │───▶│  Storyboard  │───▶│   Producer     │
-│              │    │              │    │              │    │                │
-│ YouTube  API │    │ LLM proposes│    │ LLM generates│    │ HyperFrames  │
-│ X       API  │    │ 3 topics    │    │ shot list     │    │ FFmpeg        │
-│ DuckDuckGo   │    │ user picks 1│    │ scenes+timer  │    │ faster-whisper│
-│ RSS feeds    │    │              │    │              │    │ Pillow        │
-└──────┬───────┘    └──────┬───────┘    └──────┬───────┘    └──────┬─────────┘
-       │                   │                   │                   │
-       └───────────────────┴───────────────────┴───────────────────┘
-                                      │
-                                      ▼
-                            ┌─────────────────┐
-                            │  Object Store   │
-                            │  (MinIO / S3)   │
-                            │                 │
-                            │  rendered/      │
-                            │  captions/      │
-                            │  raw/           │
-                            │  images/        │
-                            └─────────────────┘
-```
-
-### Data Flow
-
-1. **Researcher** → scrapes YouTube + X directly, DuckDuckGo summarises IG/TT/LI/Threads → writes to MongoDB `weeks.research`
-2. **Strategist** → reads research + `persona.yaml` → LLM proposes 3 topics with platform-fit scores → user picks 1
-3. **Storyboard** → LLM reads script → generates scene-by-scene shot list with durations, camera angles, assets
-4. **Producer** → branches on track:
-   - **short_form**: faster-whisper → HyperFrames composition → FFmpeg composite → S3
-   - **text_gen**: Pillow (code images) → HyperFrames TextAnimation → S3
-5. **Output** → writes to MongoDB `renders` + `content_calendar`. User posts manually.
-
----
-
-## Low-Level Design (LLD)
-
-### Class Hierarchy
-
-```
-SearchInterface (ABC)
-├── YouTubeScraper
-├── XScraper
-└── DuckDuckGoSummarizer
-
-BasePublisher (ABC) — @retry_on_failure
-├── InstagramPublisher
-├── LinkedInPublisher
-├── XPublisher
-└── ThreadsPublisher
-
-BaseRenderer (ABC)
-├── OverlayRenderer   (HyperFrames, with A-Roll)
-└── TextRenderer      (HyperFrames, no A-Roll)
-```
-
-### Key Interfaces
-
-```python
-class SearchInterface(ABC):
-    @abstractmethod
-    def search(self, query: str, max_results: int) -> list[SearchResult]: ...
-
-class BasePublisher(ABC):
-    @retry_on_failure(max_retries=3, backoff=2)
-    @abstractmethod
-    def publish(self, content: PublishPayload) -> PublishResult: ...
-
-class BaseRenderer(ABC):
-    @abstractmethod
-    def render(self, script: Script) -> RenderOutput: ...
-```
-
-### File Structure
-
-```
-python/
-  agents/
-    base.py                   # SearchInterface ABC + BasePublisher ABC
-    search_youtube.py         # YouTubeScraper
-    search_x.py               # XScraper
-    search_web.py             # DuckDuckGoSummarizer + RSS
-    strategist.py             # LLM topic proposer
-    storyboard.py             # LLM shot list generator
-    synthesizer_openai.py     # OpenAI LLM wrapper
-  services/
-    editor.py                 # faster-whisper + HyperFrames composition + FFmpeg
-    text_animator.py          # Pillow + HyperFrames TextAnimation
-    llm_service.py            # Shared LLM call logic
-  main.py
-  config.py                   # Path constants, env loader
-  prompts.yaml                # All LLM prompts (DRY)
-```
-
----
-
-## UI/UX: Minimalist Modern + shadcn/ui
-
-### Design Tokens
-
-| Token | Value | Source |
-|---|---|---|
-| Primary font | Inter | `persona.yaml` |
-| Heading font | Playfair Display | `persona.yaml` |
-| Mono font | JetBrains Mono | `persona.yaml` |
-| Accent | `#D4AF37` (gold) | CSS var `--gold` |
-| Background (light) | `#FAFAFA` | CSS var `--alabaster` |
-| Background (dark) | `#12141C` | CSS var `--obsidian` |
-| Muted text | `#6B7280` | CSS var `--silent-gray` |
-
-### Component Library
-
-- **shadcn/ui** for all dashboard components (buttons, cards, dialogs, forms)
-- **Tailwind CSS v4** for styling
-- **tw-animate-css** for animations
-- **Dark/light mode** via `.dark` class toggle
-
-### Dashboard Layout
-
-```
-┌──────────────────────────────────────────┐
-│  Header:  // BOREHAMWOOD • WORK_DAY      │
-│  [Research] [Scripts] [Calendar]         │
-├──────────────────────────────────────────┤
-│                                          │
-│  ┌─ Card: Topic 1 ──────────────────┐   │
-│  │  Hook: "Building RAG at Scale"   │   │
-│  │  Fit: LI:high  X:med  IG:low     │   │
-│  │  [Select]                        │   │
-│  └──────────────────────────────────┘   │
-│                                          │
-│  ┌─ Card: Topic 2 ──────────────────┐   │
-│  │  ...                              │   │
-│  └──────────────────────────────────┘   │
-│                                          │
-└──────────────────────────────────────────┘
-```
-
-### Pages
-
-| Route | Purpose | Components |
-|---|---|---|
-| `/research` | View 3 proposed topics, select one | `Card`, `Badge`, `Button` |
-| `/scripts` | Review script + shot list, approve/reject | `Card`, `Separator`, `ScrollArea` |
-| `/calendar` | Weekly content schedule | `Table`, `Badge`, `Switch` |
-| `/renders` | Download finished output files | `Card`, `Button`, `Download` icon |
-
-### UX Rules
-
-- Every action is max 1 click. No multi-step wizards.
-- Dark mode default (obsidian bg). Light mode toggle in header.
-- Loading states = skeleton components (`<Skeleton />`).
-- Errors = inline toast (`<Toast />`), not full-page errors.
-- Mobile-first responsive. Single column on phone, 2-col on desktop.
-
----
-
-## V1 Build Order
-
-```
-Week 1: BaseStrategyAgent → DuckDuckGoSearch → OpenAISynthesizer → Dashboard
-        [Text-only loop. Prove the strategy layer works.]
-
-Week 2: Storyboard agent → HyperFrames TextAnimation → Short-form video pipeline
-        [One platform: Instagram Reels. One manual post.]
-
-Week 3: Text animation pipeline → Pillow code images → 15s text posts
-        [Add LinkedIn/X/Threads text-gen track.]
-
-Week 4: YouTube Shorts + TikTok (same vertical.mp4)
-        [Scale horizontally. No new pipeline code.]
-```
-
-## Pre-Commit Checklist
-
-- [ ] Can I swap DuckDuckGo for Exa by changing ONE line? (Dependency Inversion)
-- [ ] Does this file do ONE thing? (Single Responsibility)
-- [ ] Am I copy-pasting anything? (DRY)
-- [ ] Could a junior engineer understand this in 5 minutes? (KISS)
-- [ ] Does adding a new platform require editing old code? (Open/Closed)
-- [ ] Dark + light mode both work? (UI)
-- [ ] Mobile responsive? (UI)
+Principles are not ceremony. When two conflict, pick the reading that
+keeps the pipeline simplest to reason about and change.
