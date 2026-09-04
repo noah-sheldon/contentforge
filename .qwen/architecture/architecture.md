@@ -364,7 +364,57 @@ flowchart LR
     CFW --> WOS
 ```
 
-## 8. Non-functional
+## 8. Coupling strategy — couple by contract, not by code
+
+Rule: tight **inside** a stage or component, loosely coupled **between**
+them, and every seam couples through a typed contract or a
+vendor-neutral interface — never through code imports or hard-wired
+provider calls. Do not loosen what only ever runs together.
+
+### 8.1 Seams and what decouples them
+
+| Seam | Decoupled by | Swaps without a rewrite |
+|---|---|---|
+| Pipeline stages | each stage = one CLI (`python/scripts/*.py`), IO as files + `RunConfig` | stage order and `input.kind` entry point |
+| Agents (research/search/copy) | Pydantic contracts (`agents/schemas.py`) + ABCs (`agents/base.py`) | a scraper/agent implementation |
+| Content vs behavior | `prompts/`, `templates/`, `recipes` registries | copy, layout, or recipe — no code change |
+| LLM | LiteLLM proxy | model, provider, BYOK vs hosted |
+| Object storage | S3 API behind presigned URLs | Hetzner OBJ / CF R2 / MinIO |
+| Auth / orgs | WorkOS AuthKit | SSO / social / RBAC providers |
+| Web vs core | Hono REST (`/runs`, HITL endpoints) | dashboard is a pure API client |
+
+### 8.2 Gaps to close before P2
+
+1. **Compute behind an executor seam.** Workflows dispatch to a thin
+   executor contract (start image -> poll job -> fetch artifacts), never
+   to the VM directly. The pipeline container is the unit, so the Netcup
+   VM and the Cloudflare Containers burst path run the **same image**
+   behind the same seam — a config swap, not a re-architecture.
+2. **State vs media separation stays strict.** Run metadata in MongoDB,
+   blobs in OBJ under `tenants/{tenant}/{project}/{run}/`; never blobs in
+   the DB, never DB-shaped state in files (`state/pipeline.json` dies at
+   P2). This is what makes run state survive restarts.
+
+### 8.3 Keep deliberately tight (do not loosen)
+
+- One Docker Compose stack on the Netcup VM: process locality and a
+  shared filesystem are features at this scale, not debts.
+- The `python/` codebase: loose **module** coupling (SOLID, one job per
+  file) — not loose deployment for code that always runs together.
+- Cloudflare Workflows + Queues as orchestrator is an accepted platform
+  binding; mitigated by a portable worker image, thin API logic, and
+  declarative (config-driven) orchestration.
+- No event bus beyond Workflows `step.waitForEvent` at HITL checkpoints —
+  adding Celery/Redis/Kafka/RabbitMQ is explicitly out of scope.
+
+### 8.4 Rule of thumb
+
+Couple through **contracts** (config schema, stage IO, registry entries,
+S3 API, LiteLLM, Hono REST); stay tight inside the VM; let Workflows be
+the only distributed piece until real telemetry says otherwise.
+
+## 9. Non-functional
+
 
 - Security: WorkOS JWTs verified at the edge; VM has zero public ports;
   tenant isolation via tenant_id scoping + OBJ prefixes + signed URLs;
@@ -376,7 +426,7 @@ flowchart LR
 - Cost: ~10-20/mo launch (VM + Hetzner + free tiers); DeepSeek
   `deepseek-v4-flash` keeps inference cents-level.
 
-## 9. Key decisions (with evidence)
+## 10. Key decisions (with evidence)
 
 | Decision | Choice | Why |
 |---|---|---|
@@ -390,7 +440,7 @@ flowchart LR
 | Voice/persona/brand | single `config/` source | Both pipelines already read persona/voice; dedupe complete |
 | Transcribe | faster-whisper (CPU, VM) | Package; fine on 4-6 cores; planner's mlx-whisper is mac-only |
 
-## 10. Risks
+## 11. Risks
 
 1. Single VM is the production brain — portability to Cloudflare Containers
    is the escape hatch (same image, config swap); nightly backups + COW

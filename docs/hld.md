@@ -231,6 +231,33 @@ Cost discipline: DeepSeek `deepseek-v4-flash` as the default hosted model keeps 
 6. **The product risk is output quality, not infra.** LLM-generated scenes can drift from brand consistency. Mitigation: template registry constrains the LLM; review gates (VERDICT PASS/FAIL) become code; golden-sample regression checks in CI.
 7. **Part-time timeline.** P0-P5 is 8-14 weeks of evenings. Phase gates on the board (each with acceptance criteria) keep scope honest; P0-P2 are the sequential foundation.
 
-## 10. Out of Scope (later)
+## 10. Coupling strategy
+
+Couple by contract, not by code: tight inside each component, loosely
+coupled between them, every seam through a typed contract or
+vendor-neutral interface. Detail: architecture.md §8.
+
+| Seam | Decoupled by |
+|---|---|
+| Pipeline stages | one CLI per stage; IO as files + `RunConfig` |
+| Agents | Pydantic contracts + ABCs |
+| Content vs behavior | prompts / templates / recipes registries |
+| LLM | LiteLLM proxy |
+| Storage | S3 API behind presigned URLs |
+| Auth / orgs | WorkOS AuthKit |
+| Web vs core | Hono REST API |
+
+Two rules before P2: (1) compute behind an **executor seam** — same
+pipeline image runs on the Netcup VM or Cloudflare Containers as a config
+swap; (2) run metadata in MongoDB, blobs in Hetzner OBJ — never blobs in
+the DB, never DB-shaped state in files.
+
+Keep tight: one Docker Compose stack on the VM; shared `python/`
+codebase (loose modules, not loose deployment); Workflows is the only
+distributed piece (accepted binding, portable image); no event bus
+beyond `waitForEvent` at HITL checkpoints.
+
+## 11. Out of Scope (later)
+
 
 SAML SSO + custom auth domain (WorkOS add-ons), multi-region, public API SDK, Cloudflare Containers production rollout (burst path today), auto-scaling beyond one VM.
