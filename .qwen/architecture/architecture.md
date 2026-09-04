@@ -394,5 +394,10 @@ flowchart LR
 4. Output quality drift from brand consistency — template registry
    constrains the LLM; review gates (PASS/FAIL) become code; golden-sample
    checks in CI.
-5. The P0 merge has defects (plan section 4) — fix them before building
-   P1+ on top.
+5. P0 merge audit defects (plan §4, A1-A12) - resolved at commit `37e75ac`;
+   residual A5/A6/A10 land in P1/P1.5. The P1.5 fixture suite re-proves the
+   reconstructed scripts before any serving work starts.
+
+> Phase snapshots: every build phase (P0 -> P1 -> P1.5 -> P2 -> P3 -> P4 ->
+> P5) has a small state diagram in PLAN.md (Roadmap). This document is the
+> steady-state target.

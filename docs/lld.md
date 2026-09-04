@@ -2,6 +2,10 @@
 
 Companion to HLD. Concrete packages, schemas, endpoints, and wiring. Everything is a package or proven existing code; one VM + managed services; cost-first.
 
+> Layout below = **target (P2–P5)**. Current P0 tree is the pipeline core only:
+> `python/`, `skills/`, `prompts/`, `templates/`, `config/`, `docs/`, `deploy/`.
+> `apps/`, `services/`, `workers/` arrive with P2/P4.
+
 ## 1. Monorepo Layout (uv workspace)
 
 ```mermaid

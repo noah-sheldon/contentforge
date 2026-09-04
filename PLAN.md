@@ -4,6 +4,8 @@ Merge of `content-planner` (planning: ingest, research, script, capture) + `agen
 
 **Fully dynamic** = everything is generated at runtime from validated config + LLM (prompts, templates, scenes, recipes — nothing hardcoded per video) **and** customers customize brand, voice, and templates per tenant.
 
+Companion docs: **[docs/hld.md](docs/hld.md)** (high-level design), **[docs/lld.md](docs/lld.md)** (low-level: schemas, endpoints, workflows, LLM layer), `.qwen/architecture/architecture.md` (architecture + diagrams), `.qwen/plans/plan.md` (phased build plan + decision register).
+
 ## Product Pipeline
 
 ```mermaid
@@ -17,7 +19,9 @@ flowchart LR
     DEL --> PUB[Publish]
 ```
 
-## Target Architecture (Cloudflare-first)
+## Target Architecture (serving track — deferred to P2/P4)
+
+This is the **target** for the serving track, research-backed and detailed in docs/hld.md + docs/lld.md. What is built **today (P0–P1.5)** is the pipeline core only — the `python/` uv workspace plus `skills/`, `prompts/`, `templates/`, `config/`, `docs/`, `deploy/`. The `apps/`, `services/`, `workers/` packages in the diagram land in P2/P4.
 
 ```mermaid
 flowchart TD
@@ -25,38 +29,36 @@ flowchart TD
         DASH[Dashboard + brand studio]
         HITL[Approval checkpoints]
     end
-    subgraph CF[Cloudflare]
+    subgraph CF[Cloudflare edge]
         API[Hono API - Workers]
         WF[Workflows - pipeline orchestrator]
         Q[Queues]
-        D1[(D1 - tenant config + run state)]
-        R2[(R2 - media, free egress)]
+        TUN[Cloudflare Tunnel]
     end
-    subgraph CR[Cloud Run - one pipeline image]
-        ING[Ingest / plan / write]
-        CAP[Capture - Playwright]
-        TR[Transcribe / tighten]
-        COM[Compose - HyperFrames]
-        REN[Render - Chromium + ffmpeg]
+    subgraph VM[Netcup VM - one Docker Compose stack]
+        PIPE[Pipeline container - python/ code as stages]
+        LLM[LiteLLM - agent-agnostic LLM gateway]
+        CLD[cloudflared - zero public ports]
     end
-    subgraph LLM[LLM tier - agent agnostic]
-        LP[LiteLLM proxy - BYOK + hosted]
+    subgraph DATA[Managed data]
+        DB[(MongoDB Atlas Flex)]
+        OBJ[(Hetzner Object Storage - S3)]
     end
     AUTH[WorkOS AuthKit]
     DASH --> API
     HITL --> API
     API --> AUTH
-    API --> D1
+    API --> DB
     API --> WF
     WF --> Q
-    WF --> CR
-    CR --> LP
-    CR --> R2
-    CR --> D1
-    API --> R2
+    WF --> TUN
+    TUN --> CLD
+    CLD --> PIPE
+    PIPE --> LLM
+    PIPE --> DB
+    PIPE --> OBJ
+    API --> OBJ
 ```
-
-Detailed design: **[docs/hld.md](docs/hld.md)** (high-level) and **[docs/lld.md](docs/lld.md)** (low-level: schemas, endpoints, workflows, LLM layer).
 
 ## Dynamic Model
 
@@ -76,62 +78,85 @@ Nothing per-video is hardcoded. A tenant is a validated config blob; the pipelin
 
 ## Render Tier
 
-Research-verified: Cloudflare Workers cannot encode video (5 min CPU ceiling, 128 MB isolates) and Cloudflare Browser Run cannot record video (screenshots/PDF only). Rendering and capture both run on Cloud Run; everything else is Cloudflare.
+Research-verified: Cloudflare Workers cannot encode video (5 min CPU ceiling, 128 MB isolates) and Cloudflare Browser Run cannot record video (screenshots/PDF only). Rendering and capture both run on the **Netcup VM**; everything else is Cloudflare.
 
 ```mermaid
 flowchart LR
     APP[Vercel app] -->|render job| API[Workers API]
     API --> WF[Workflow step]
-    WF -->|dispatch| CR[Cloud Run - Chromium + ffmpeg]
-    CR -->|MP4| R2[(R2 - free egress)]
-    CR -->|result| WF
+    WF -->|dispatch via Tunnel| VM[Netcup VM - Chromium + ffmpeg]
+    VM -->|MP4| OBJ[(Hetzner Object Storage - S3)]
+    VM -->|result| WF
 ```
 
 | Option | Role | Verdict |
 |---|---|---|
-| Vercel | Next.js app, dashboard, brand studio | Use for the web app |
-| Cloudflare Workers | API, Workflows, Queues, D1, R2 | Primary platform |
-| Cloudflare Browser Run | Edge browser | Not for video (no recording) — capture stays on Cloud Run Playwright |
-| Google Cloud Run | Pipeline + render container (Chromium + ffmpeg, scale-to-zero) | Primary compute |
-| Cloudflare Containers | CF-native container runtime | Watch — potential Cloud Run replacement |
+| Vercel | Next.js app, dashboard, brand studio | Use for the web app (P4) |
+| Cloudflare Workers | API, Workflows, Queues, Tunnel | Primary platform (P2) |
+| Cloudflare Browser Run | Edge browser | Not for video (no recording) — capture stays on the VM Playwright |
+| Netcup VM | Pipeline + render container (Chromium + ffmpeg), one Docker Compose stack | Primary compute (P2) |
+| Cloudflare Containers | CF-native container runtime | Watch — burst path for the VM (same image) |
+
+Run state: MongoDB Atlas Flex (document-shaped). Media: Hetzner Object Storage (S3 API). See Decided Stack below.
 
 ## Roadmap
 
+Pipeline-correctness spine first, serving deferred. P0–P1.5 are the only phases that touch pipeline code. P2 starts **only when the P1.5 proof gate is green**, and its infra shape is re-decided at P2 start using real per-stage telemetry (durations, resource use, failure modes) from P1.5 — not guessed up front. P3 (multi-tenant) and P4 (web app) can partially overlap after P2.
+
 ```mermaid
-flowchart LR
-    P0[P0 Consolidate] --> P1[P1 Dynamic config] --> P2[P2 Backend services]
+flowchart TD
+    P0[P0 Consolidation + green baseline] --> P1[P1 Dynamic config layer]
+    P1 --> P15[P1.5 Pipeline hardening - proof gate]
+    P15 -. only when the P1.5 gate is green .-> P2[P2 API + VM pipeline services]
     P2 --> P3[P3 Multi-tenant]
     P2 --> P4[P4 Web app]
     P3 --> P4
     P4 --> P5[P5 Productize]
 ```
 
-P0-P2 are the foundation and must land in order. P3 (tenant isolation) and P4 (dashboard) can partially overlap after P2.
+Each phase below carries a small state diagram. Canonical phase detail (audit A1–A12, ACs, decision register) lives in `.qwen/plans/plan.md`.
 
 ---
 
-## P0 — Consolidation (monorepo)
+## P0 — Consolidation + green baseline
 
-Merge both repos into `contentforge`; resolve duplication; everything runs from one place.
+Merge both source repos into the `contentforge` uv workspace; resolve duplication; every script runs from one place.
 
-Steps:
-1. Monorepo layout (uv workspace): `apps/web/` (Next.js), `services/api/` (Workers + Hono), `workers/pipeline/` (FastAPI on Cloud Run), `workers/litellm/`, `python/` (agents + scripts from both), `skills/`, `prompts/`, `templates/`, `config/`, `docs/` (hld.md + lld.md live here)
-2. Move `content-planner`: `skill/` (v2.1.0), `scripts/` (ingest, diagram, board, workspace, capture, transcribe, tighten, slice, gen_captions, audio_master, build_shorts, serve_teleprompter), `library/` + `outputs/` + `calendar/` + `workspace/` as gitignored data dirs
-3. Move `agentic-video-editing`: `skills/video-agent` (v1.1.2), `python/agents`, `python/services`, `python/config/settings.py`, `templates/`, `prompts/`, `docs/`
-4. Dedupe: one `config/persona.yaml` (merge content-planner `skill/persona.yaml` + video root `persona.yaml`), one voice/caption ruleset, brand tokens as config (obsidian / alabaster / gold / silentGray)
-5. Reconcile missing scripts referenced by video-agent but absent here: `build_thumbnails.py`, `verify_pip.py`, `audit_pip_collisions.py`, `tighten_words.py` (port from content-planner)
-6. Replace hardcoded `/Users/noahsheldon/Documents/Work_Projects/content-planner` path in `skills/video-agent/SKILL.md` with a config setting
-7. Unified `requirements.txt` + `.env.example` (DEEPSEEK_API_KEY, ARIZE, X_BEARER_TOKEN, OPENAI_API_KEY, PIXABAY)
+```mermaid
+flowchart LR
+    CP[content-planner] --> M[Merge into uv workspace]
+    AVE[agentic-video-editing] --> M
+    M --> D[Dedupe persona / voice / brand tokens]
+    D --> P[Port missing scripts + fix audit A1-A12]
+    P --> SM[Local smoke: capture + tighten + transcribe dry run]
+    SM --> G[Toolchain baseline green: pyrefly + ruff + biome + tsc]
+```
+
+Layout today (P0): `python/`, `skills/`, `prompts/`, `templates/`, `config/`, `docs/`, `deploy/`. No `apps/` / `services/` / `workers/` yet — those are serving-track packages and land in P2/P4.
+
+- `python/` — agents + services + scripts ported from both repos
+- `config/persona.yaml` — one persona; one voice/caption ruleset; brand tokens (obsidian / alabaster / gold / silent_gray) as config
+- Missing scripts ported: `build_thumbnails.py`, `verify_pip.py`, `audit_pip_collisions.py`, `tighten_words.py`
+- Hardcoded source-repo paths replaced by config settings; unified deps in `python/pyproject.toml`; unified `.env.example`
 
 Acceptance criteria:
-- Every script from both pipelines runs from `contentforge` (tighten, capture, transcribe, board-sync, render)
-- Zero cross-repo absolute paths
-- One persona, one voice ruleset, one brand token source
-- CI smoke test: capture + tighten + transcribe dry run exits 0
+- Every script from both pipelines runs from `contentforge`
+- Zero cross-repo absolute paths; one persona, one voice ruleset, one brand token source
+- Local smoke test (capture + tighten + transcribe dry run) exits 0 — CI wiring lands in P2
+- Toolchain baseline green: `make verify` (ruff + pyrefly + biome + tsc + pytest)
 
 ## P1 — Dynamic config layer
 
 Everything becomes data: tenant config, prompts, templates, recipes.
+
+```mermaid
+flowchart LR
+    Y[config/ YAML + persona] --> S[config package - Pydantic]
+    REG[prompts + templates + recipes registries] --> S
+    S --> TC[TenantConfig]
+    TC --> GEN[Runtime generation - no per-video hardcoding]
+    GEN --> DEMO[Sample tenant renders end-to-end from config alone]
+```
 
 Steps:
 1. `config/` schema package (Pydantic): `TenantConfig` (brand tokens, fonts, voice, persona, models), `PromptRef`, `TemplateRef`, `RecipeRef` with strict validation and clear errors
@@ -145,9 +170,43 @@ Acceptance criteria:
 - Invalid config rejected with actionable errors
 - Sample tenant renders a demo video end-to-end from config alone
 
-## P2 — Cloudflare API + VM pipeline services
+## P1.5 — Pipeline hardening: correct, not just runnable
+
+A single demo video is a milestone, not proof. This pass makes the pipeline provably correct and repeatable **before** anything serves it. (P1.5 is the proof gate for P2.)
+
+```mermaid
+flowchart LR
+    FIX[Fixture suite - golden outputs + assertions] --> MAT[format_direction matrix: short / long / long_to_short / short_to_long]
+    MAT --> GOLD[Editing-quality gates + golden render]
+    GOLD --> FONT[Font policy from config, cross-platform]
+    FONT --> REPO[make lint + make test + make smoke green locally]
+    REPO --> GATE[P1.5 gate green -> P2 may start]
+```
+
+- Fixture suite: checked-in synthetic + real fixtures per stage with golden outputs (tightened transcript, SRT, captions, thumbnail) and deterministic assertions — not just "exit 0"
+- Prove reconstructed scripts against fixtures: `tighten_words.py`, `verify_pip.py`, `audit_pip_collisions.py`, `build_thumbnails.py`
+- Editing-quality gates: word-boundary tightening, SRT/captions aligned to the tightened timeline, brand tokens from config never from code
+- Font policy: resolve fonts from config with cross-platform fallback; kill `/System/Library/Fonts` assumptions
+- Golden render: P1 sample-tenant render checked in; regenerate-diff catches silent regressions
+
+Acceptance criteria: fixture suite green; `format_direction` matrix proven; golden render reproducible from config alone; zero hardcoded per-video content.
+
+## P2 — API + VM pipeline services
 
 Edge API on Workers (Hono); pipeline on the Netcup VM; Workflows orchestrates via Tunnel. Full detail: docs/lld.md.
+
+**Gate:** starts only after the P1.5 AC is green. Infra shape is re-decided at P2 start with real P1.5 telemetry.
+
+```mermaid
+flowchart LR
+    API[Workers Hono API] --> WF[Cloudflare Workflows + Queues]
+    WF -->|Cloudflare Tunnel| VM[Netcup VM - pipeline container]
+    VM --> LLM[LiteLLM - LLM gateway]
+    API --> DB[(MongoDB Atlas)]
+    VM --> OBJ[(Hetzner Object Storage)]
+    API --> HITL[HITL checkpoints as API - replaces state/pipeline.json]
+    HITL --> API
+```
 
 Steps:
 1. Workers API (Hono + Zod + mongoose): /runs, /projects, /tenant/config, /media, HITL approve/reject — WorkOS JWT at the edge, MongoDB-backed
@@ -167,6 +226,14 @@ Acceptance criteria:
 
 WorkOS orgs + per-tenant isolation + metering.
 
+```mermaid
+flowchart LR
+    WOS[WorkOS AuthKit - orgs = tenants] --> ISO[Tenant isolation: tenant_id scoping]
+    ISO --> PROV[Provisioning API]
+    ISO --> MET[Metering: runs / renders / LLM spend]
+    MET --> MDB[(meters collection + LiteLLM budgets)]
+```
+
 Steps:
 1. Auth: WorkOS AuthKit — orgs = tenants, RBAC roles, MFA, social login (1M MAU free)
 2. Tenant isolation: MongoDB queries scoped by tenant_id, OBJ prefixes, LiteLLM virtual key per tenant
@@ -181,8 +248,17 @@ Acceptance criteria:
 
 The dashboard is the product face.
 
+```mermaid
+flowchart LR
+    NEXT[Next.js on Vercel] --> DASH[Dashboard + pipeline runs]
+    NEXT --> HITL[HITL approval UX]
+    NEXT --> BS[Brand studio - per-tenant editor]
+    NEXT --> MEDIA[Media library + capture recipe builder]
+    NEXT --> LAND[Public landing page - seeds P5]
+```
+
 Steps:
-1. Next.js app, Tailwind `@theme` brand tokens (obsidian / alabaster / gold / silentGray)
+1. Next.js app, Tailwind `@theme` brand tokens (obsidian / alabaster / gold / silent_gray)
 2. Dashboard: projects, pipeline runs, HITL approval UX, render queue + download
 3. Brand studio: per-tenant editor for brand, voice, templates, recipes, models
 4. Media library + capture recipe builder
@@ -196,6 +272,13 @@ Acceptance criteria:
 ## P5 — Productization
 
 Sell it.
+
+```mermaid
+flowchart LR
+    STR[Stripe billing + plans + quotas] --> ONB[Self-serve onboarding + docs + pricing page]
+    ONB --> SEC[Security review + rate limits + data residency]
+    SEC --> DEMO[Sellable demo + first customers]
+```
 
 Steps:
 1. Billing: Stripe, plans + quotas, usage-based pricing
@@ -232,5 +315,3 @@ Acceptance criteria:
 **Launch cost: ~10-20/mo** (free-tier-first: Vercel Hobby, CF free tier, Atlas M0 dev; paid tiers only when real usage arrives).
 
 **Remaining open:** pricing model (per-render credits vs seats), product branding/domain, WorkOS custom auth domain ($99/mo — defer). VM is Netcup VPS 1000 G12 (4 vCPU / 8 GB, verified) — render queue throttled to 1 concurrent.
-
-Full rationale, numbers, risks: [docs/hld.md](docs/hld.md), [docs/lld.md](docs/lld.md).

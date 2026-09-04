@@ -2,6 +2,11 @@
 
 Sellable, fully dynamic, multi-tenant content production SaaS. Cloudflare edge + one Netcup VM + managed services only. Low cost, fast to market, minimal infra overhead for a part-time solo founder.
 
+> Scope: this design is the **target architecture for the serving track (P2–P5)**.
+> Today (P0–P1.5) the repo holds the `python/` pipeline core only; P2 builds the
+> components below on top of it. Current-state diagrams: PLAN.md Roadmap /
+> `.qwen/plans/plan.md`.
+
 ## 1. System Context
 
 ```mermaid
