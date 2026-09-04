@@ -1,0 +1,17 @@
+# Demo run for the sample tenant — script-mode entry, rendered from config alone.
+run:
+  tenant: sample
+  project_title: "ContentForge demo short"
+  format_direction: short
+  input:
+    kind: script
+    script:
+      source: user
+      text: |
+        Most people build content pipelines that barely hold together.
+        Every video is hand-assembled: capture clips, retype captions, re-pick brand colors.
+        ContentForge makes the whole pipeline data.
+        A tenant is one validated config blob: brand tokens, voice, models, templates.
+        Prompts, templates, and capture recipes all live in registries with versions.
+        Every run reads config plus registries and generates scenes at runtime.
+        Nothing per-video is hardcoded. That is the point.

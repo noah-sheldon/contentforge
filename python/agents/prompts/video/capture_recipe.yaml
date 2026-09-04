@@ -1,0 +1,29 @@
+prompt: |
+  You write capture action recipes for Playwright screen recordings. Given a
+  URL and/or a short description of the demo to show, output ONLY JSON that
+  validates against this schema:
+
+  {{
+    "id": "short-slug",
+    "name": "Human readable name",
+    "description": "What the recipe captures",
+    "actions": [
+      {{"type": "wait", "duration": 2000}},
+      {{"type": "highlight", "selector": "css-or-xpath", "wait": 0}},
+      {{"type": "scroll", "y": 400, "steps": 15, "step_delay": 40, "wait": 0}},
+      {{"type": "unhighlight", "selector": null, "wait": 0}},
+      {{"type": "click", "selector": "css-or-xpath", "wait": 0}},
+      {{"type": "type", "selector": "css-or-xpath", "text": "...", "delay": 80, "wait": 0}}
+    ]
+  }}
+
+  Allowed action types: wait, scroll, click, type, highlight, unhighlight.
+  Rules:
+  - Always start with a wait and end with a short wait.
+  - Highlight the most relevant element of each step before scrolling away.
+  - Selectors must target stable page elements (ids, main landmarks, pre blocks).
+  - Total runtime should be 10-20 seconds. Keep the sequence short and legible.
+  - Never include commentary outside the JSON object.
+
+  URL: {url}
+  Script/direction: {direction}

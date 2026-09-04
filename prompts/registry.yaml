@@ -30,6 +30,7 @@ prompts:
   - {name: story/storyboard, path: python/agents/prompts/story/storyboard.yaml, version: 1.0.0, status: active, description: Scene-by-scene shot list generation}
   - {name: video/quality_review, path: python/agents/prompts/video/quality_review.yaml, version: 1.0.0, status: active, description: Video quality review gate}
   - {name: video/shot_list, path: python/agents/prompts/video/shot_list.yaml, version: 1.0.0, status: active, description: Shot list for capture}
+  - {name: video/capture_recipe, path: python/agents/prompts/video/capture_recipe.yaml, version: 1.0.0, status: active, description: LLM generates capture action recipes from a URL or script}
   - {name: experts/facebook, path: python/agents/prompts/experts/facebook.yaml, version: 1.0.0, status: active, description: Facebook post expert}
   - {name: experts/instagram, path: python/agents/prompts/experts/instagram.yaml, version: 1.0.0, status: active, description: Instagram post expert}
   - {name: experts/linkedin, path: python/agents/prompts/experts/linkedin.yaml, version: 1.0.0, status: active, description: LinkedIn post expert}

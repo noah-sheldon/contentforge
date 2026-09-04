@@ -30,7 +30,13 @@ BLOCK_STYLES = {
 }
 
 
-def _build_composition(blocks: list[Block], brand: dict, fonts: dict) -> str:
+def _build_composition(
+    blocks: list[Block],
+    brand: dict,
+    fonts: dict,
+    width: int = 1080,
+    height: int = 1920,
+) -> str:
     """Generate a standalone HyperFrames composition HTML from blocks."""
     colors = brand.get("colors", {})
     obsidian = colors.get("obsidian", "#12141C")
@@ -86,13 +92,13 @@ def _build_composition(blocks: list[Block], brand: dict, fonts: dict) -> str:
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=1080, height=1920" />
+    <meta name="viewport" content="width={width}, height={height}" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <style>
       * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-      html, body {{ margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: {obsidian}; }}
+      html, body {{ margin: 0; width: {width}px; height: {height}px; overflow: hidden; background: {obsidian}; }}
       body {{ font-family: "{primary_font}", sans-serif; color: {alabaster}; }}
-      #root {{ position: relative; width: 1080px; height: 1920px; overflow: hidden; background: {obsidian}; }}
+      #root {{ position: relative; width: {width}px; height: {height}px; overflow: hidden; background: {obsidian}; }}
       .clip {{ position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 80px; }}
       .block-title {{ font-size: 96px; font-weight: 800; line-height: 1.1; margin-bottom: 48px; }}
       .block-quote {{ font-size: 96px; font-weight: 700; line-height: 1.15; margin-bottom: 48px; color: {gold}; font-style: italic; }}
@@ -108,7 +114,7 @@ def _build_composition(blocks: list[Block], brand: dict, fonts: dict) -> str:
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="main" data-start="0" data-duration="{total_duration:.1f}" data-width="1080" data-height="1920">
+    <div id="root" data-composition-id="main" data-start="0" data-duration="{total_duration:.1f}" data-width="{width}" data-height="{height}">
       {"".join(clips)}
     </div>
     <script>
@@ -130,19 +136,26 @@ def build_props(blocks: list[Block]) -> str:
     return _build_composition(blocks, brand, fonts)
 
 
-def render_blocks(blocks: list[Block], output_path: Optional[str] = None) -> str:
+def render_blocks(
+    blocks: list[Block],
+    output_path: Optional[str] = None,
+    brand: Optional[dict] = None,
+    fonts: Optional[dict] = None,
+) -> str:
     """Render blocks from AnimationDirector as a 9:16 MP4 via HyperFrames.
 
     Args:
         blocks: List of Block objects from AnimationDirector.direct()
         output_path: Full path for output MP4. Auto-generated if None.
+        brand: Optional brand config dict (colors). Defaults to persona.yaml.
+        fonts: Optional font config dict. Defaults to persona.yaml.
 
     Returns:
         Path to rendered MP4 file.
     """
-    persona = load_persona()
-    brand = persona.get("brand", {})
-    fonts = brand.get("fonts", {})
+    persona = load_persona() if brand is None else {}
+    brand = brand or persona.get("brand", {})
+    fonts = fonts or brand.get("fonts", {})
     total_duration = sum(b.duration_seconds for b in blocks)
 
     html = _build_composition(blocks, brand, fonts)
@@ -181,7 +194,7 @@ def render_blocks(blocks: list[Block], output_path: Optional[str] = None) -> str
         )
 
         result = subprocess.run(
-            ["npx", "hyperframes", "render", "--output", output_path],
+            ["npx", "--yes", "hyperframes", "render", "--output", output_path],
             cwd=str(project),
             capture_output=True,
             text=True,

@@ -39,17 +39,26 @@ class AnimationDirector:
     def __init__(self, llm: Optional[OpenAISynthesizer] = None):
         self.llm = llm or OpenAISynthesizer(thinking=True)
 
-    def direct(self, hook: str, body: str, total_duration: float = 15.0) -> list[Block]:
-        """Analyze script and return optimal block sequence."""
-        persona = load_persona()
-        brand = persona.get("brand", {})
+    def direct(
+        self,
+        hook: str,
+        body: str,
+        total_duration: float = 15.0,
+        brand_colors: Optional[dict] = None,
+    ) -> list[Block]:
+        """Analyze script and return optimal block sequence.
 
-        brand_colors = {
-            "obsidian": brand.get("colors", {}).get("obsidian", "#12141C"),
-            "alabaster": brand.get("colors", {}).get("alabaster", "#FAFAFA"),
-            "gold": brand.get("colors", {}).get("gold", "#D4AF37"),
-            "silentGray": brand.get("colors", {}).get("silent_gray", "#6B7280"),
-        }
+        brand_colors: optional token -> hex mapping. Defaults to persona.yaml.
+        """
+        if brand_colors is None:
+            persona = load_persona()
+            brand = persona.get("brand", {})
+            brand_colors = {
+                "obsidian": brand.get("colors", {}).get("obsidian", "#12141C"),
+                "alabaster": brand.get("colors", {}).get("alabaster", "#FAFAFA"),
+                "gold": brand.get("colors", {}).get("gold", "#D4AF37"),
+                "silentGray": brand.get("colors", {}).get("silent_gray", "#6B7280"),
+            }
 
         prompt = load_prompt(
             "story/animation_director",
