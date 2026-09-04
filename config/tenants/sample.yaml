@@ -1,0 +1,52 @@
+# Sample tenant — the canonical demo blob used by P1 tests and the demo run.
+# New tenant = copy this file, change id/slug/brand/voice/refs. Zero code.
+tenant:
+  id: t_sample
+  slug: sample
+  name: "Sample Creator"
+
+  brand:
+    colors:
+      obsidian: "#12141C"
+      alabaster: "#FAFAFA"
+      gold: "#D4AF37"
+      silent_gray: "#6B7280"
+    fonts:
+      primary: "Inter"
+      heading: "Playfair Display"
+      mono: "JetBrains Mono"
+    video:
+      aspect_ratio: "9:16"
+      resolution: "1080x1920"
+      fps: 30
+
+  voice:
+    grade: "5-6"
+    file: "config/voice.md"
+    rules:
+      - "Spoken flow, mechanism-first, no marketing voice."
+
+  persona: "config/persona.yaml"
+
+  llm:
+    mode: hosted
+    provider: deepseek
+    model: deepseek-v4-flash
+    key_ref: null
+
+  prompts:
+    copy/copywriter: 1.0.0
+    copy/review: 1.0.0
+    story/animation_director: 1.0.0
+
+  templates:
+    - short-form/desk-setup
+
+  recipes:
+    - table-walkthrough
+
+  formats:
+    - short
+    - long
+    - long_to_short
+    - short_to_long

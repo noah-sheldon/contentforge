@@ -1,0 +1,20 @@
+# Table walkthrough capture recipe.
+recipe:
+  id: table-walkthrough
+  version: 1.0.0
+  name: "Table Walkthrough"
+  description: "Scroll a data table into view, highlight it, then scroll on."
+  actions:
+    - type: wait
+      duration: 2000
+    - type: highlight
+      selector: table
+    - type: wait
+      duration: 3000
+    - type: scroll
+      y: 400
+      steps: 15
+      step_delay: 40
+    - type: unhighlight
+    - type: wait
+      duration: 1000

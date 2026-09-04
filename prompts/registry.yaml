@@ -1,34 +1,58 @@
-# Prompt Registry
+# Prompt Registry — machine-readable index of every prompt in the pipeline.
+#
+# Prompts are code: versioned, tracked in git, changed via PR-style review.
+# Loading by name: config.registry.prompts.PromptRegistry. Version pins in a
+# tenant config (PromptRef) are honored.
+#
+# Entry shape:
+#   name: <loadable name>          # what code/tenants reference
+#   path: <repo-root-relative>     # yaml (prompt: key) or markdown (whole file)
+#   version: <semver>              # canonical version for payload-only yaml
+#   status: active | deprecated
+#   description: one-line purpose
+#
+# For markdown entries the file's own frontmatter version is the source of
+# truth and must match this index; loader fails fast on drift.
+#
+# Workflow:
+# 1. Edit the prompt file -> bump `version` in this index (+ frontmatter for md).
+# 2. Add a row to prompts/CHANGELOG.md (what changed + why).
+# 3. Commit: feat(prompt)/fix(prompt): <description>.
+# 4. Tag releases: git tag prompts-v1.0.0.
 
-Central index of all agent prompts in the content pipeline. Prompts are **code**:
-versioned with semver frontmatter, tracked in git (diff/blame/tags), and changed
-via PR-style review. Every prompt file carries YAML frontmatter:
+prompts:
+  # ─── Python agent prompts (payload-only yaml; version lives here) ───
+  - {name: copy/copywriter, path: python/agents/prompts/copy/copywriter.yaml, version: 1.0.0, status: active, description: Copywriter stage - write in Noah voice}
+  - {name: copy/review, path: python/agents/prompts/copy/review.yaml, version: 1.0.0, status: active, description: Copy review gate per platform rules}
+  - {name: research/synthesis, path: python/agents/prompts/research/synthesis.yaml, version: 1.0.0, status: active, description: Research synthesis into a brief}
+  - {name: research/topic_selection, path: python/agents/prompts/research/topic_selection.yaml, version: 1.0.0, status: active, description: Weekly topic selection prompt}
+  - {name: story/animation_director, path: python/agents/prompts/story/animation_director.yaml, version: 1.0.0, status: active, description: Choose visual block types for a script}
+  - {name: story/storyboard, path: python/agents/prompts/story/storyboard.yaml, version: 1.0.0, status: active, description: Scene-by-scene shot list generation}
+  - {name: video/quality_review, path: python/agents/prompts/video/quality_review.yaml, version: 1.0.0, status: active, description: Video quality review gate}
+  - {name: video/shot_list, path: python/agents/prompts/video/shot_list.yaml, version: 1.0.0, status: active, description: Shot list for capture}
+  - {name: experts/facebook, path: python/agents/prompts/experts/facebook.yaml, version: 1.0.0, status: active, description: Facebook post expert}
+  - {name: experts/instagram, path: python/agents/prompts/experts/instagram.yaml, version: 1.0.0, status: active, description: Instagram post expert}
+  - {name: experts/linkedin, path: python/agents/prompts/experts/linkedin.yaml, version: 1.0.0, status: active, description: LinkedIn post expert}
+  - {name: experts/threads, path: python/agents/prompts/experts/threads.yaml, version: 1.0.0, status: active, description: Threads post expert}
+  - {name: experts/tiktok, path: python/agents/prompts/experts/tiktok.yaml, version: 1.0.0, status: active, description: TikTok post expert}
+  - {name: experts/x, path: python/agents/prompts/experts/x.yaml, version: 1.0.0, status: active, description: X post expert}
+  - {name: experts/youtube_long, path: python/agents/prompts/experts/youtube_long.yaml, version: 1.0.0, status: active, description: YouTube long-form post expert}
+  - {name: experts/youtube_shorts, path: python/agents/prompts/experts/youtube_shorts.yaml, version: 1.0.0, status: active, description: YouTube Shorts post expert}
 
-```yaml
----
-name: <prompt-name>
-version: <semver>          # major=breaking behavior, minor=additive, patch=fix
-description: <one-line purpose>
-updated: <YYYY-MM-DD>
-status: active | deprecated
----
-```
+  # ─── Planner stage agents (markdown; version from file frontmatter) ───
+  - {name: cp-analyze, path: skills/planner/agents/analyze.md, version: 1.0.0, status: active, description: Planner stage 2 - analyze ingested source}
+  - {name: cp-course-builder, path: skills/planner/agents/course-builder.md, version: 1.0.0, status: active, description: Planner - generate course repo from course.yaml}
+  - {name: cp-director, path: skills/planner/agents/director.md, version: 1.1.0, status: active, description: Planner stage 5b - storyboard + diagram specs}
+  - {name: cp-ideate, path: skills/planner/agents/ideate.md, version: 1.1.0, status: active, description: Planner stage 3 - content idea generation}
+  - {name: cp-marketing, path: skills/planner/agents/marketing.md, version: 1.1.0, status: active, description: Planner stage 2b - platform marketing playbook}
+  - {name: cp-plan, path: skills/planner/agents/plan.md, version: 1.1.0, status: active, description: Planner stage 6 - calendar + board cards}
+  - {name: cp-research, path: skills/planner/agents/research.md, version: 1.1.0, status: active, description: Planner stage 4 - source-cited research brief}
+  - {name: cp-review, path: skills/planner/agents/review.md, version: 1.0.0, status: active, description: Planner stage 5c - script fact-check gate}
+  - {name: cp-script, path: skills/planner/agents/script.md, version: 2.2.0, status: active, description: Planner stage 5 - write scripts in voice}
 
-**Versioning workflow:**
-1. Edit the prompt file → bump `version` in frontmatter.
-2. Add an entry to `prompts/CHANGELOG.md` (what changed + why).
-3. Commit: `feat(prompt)/fix(prompt): <description>`.
-4. Tag releases: `git tag prompts-v1.0.0`.
+  # ─── Production / skill masters (markdown; version from frontmatter) ───
+  - {name: video-agent, path: skills/video-agent/SKILL.md, version: 1.1.2, status: active, description: Video production master - tighten to deliver}
+  - {name: video-editor, path: skills/video-editor/SKILL.md, version: 0.1.0, status: active, description: Video editing skill (unversioned baseline)}
+  - {name: caption-writer, path: skills/caption-writer/SKILL.md, version: 0.1.0, status: active, description: Per-platform caption writer (unversioned baseline)}
+  - {name: content-planner, path: skills/planner/SKILL.md, version: 2.1.0, status: active, description: Planner orchestrator skill master}
 
-| Prompt | Path | Version | Status | Notes |
-|---|---|---|---|---|
-| video-agent | skills/video-agent/SKILL.md | 1.1.2 | active | SELF-CONTAINED master: workflow, hard rules, screen recording, delivery, self-review gate |
-| caption-writer | skills/caption-writer/SKILL.md | unversioned | active | Add frontmatter on next change |
-| engineering | skills/engineering/SKILL.md | unversioned | active | Add frontmatter on next change |
-| video-editor | skills/video-editor/SKILL.md | unversioned | active | Add frontmatter on next change |
-| CLAUDE.md | CLAUDE.md | unversioned | active | Project-level instructions |
-| content-planner skill | skills/planner/SKILL.md | unversioned | active | Copywriter/agent pipeline |
-| persona | config/persona.yaml | unversioned | active | Noah's persona data |
-| voice | config/voice.md | unversioned | active | Voice/style guide |
-
-Unversioned prompts get frontmatter added on their next edit (patch bump to 0.1.0).

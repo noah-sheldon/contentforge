@@ -1,0 +1,21 @@
+# JSON API demo capture recipe (docs pages with pre + endpoint panels).
+recipe:
+  id: json-api-demo
+  version: 1.0.0
+  name: "JSON API Demo"
+  description: "Highlight code blocks and scroll through an API reference."
+  actions:
+    - type: wait
+      duration: 2000
+    - type: highlight
+      selector: pre
+    - type: wait
+      duration: 3500
+    - type: scroll
+      y: 500
+      steps: 15
+      step_delay: 40
+    - type: unhighlight
+      selector: pre
+    - type: wait
+      duration: 1500
