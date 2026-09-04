@@ -13,7 +13,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from config.loader import load_run_config, load_tenant_by_slug
+from config.loader import load_tenant_by_slug
+from config.run_loader import load_run_config
 from config.schema.errors import ConfigError, ConfigIssue
 from config.settings import PROJECT_ROOT
 from services.scene_planner import ScenePlanner

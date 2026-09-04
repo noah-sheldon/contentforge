@@ -1,6 +1,7 @@
-"""Config package: settings loader, Pydantic schema, registries, tenant loader.
+"""Config package: settings loader, Pydantic schema, registries, loaders.
 
 Public convenience exports mirror config.schema; deep imports stay available.
+Tenant blobs load via config.loader; run blobs via config.run_loader.
 """
 
 from config.schema import (

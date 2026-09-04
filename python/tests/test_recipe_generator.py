@@ -1,51 +1,15 @@
-"""P1 tests: run configs, scene planner, recipe generator."""
+"""Recipe generator tests (stubbed synthesizer)."""
 
 from pathlib import Path
 
 import pytest
-from pydantic import ValidationError
 
 from agents.base import SynthesizerInterface
-from config.loader import load_run_config
-from config.schema.enums import InputKind
 from config.schema.errors import ConfigError
 from config.schema.recipe import Recipe
-from config.schema.run import RunInput
+from services.recipe_generator import RecipeGenerator
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-
-
-def test_sample_demo_run_loads():
-    run = load_run_config(REPO_ROOT / "config/runs/sample-demo.yaml")
-    script_input = run.input.script
-    assert run.tenant == "sample"
-    assert run.format_direction.value == "short"
-    assert run.input.kind == InputKind.script
-    assert script_input is not None
-    assert script_input.text is not None
-    assert "ContentForge" in script_input.text
-
-
-def test_run_input_url_kind_requires_url():
-    with pytest.raises(ValidationError):
-        RunInput(kind=InputKind.url)
-
-
-def test_run_input_script_kind_requires_script():
-    with pytest.raises(ValidationError):
-        RunInput(kind=InputKind.script)
-
-
-def test_scene_planner_deterministic_blocks():
-    from config.loader import load_tenant_by_slug
-    from services.scene_planner import ScenePlanner
-
-    tenant = load_tenant_by_slug("sample", repo_root=REPO_ROOT)
-    text = "First point.\nSecond point.\nThird point.\nFourth point."
-    blocks = ScenePlanner(use_llm=False).plan(text, tenant)
-    assert blocks
-    assert all(b.type for b in blocks)
-    assert all(b.duration_seconds > 0 for b in blocks)
 
 
 class _StubSynthesizer(SynthesizerInterface):
@@ -61,8 +25,6 @@ class _StubSynthesizer(SynthesizerInterface):
 
 
 def test_recipe_generator_validates_llm_output():
-    from services.recipe_generator import RecipeGenerator
-
     stub = _StubSynthesizer(
         '```json\n{"id": "json-api-demo", "name": "JSON API Demo", '
         '"description": "show endpoints", "actions": ['
@@ -79,16 +41,12 @@ def test_recipe_generator_validates_llm_output():
 
 
 def test_recipe_generator_rejects_invalid_output():
-    from services.recipe_generator import RecipeGenerator
-
     stub = _StubSynthesizer('{"id": "x", "actions": [{"type": "teleport"}]}')
     with pytest.raises(ConfigError):
         RecipeGenerator(llm=stub, repo_root=REPO_ROOT).generate(url="https://x.dev")
 
 
 def test_recipe_generator_rejects_non_json():
-    from services.recipe_generator import RecipeGenerator
-
     stub = _StubSynthesizer("Sorry, I cannot do that.")
     with pytest.raises(ConfigError):
         RecipeGenerator(llm=stub, repo_root=REPO_ROOT).generate(url="https://x.dev")
