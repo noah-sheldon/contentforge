@@ -306,16 +306,25 @@ sellable demo.
 
 ## 7. Open questions / decisions
 
-1. **Lint policy (decide at P0 close):** 134 remaining ruff findings are
-   123 line-length (E501) + 11 uppercase-in-function names (N806), all
-   cosmetic, across 26 files. Options: (A, recommended) ignore E501/N806 in
-   `[tool.ruff.lint]` so `ruff check` is clean at zero code churn; (B) run
-   `ruff format` on all 26 files (mechanical but large noise diff); (C) fix
-   all by hand. Decision drives the `make lint` gate.
-2. **Pricing model** (per-render credits vs seats) - defer to P5.
-3. **Branding/domain** - defer to P5.
-4. **P2 infra shape** - re-decide at P2 start with real stage telemetry
-   (section 5). Working default: queue + generic worker containers.
+Resolved (2026-08-31):
 
-Resolved: source-repo access (cloned into `_sources/` with `gh auth`) and
-board #10 read/write (`gh` scopes granted) - both no longer blockers.
+1. **Lint policy — DECIDED (A):** ignore E501/N806 in `[tool.ruff.lint]`
+   (`python/pyproject.toml`); `ruff check python/` and `make lint` exit 0.
+   123 long lines + 11 uppercase-in-function names are intentional in the
+   scripts; no enforced rule was lost. Applies to the `make lint` gate.
+2. **Pricing model (credits vs seats)** - defer to P5; P3 metering records
+   raw usage (runs, render-minutes, tokens), never prices.
+3. **Branding/domain** - defer to P5; brand is config tokens from P1, so a
+   later name/brand swap is config + rename, not rework.
+4. **P2 infra shape** - defer, revisit at P2 start with stage telemetry from
+   P1.5. Working default: queue + identical worker containers (§5, §6).
+5. **P0 smoke-test venue - OPEN (blocks P0 close):** run the ~1 GB runtime
+   install (Chromium, whisper-tiny, ffmpeg) in the dev sandbox to close the
+   P0 gate, or defer the run to the Netcup VPS? Recommendation: sandbox.
+6. **AVE `assets/audio/` media library (15 music/SFX files) - DECIDED:**
+   excluded by design - no code references it; audio is fetched per project
+   from Pixabay at runtime (`scripts/fetch_pixabay.mjs`). Re-add only if the
+   library itself becomes a product asset.
+
+Resolved earlier: source-repo access (cloned into `_sources/` with `gh auth`)
+and board #10 read/write (`gh` scopes granted) - both no longer blockers.
