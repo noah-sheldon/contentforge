@@ -32,27 +32,38 @@ def _search(url: str, params: dict) -> list[dict]:
 
 
 def search_music(query: str, per_page: int = 5) -> list[dict]:
-    hits = _search("https://pixabay.com/api/videos/", {
-        "q": query, "per_page": per_page, "video_type": "film",
-    })
+    hits = _search(
+        "https://pixabay.com/api/videos/",
+        {
+            "q": query,
+            "per_page": per_page,
+            "video_type": "film",
+        },
+    )
     results = []
     for hit in hits:
         videos = hit.get("videos", {})
         for size in ["small", "medium"]:
             if size in videos:
-                results.append({
-                    "title": (hit.get("tags", "") or "").split(",")[0].strip(),
-                    "url": videos[size]["url"],
-                    "duration": hit.get("duration", 0),
-                })
+                results.append(
+                    {
+                        "title": (hit.get("tags", "") or "").split(",")[0].strip(),
+                        "url": videos[size]["url"],
+                        "duration": hit.get("duration", 0),
+                    }
+                )
                 break
     return results
 
 
 def search_sfx(query: str, per_page: int = 5) -> list[dict]:
-    hits = _search("https://pixabay.com/api/audio/", {
-        "q": query, "per_page": per_page,
-    })
+    hits = _search(
+        "https://pixabay.com/api/audio/",
+        {
+            "q": query,
+            "per_page": per_page,
+        },
+    )
     return [
         {
             "title": hit.get("tags", "sfx").split(",")[0].strip(),
@@ -80,11 +91,15 @@ def download(url: str, output_path: str) -> Optional[str]:
 def get_background_music(output_dir: str, mood: str = "ambient") -> Optional[str]:
     """Download background music via Pixabay audio API. Returns path or None."""
     try:
-        resp = requests.get("https://pixabay.com/api/audio/", params={
-            "key": PIXABAY_API_KEY,
-            "q": mood,
-            "per_page": 5,
-        }, timeout=15)
+        resp = requests.get(
+            "https://pixabay.com/api/audio/",
+            params={
+                "key": PIXABAY_API_KEY,
+                "q": mood,
+                "per_page": 5,
+            },
+            timeout=15,
+        )
         resp.raise_for_status()
         hits = resp.json().get("hits", [])
     except Exception as e:

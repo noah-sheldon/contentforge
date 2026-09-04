@@ -15,6 +15,7 @@ Usage:
   python3 scripts/workspace.py [--slug <outputs slug>] [--week 2026-08-10]
 Reads calendar/items_shorts.json + items_longs.json (board cards).
 """
+
 import argparse
 import datetime as dt
 import json
@@ -26,8 +27,9 @@ from pathlib import Path
 
 from common import CALENDAR, CONFIG, OUTPUTS, ROOT, slugify
 
-WORKSPACE = Path(__file__).resolve().parent.parent / \
-    CONFIG.get("paths", {}).get("workspace", "workspace")
+WORKSPACE = Path(__file__).resolve().parent.parent / CONFIG.get("paths", {}).get(
+    "workspace", "workspace"
+)
 
 _DEF_WEEK = CONFIG.get("plan", {}).get("default_week", "2026-08-10")
 _DEF_OWNER = CONFIG.get("boards", {}).get("shorts", {}).get("owner", "noah-sheldon")
@@ -40,8 +42,7 @@ def run(args):
 
 def board_items(owner, project):
     """title -> item id, via gh project item-list --format json."""
-    out = run(["gh", "project", "item-list", project, "--owner", owner,
-               "--format", "json"])
+    out = run(["gh", "project", "item-list", project, "--owner", owner, "--format", "json"])
     if not out:
         return {}
     try:
@@ -77,7 +78,7 @@ def extract_short(text, idea_id):
     if start is None:
         return None
     out = [lines[start]]
-    for line in lines[start + 1:]:
+    for line in lines[start + 1 :]:
         if re.match(r"^##\s+s\d+\s+·", line):
             break
         out.append(line)
@@ -162,9 +163,10 @@ def materialize(items, form, slug, week, owner, cards, research_map=None):
                 base = p.name[: -len(".spec.json")]
                 out = ddir / (base + ".excalidraw")
                 subprocess.run(
-                    [sys.executable, str(ROOT / "scripts" / "diagram.py"),
-                     str(p), "-o", str(out)],
-                    capture_output=True, text=True)
+                    [sys.executable, str(ROOT / "scripts" / "diagram.py"), str(p), "-o", str(out)],
+                    capture_output=True,
+                    text=True,
+                )
                 if out.exists():
                     n_diag += 1
         if n_diag:
@@ -176,7 +178,9 @@ def materialize(items, form, slug, week, owner, cards, research_map=None):
             (folder / "TODO.md").write_text(
                 "# TODO — no script yet\n\n"
                 f"Run the SCRIPT stage for: {title}\n"
-                f"Source: outputs/{slug}/\n", encoding="utf-8")
+                f"Source: outputs/{slug}/\n",
+                encoding="utf-8",
+            )
 
         meta = {
             "title": title,
@@ -191,17 +195,16 @@ def materialize(items, form, slug, week, owner, cards, research_map=None):
             "files_missing": missing,
         }
         (folder / "metadata.json").write_text(
-            json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
+            json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
+        )
         flag = "OK " if (folder / "00_script.md").exists() else "TODO"
         print(f"[{flag}] {form}/{date} {title}")
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--slug", default=None,
-                    help="outputs/<slug> to pull assets from")
-    ap.add_argument("--week", default=_DEF_WEEK,
-                    help="plan week Monday (ISO date)")
+    ap.add_argument("--slug", default=None, help="outputs/<slug> to pull assets from")
+    ap.add_argument("--week", default=_DEF_WEEK, help="plan week Monday (ISO date)")
     ap.add_argument("--owner", default=_DEF_OWNER)
     a = ap.parse_args()
 
@@ -212,11 +215,15 @@ def main():
     # prefer a slug that already has scripts)
     slug = a.slug
     if not slug and OUTPUTS.exists():
-        cands = sorted(d.name for d in OUTPUTS.iterdir()
-                       if d.is_dir() and not d.name.startswith("."))
-        scripted = [c for c in cands
-                    if (OUTPUTS / c / "script_longform.md").exists()
-                    or (OUTPUTS / c / "script_shorts.md").exists()]
+        cands = sorted(
+            d.name for d in OUTPUTS.iterdir() if d.is_dir() and not d.name.startswith(".")
+        )
+        scripted = [
+            c
+            for c in cands
+            if (OUTPUTS / c / "script_longform.md").exists()
+            or (OUTPUTS / c / "script_shorts.md").exists()
+        ]
         slug = (scripted or cands)[0] if (scripted or cands) else None
     if not slug or not (OUTPUTS / slug).exists():
         print("[warn] no outputs/<slug> found — workspace will be TODO-only")
@@ -249,7 +256,8 @@ def main():
         "Rebuild anytime: `rm -rf workspace && .venv/bin/python scripts/workspace.py`\n"
         "Boards: https://github.com/users/noah-sheldon/projects/7 (short) · "
         "https://github.com/users/noah-sheldon/projects/8 (long)\n",
-        encoding="utf-8")
+        encoding="utf-8",
+    )
 
     print(f"\nworkspace ready: {WORKSPACE}")
 

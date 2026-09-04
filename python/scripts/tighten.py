@@ -5,6 +5,7 @@ Runs ffmpeg silencedetect on the audio, builds keep-segments (speech + a small
 breathing pad on each side), and re-encodes the trimmed result so the narration
 flows without long dead air. Output keeps original resolution/fps with AAC audio.
 """
+
 import argparse
 import re
 import subprocess
@@ -46,7 +47,18 @@ def detect_silences(input_path, noise_db, min_silence):
 
 
 def duration_of(input_path):
-    result = run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(input_path)])
+    result = run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "csv=p=0",
+            str(input_path),
+        ]
+    )
     return float(result.stdout.strip())
 
 
@@ -67,12 +79,29 @@ def build_segments(silences, total, pad):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Remove silences from a talking-head master recording")
+    parser = argparse.ArgumentParser(
+        description="Remove silences from a talking-head master recording"
+    )
     parser.add_argument("input", help="Path to the master 16:9 recording")
     parser.add_argument("output", help="Path to the tightened output video")
-    parser.add_argument("--noise-db", type=float, default=DEFAULT_NOISE_DB, help="Silence threshold in dB (default -32)")
-    parser.add_argument("--min-silence", type=float, default=DEFAULT_MIN_SILENCE, help="Min silence duration to cut, seconds (default 0.6)")
-    parser.add_argument("--pad", type=float, default=DEFAULT_PAD, help="Speech pad to preserve around cuts, seconds (default 0.15)")
+    parser.add_argument(
+        "--noise-db",
+        type=float,
+        default=DEFAULT_NOISE_DB,
+        help="Silence threshold in dB (default -32)",
+    )
+    parser.add_argument(
+        "--min-silence",
+        type=float,
+        default=DEFAULT_MIN_SILENCE,
+        help="Min silence duration to cut, seconds (default 0.6)",
+    )
+    parser.add_argument(
+        "--pad",
+        type=float,
+        default=DEFAULT_PAD,
+        help="Speech pad to preserve around cuts, seconds (default 0.15)",
+    )
     args = parser.parse_args()
 
     inp = Path(args.input)
@@ -105,12 +134,26 @@ def main():
 
     out.parent.mkdir(parents=True, exist_ok=True)
     cmd = [
-        "ffmpeg", "-y",
-        "-i", str(inp),
-        "-filter_complex", ";".join(filters),
-        "-map", "[vout]", "-map", "[aout]",
-        "-c:v", "libx264", "-preset", "fast", "-crf", "18",
-        "-c:a", "aac", "-b:a", "192k",
+        "ffmpeg",
+        "-y",
+        "-i",
+        str(inp),
+        "-filter_complex",
+        ";".join(filters),
+        "-map",
+        "[vout]",
+        "-map",
+        "[aout]",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "fast",
+        "-crf",
+        "18",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "192k",
         str(out),
     ]
     print(f"Executing: {' '.join(cmd[:8])} ...")

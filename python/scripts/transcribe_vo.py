@@ -7,6 +7,7 @@ Usage:
 Saves word-level timestamps (project data — preserve transcript.json) and
 prints a readable segment transcript.
 """
+
 import argparse
 import json
 

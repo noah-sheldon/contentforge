@@ -15,12 +15,17 @@ dependencies = [
     "trafilatura",
     "PyYAML",
     "playwright",
+    "pillow>=11.0.0",
     "mlx-whisper; sys_platform == 'darwin'",
     "faster-whisper; sys_platform != 'darwin'",
 ]
 
 [dependency-groups]
-dev = ["ruff>=0.5.0"]
+dev = [
+    "pyrefly>=1.2.0",
+    "pytest>=9.1.1",
+    "ruff>=0.5.0",
+]
 
 [tool.ruff]
 line-length = 100

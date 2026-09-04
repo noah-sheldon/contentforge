@@ -6,6 +6,7 @@ when loaded by a composition, builds a bottom-center caption bar and registers
 word-by-word reveal tweens on the composition's master timeline. Word times are
 already in the tightened-timeline's global time, so they map 1:1 to the master.
 """
+
 import json
 from pathlib import Path
 
@@ -26,11 +27,13 @@ def build():
         for w in seg.get("words", []):
             words.append({"i": gi, "text": w["word"].strip(), "start": round(w["start"], 3)})
             gi += 1
-        segments.append({
-            "start": round(seg["start"], 3),
-            "end": round(seg["end"], 3),
-            "words": words,
-        })
+        segments.append(
+            {
+                "start": round(seg["start"], 3),
+                "end": round(seg["end"], 3),
+                "words": words,
+            }
+        )
 
     payload = json.dumps(segments)
 

@@ -16,7 +16,7 @@
        The path must already carry stroke-dasharray/dashoffset = len.
    ============================================================ */
 
-window.__reveal = (function () {
+window.__reveal = (() => {
   function beatIn(tl, sel, at, opts) {
     const o = opts || {};
     const y = o.y !== undefined ? o.y : 40;
@@ -27,7 +27,7 @@ window.__reveal = (function () {
       sel,
       { autoAlpha: 0, x: x, y: y },
       { autoAlpha: 1, x: 0, y: 0, duration: dur, ease: ease },
-      at
+      at,
     );
   }
 
@@ -40,7 +40,7 @@ window.__reveal = (function () {
       sel,
       { strokeDashoffset: len },
       { strokeDashoffset: 0, duration: dur, ease: ease },
-      at
+      at,
     );
   }
 

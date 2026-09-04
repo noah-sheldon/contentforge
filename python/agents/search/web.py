@@ -7,7 +7,7 @@ L: Swappable with any SearchInterface implementation.
 
 import os
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional, cast
 
 import feedparser
 import requests
@@ -71,17 +71,21 @@ class RSSReader(SearchInterface):
     def search(self, query: str = "", max_results: int = 50) -> list[SearchResult]:
         results: list[SearchResult] = []
         for url in self.feed_urls:
-            feed = feedparser.parse(url)
+            # feedparser is untyped; the typed surface is unreliable, so treat
+            # the parsed feed as opaque and coerce fields defensively.
+            feed = cast(Any, feedparser.parse(url))
             for entry in feed.entries[:10]:
+                item = dict(entry)
+                feed_meta = dict(feed.feed)
                 results.append(
                     SearchResult(
-                        title=entry.get("title", ""),
-                        url=entry.get("link", ""),
+                        title=str(item.get("title") or ""),
+                        url=str(item.get("link") or ""),
                         source="rss",
-                        published=self.parse_date(entry.get("published_parsed")),
+                        published=self.parse_date(item.get("published_parsed")),
                         metadata={
-                            "summary": entry.get("summary", "")[:300],
-                            "feed_title": feed.feed.get("title", ""),
+                            "summary": str(item.get("summary") or "")[:300],
+                            "feed_title": str(feed_meta.get("title") or ""),
                         },
                     )
                 )

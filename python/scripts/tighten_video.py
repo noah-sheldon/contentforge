@@ -10,15 +10,26 @@ timestamps and composition anchors can be re-mapped.
 Usage:
     python scripts/tighten_video.py <in.mp4> --out <tight.mp4> --map <map.json> [--keep 0.55] [--cut 0.9]
 """
+
 import argparse
 import json
 import re
 import subprocess
 
 
-def silencedetect(path: str, threshold: str = "-35dB", min_dur: float = 0.35) -> list[tuple[float, float]]:
-    cmd = ["ffmpeg", "-i", path, "-af",
-           f"silencedetect=noise={threshold}:d={min_dur}", "-f", "null", "-"]
+def silencedetect(
+    path: str, threshold: str = "-35dB", min_dur: float = 0.35
+) -> list[tuple[float, float]]:
+    cmd = [
+        "ffmpeg",
+        "-i",
+        path,
+        "-af",
+        f"silencedetect=noise={threshold}:d={min_dur}",
+        "-f",
+        "null",
+        "-",
+    ]
     out = subprocess.run(cmd, capture_output=True, text=True).stderr
     starts = [float(m) for m in re.findall(r"silence_start: ([\d.]+)", out)]
     ends = [float(m) for m in re.findall(r"silence_end: ([\d.]+)", out)]
@@ -26,8 +37,16 @@ def silencedetect(path: str, threshold: str = "-35dB", min_dur: float = 0.35) ->
 
 
 def duration(path: str) -> float:
-    cmd = ["ffprobe", "-v", "error", "-show_entries", "format=duration",
-           "-of", "default=noprint_wrappers=1:nokey=1", path]
+    cmd = [
+        "ffprobe",
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration",
+        "-of",
+        "default=noprint_wrappers=1:nokey=1",
+        path,
+    ]
     return float(subprocess.run(cmd, capture_output=True, text=True).stdout.strip())
 
 
@@ -80,16 +99,50 @@ def main() -> None:
     n = len(kept)
     fc = (
         ";".join(parts_v + parts_a)
-        + ";" + "".join(f"[v{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=0[vout]"
-        + ";" + "".join(f"[a{i}]" for i in range(n)) + f"concat=n={n}:v=0:a=1[aout]"
+        + ";"
+        + "".join(f"[v{i}]" for i in range(n))
+        + f"concat=n={n}:v=1:a=0[vout]"
+        + ";"
+        + "".join(f"[a{i}]" for i in range(n))
+        + f"concat=n={n}:v=0:a=1[aout]"
     )
     r = subprocess.run(
-        ["ffmpeg", "-y", "-v", "error", "-i", args.video,
-         "-filter_complex", fc, "-map", "[vout]", "-map", "[aout]",
-         "-c:v", "libx264", "-crf", "16", "-preset", "medium",
-         "-g", "30", "-keyint_min", "30", "-pix_fmt", "yuv420p",
-         "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", args.out],
-        capture_output=True, text=True)
+        [
+            "ffmpeg",
+            "-y",
+            "-v",
+            "error",
+            "-i",
+            args.video,
+            "-filter_complex",
+            fc,
+            "-map",
+            "[vout]",
+            "-map",
+            "[aout]",
+            "-c:v",
+            "libx264",
+            "-crf",
+            "16",
+            "-preset",
+            "medium",
+            "-g",
+            "30",
+            "-keyint_min",
+            "30",
+            "-pix_fmt",
+            "yuv420p",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            "-movflags",
+            "+faststart",
+            args.out,
+        ],
+        capture_output=True,
+        text=True,
+    )
     if r.returncode != 0:
         print(r.stderr[-2000:])
         raise SystemExit(f"ffmpeg failed ({r.returncode})")
@@ -97,7 +150,9 @@ def main() -> None:
     mapping = []
     new_cursor = 0.0
     for s, e in kept:
-        mapping.append({"old_start": s, "old_end": e, "new_start": new_cursor, "new_end": new_cursor + (e - s)})
+        mapping.append(
+            {"old_start": s, "old_end": e, "new_start": new_cursor, "new_end": new_cursor + (e - s)}
+        )
         new_cursor += e - s
     with open(args.map, "w") as f:
         json.dump({"old_duration": total, "duration": new_cursor, "segments": mapping}, f, indent=2)

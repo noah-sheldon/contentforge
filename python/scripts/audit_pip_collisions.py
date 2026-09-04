@@ -1,23 +1,56 @@
 #!/usr/bin/env python3
 """Static audit: does any timed text element overlap the pip region during its window?"""
+
 import argparse
 import re
 from pathlib import Path
 
 parser = argparse.ArgumentParser(description="Audit timed text vs pip-region collisions")
-parser.add_argument("mcp_dir", type=Path, help="MCP docs project root (contains project/ and project-short/)")
+parser.add_argument(
+    "mcp_dir", type=Path, help="MCP docs project root (contains project/ and project-short/)"
+)
 args = parser.parse_args()
 MCP = args.mcp_dir
 
 CASES = [
-    ("LANDSCAPE", MCP / "project" / "index.html", 1920, 1080,
-     # pip region (420px circle at right:80, bottom:70 -> square bbox)
-     (1920 - 80 - 420, 1080 - 70 - 420, 1920 - 80, 1080 - 70),
-     {"#walkCap1", "#walkCap2", "#term-window", "#json-card", ".scard", "#demo-strip", "#s60-stage", "#chipA-stage", "#cta-stage"}),
-    ("SHORT", MCP / "project-short" / "index.html", 1080, 1920,
-     # pip 320 at left:60, bottom:80
-     (60, 1920 - 80 - 320, 60 + 320, 1920 - 80),
-     {"#walkCap1", "#walkCap2", "#term-window", "#json-card", ".scard", "#demo-strip", "#s60-stage", "#chipA-stage", "#cta-stage"}),
+    (
+        "LANDSCAPE",
+        MCP / "project" / "index.html",
+        1920,
+        1080,
+        # pip region (420px circle at right:80, bottom:70 -> square bbox)
+        (1920 - 80 - 420, 1080 - 70 - 420, 1920 - 80, 1080 - 70),
+        {
+            "#walkCap1",
+            "#walkCap2",
+            "#term-window",
+            "#json-card",
+            ".scard",
+            "#demo-strip",
+            "#s60-stage",
+            "#chipA-stage",
+            "#cta-stage",
+        },
+    ),
+    (
+        "SHORT",
+        MCP / "project-short" / "index.html",
+        1080,
+        1920,
+        # pip 320 at left:60, bottom:80
+        (60, 1920 - 80 - 320, 60 + 320, 1920 - 80),
+        {
+            "#walkCap1",
+            "#walkCap2",
+            "#term-window",
+            "#json-card",
+            ".scard",
+            "#demo-strip",
+            "#s60-stage",
+            "#chipA-stage",
+            "#cta-stage",
+        },
+    ),
 ]
 
 
@@ -39,13 +72,13 @@ def region_of(sel, W, H, name):
     """Approx region for known elements (from CSS/inline layout)."""
     # returns (x0, y0, x1, y1) or None
     R = {
-        "#walkCap1": (90, 1080 - 84 - 90, 90 + 700, 1080 - 84),      # bottom-left caption
+        "#walkCap1": (90, 1080 - 84 - 90, 90 + 700, 1080 - 84),  # bottom-left caption
         "#walkCap2": (90, 1080 - 84 - 90, 90 + 700, 1080 - 84),
-        "#term-window": (340, 160, 340 + 1240, 160 + 335),           # centered 1240 wide
-        "#json-card": (430, 170, 430 + 940, 170 + 640),              # shifted left
-        ".scard": (275, 280, 1645, 280 + 300),                       # split cards at top:280
+        "#term-window": (340, 160, 340 + 1240, 160 + 335),  # centered 1240 wide
+        "#json-card": (430, 170, 430 + 940, 170 + 640),  # shifted left
+        ".scard": (275, 280, 1645, 280 + 300),  # split cards at top:280
         "#demo-strip": (90, 1080 - 70 - 170, 90 + 1210, 1080 - 70),  # left 90 right 620
-        "#s60-stage": (0, 300, 1920, 600),                           # centered big num
+        "#s60-stage": (0, 300, 1920, 600),  # centered big num
         "#chipA-stage": (0, 300, 1920, 650),
         "#cta-stage": (0, 400, 1920, 700),
     }
@@ -59,7 +92,9 @@ def audit():
         html = path.read_text()
         px0, py0, px1, py1 = pip
         # parse the pip's live window from the file
-        m = re.search(r'<[^>]*\bid="pip"[^>]*data-start="([\d.]+)"[^>]*data-duration="([\d.]+)"', html)
+        m = re.search(
+            r'<[^>]*\bid="pip"[^>]*data-start="([\d.]+)"[^>]*data-duration="([\d.]+)"', html
+        )
         pip_s, pip_dur = (float(m.group(1)), float(m.group(2))) if m else (20.7, 62.5)
         pip_e = pip_s + pip_dur
         print(f"=== {label} (pip bbox {pip}, live {pip_s:.1f}-{pip_e:.1f}s) ===")

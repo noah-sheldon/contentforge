@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Measure the pip wrapper geometry in both compositions to verify it is a true circle."""
+
 import argparse
 import json
 

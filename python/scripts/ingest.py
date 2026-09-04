@@ -17,6 +17,7 @@ Outputs (idempotent; finished items are skipped unless --force):
   library/<slug>/raw_transcript.md
   library/<slug>/per-video/<NN>-<title>/...   (playlists only)
 """
+
 import argparse
 import json
 import re
@@ -32,6 +33,7 @@ from common import CONFIG, LIBRARY, ensure_dirs, slugify, write_json
 HAS_YT = False
 try:
     from youtube_transcript_api import YouTubeTranscriptApi
+
     HAS_YT = True
 except ImportError:
     pass
@@ -90,8 +92,9 @@ def fetch_transcript(video_id):
 
 
 def audio_duration(path):
-    r = run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
-             "-of", "csv=p=0", str(path)])
+    r = run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)]
+    )
     try:
         return float(r.stdout.strip())
     except (ValueError, AttributeError):
@@ -101,11 +104,37 @@ def audio_duration(path):
 def split_audio(path, out_dir, chunk_min):
     out_dir.mkdir(parents=True, exist_ok=True)
     pat = str(out_dir / "part-%03d.m4a")
-    r = run(["ffmpeg", "-y", "-i", str(path), "-f", "segment",
-             "-segment_time", str(chunk_min * 60), "-c", "copy", pat])
+    r = run(
+        [
+            "ffmpeg",
+            "-y",
+            "-i",
+            str(path),
+            "-f",
+            "segment",
+            "-segment_time",
+            str(chunk_min * 60),
+            "-c",
+            "copy",
+            pat,
+        ]
+    )
     if r.returncode != 0:
-        run(["ffmpeg", "-y", "-i", str(path), "-f", "segment",
-             "-segment_time", str(chunk_min * 60), "-c", "aac", pat])
+        run(
+            [
+                "ffmpeg",
+                "-y",
+                "-i",
+                str(path),
+                "-f",
+                "segment",
+                "-segment_time",
+                str(chunk_min * 60),
+                "-c",
+                "aac",
+                pat,
+            ]
+        )
     return sorted(out_dir.glob("part-*.m4a"))
 
 
@@ -114,15 +143,27 @@ def transcribe_audio(path, model):
     exe = tool("mlx_whisper")
     if exe != "mlx_whisper":
         out_dir = path.parent
-        r = run([exe, "--model", model, "--output-format", "txt",
-                 "--output-dir", str(out_dir),
-                 "--initial-prompt", DOMAIN_PROMPT, str(path)])
+        r = run(
+            [
+                exe,
+                "--model",
+                model,
+                "--output-format",
+                "txt",
+                "--output-dir",
+                str(out_dir),
+                "--initial-prompt",
+                DOMAIN_PROMPT,
+                str(path),
+            ]
+        )
         if r.returncode == 0:
             txt = out_dir / (path.stem + ".txt")
             if txt.exists():
                 return txt.read_text(encoding="utf-8")
     try:
         from faster_whisper import WhisperModel
+
         m = WhisperModel(model, device="cpu", compute_type="int8")
         segs, _ = m.transcribe(str(path), initial_prompt=DOMAIN_PROMPT)
         return "".join(s.text for s in segs)
@@ -149,8 +190,15 @@ def transcribe_file(path, out_dir, model, chunk_min):
 
 
 def yt_title(video_id, fallback):
-    r = run([tool("yt-dlp"), "--skip-download", "--print", "%(title)s",
-             f"https://www.youtube.com/watch?v={video_id}"])
+    r = run(
+        [
+            tool("yt-dlp"),
+            "--skip-download",
+            "--print",
+            "%(title)s",
+            f"https://www.youtube.com/watch?v={video_id}",
+        ]
+    )
     if r.returncode == 0 and r.stdout.strip():
         return r.stdout.strip()
     return fallback
@@ -170,8 +218,19 @@ def ingest_youtube_video(url, out_dir, model, chunk_min, force, title_hint=None)
         # Fallback: download audio -> whisper
         with tempfile.TemporaryDirectory(prefix="cp-yt-") as tmp:
             tmpd = Path(tmp)
-            r = run([tool("yt-dlp"), "-f", "ba/b", "-x", "--audio-format", "m4a",
-                     "-o", str(tmpd / "audio.%(ext)s"), url])
+            r = run(
+                [
+                    tool("yt-dlp"),
+                    "-f",
+                    "ba/b",
+                    "-x",
+                    "--audio-format",
+                    "m4a",
+                    "-o",
+                    str(tmpd / "audio.%(ext)s"),
+                    url,
+                ]
+            )
             if r.returncode != 0:
                 raise RuntimeError(f"yt-dlp download failed: {r.stderr[:400]}")
             audio = next(tmpd.glob("audio.*"), None)
@@ -223,8 +282,7 @@ def ingest_playlist(url, out_dir, model, chunk_min, force):
         vtitle = e.get("title") or f"video-{i}"
         vdir = out_dir / "per-video" / f"{i:02d}-{slugify(vtitle)}"
         vdir.mkdir(parents=True, exist_ok=True)
-        vmeta = ingest_youtube_video(vurl, vdir, model, chunk_min, force,
-                                     title_hint=vtitle)
+        vmeta = ingest_youtube_video(vurl, vdir, model, chunk_min, force, title_hint=vtitle)
         meta["videos"].append(vmeta)
     write_json(out_dir / "metadata.json", meta)
     return meta
@@ -234,11 +292,14 @@ def ingest_web(url, out_dir, force):
     if (out_dir / "raw_transcript.md").exists() and not force:
         return {"type": "web", "url": url, "title": urlparse(url).netloc}
     import requests
-    r = requests.get(url, timeout=30,
-                     headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"})
+
+    r = requests.get(
+        url, timeout=30, headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
+    )
     r.raise_for_status()
     try:
         import trafilatura
+
         text = trafilatura.extract(r.text)
     except ImportError:
         text = re.sub(r"<[^>]+>", " ", r.text)
@@ -260,8 +321,12 @@ def main():
     ap.add_argument("input", help="URL, file path, or '-' for stdin raw text")
     ap.add_argument("--slug", help="library folder name (default: derived from title)")
     ap.add_argument("--model", default=WHISPER_MODEL)
-    ap.add_argument("--chunk-min", type=int, default=CHUNK_MIN_DEFAULT,
-                    help="split audio longer than N minutes before Whisper")
+    ap.add_argument(
+        "--chunk-min",
+        type=int,
+        default=CHUNK_MIN_DEFAULT,
+        help="split audio longer than N minutes before Whisper",
+    )
     ap.add_argument("--force", action="store_true", help="re-ingest finished items")
     args = ap.parse_args()
     ensure_dirs()
@@ -276,8 +341,7 @@ def main():
         out = LIBRARY / slug
         out.mkdir(parents=True, exist_ok=True)
         (out / "raw_transcript.md").write_text(text, encoding="utf-8")
-        write_json(out / "metadata.json",
-                   {"type": "text", "title": slug, "chars": len(text)})
+        write_json(out / "metadata.json", {"type": "text", "title": slug, "chars": len(text)})
         print(f"ingested text -> {out}")
         return
 
@@ -288,8 +352,7 @@ def main():
         out.mkdir(parents=True, exist_ok=True)
         text = transcribe_file(p, out / "audio", args.model, args.chunk_min)
         (out / "raw_transcript.md").write_text(text, encoding="utf-8")
-        write_json(out / "metadata.json",
-                   {"type": "audio", "file": str(p), "title": p.stem})
+        write_json(out / "metadata.json", {"type": "audio", "file": str(p), "title": p.stem})
         print(f"ingested audio -> {out} ({len(text)} chars)")
         return
 

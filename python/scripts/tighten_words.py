@@ -6,6 +6,7 @@ Cuts ONLY between words — never into a word. Each keep segment spans
 preserved. A cut happens only where the inter-word gap exceeds LEAD+TAIL
 (genuinely long dead air), and the result keeps LEAD+TAIL breathing room.
 """
+
 import argparse
 import json
 import subprocess
@@ -18,7 +19,9 @@ def run(cmd):
 
 
 def duration_of(path):
-    out = run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)])
+    out = run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)]
+    )
     return float(out.stdout.strip())
 
 
@@ -41,24 +44,31 @@ def main():
         print("Error: no word timestamps in transcript")
         sys.exit(1)
 
-    keeps = []
-    cs, ce = None, None
+    keeps: list[tuple[float, float]] = []
+    seg_start = 0.0
+    seg_end = 0.0
+    started = False
     for s, e in words:
-        ks, ke = s - args.lead, e + args.tail
-        if cs is None:
-            cs, ce = ks, ke
-        elif ks <= ce:
-            ce = max(ce, ke)
+        ks = s - args.lead
+        ke = e + args.tail
+        if not started:
+            seg_start, seg_end = ks, ke
+            started = True
+        elif ks <= seg_end:
+            if ke > seg_end:
+                seg_end = ke
         else:
-            keeps.append((cs, ce))
-            cs, ce = ks, ke
-    if cs is not None:
-        keeps.append((cs, ce))
+            keeps.append((seg_start, seg_end))
+            seg_start, seg_end = ks, ke
+    if started:
+        keeps.append((seg_start, seg_end))
 
     total = duration_of(args.input)
     keeps = [(max(0.0, s), min(total, e)) for s, e in keeps if e > s + 0.05]
     cut = total - sum(e - s for s, e in keeps)
-    print(f"Words: {len(words)} | keep segments: {len(keeps)} | {total:.2f}s -> {total - cut:.2f}s (cut {cut:.2f}s)")
+    print(
+        f"Words: {len(words)} | keep segments: {len(keeps)} | {total:.2f}s -> {total - cut:.2f}s (cut {cut:.2f}s)"
+    )
 
     filters = []
     for i, (s, e) in enumerate(keeps):
@@ -71,11 +81,26 @@ def main():
 
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     cmd = [
-        "ffmpeg", "-y", "-i", args.input,
-        "-filter_complex", ";".join(filters),
-        "-map", "[vout]", "-map", "[aout]",
-        "-c:v", "libx264", "-preset", "fast", "-crf", "18",
-        "-c:a", "aac", "-b:a", "192k",
+        "ffmpeg",
+        "-y",
+        "-i",
+        args.input,
+        "-filter_complex",
+        ";".join(filters),
+        "-map",
+        "[vout]",
+        "-map",
+        "[aout]",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "fast",
+        "-crf",
+        "18",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "192k",
         args.output,
     ]
     r = run(cmd)

@@ -171,7 +171,9 @@ infra design is revisited with real measurements first.
   merged layout.
 
 AC: every script from both pipelines runs from contentforge; zero stale
-path refs; one persona/voice/brand source; smoke test green.
+path refs; one persona/voice/brand source; smoke test green. Toolchain
+baseline lands here too: pyrefly 0 errors, ruff format clean, biome clean,
+tsc gate armed (§7 item 7).
 
 ### P1 — Dynamic config layer (issue #2)
 
@@ -291,7 +293,14 @@ sellable demo.
 ## 6. Cross-cutting rules
 
 - Conventional commits; keep the repo green before every commit.
-- No emoji in any file. Follow existing SOLID/KISS/DRY conventions.
+- No emoji in any file.
+- Engineering principles: SOLID, DRY, single responsibility (SoC), KISS,
+  YAGNI, and the laws of software engineering apply to every merge. The
+  quality gates keep the codebase honest; nothing speculative is added
+  ahead of a phase that needs it.
+- Quality gates (one command: `make verify`): Python = ruff lint + ruff
+  format + pyrefly types; JS/TS = biome lint + biome format + tsc --noEmit.
+  All code merges with these green. Toolchain policy: §7 item 7.
 - No pipeline or product decision is locked by infra: the pipeline must run
   identically as a local CLI run (P0-P1.5) and as a queue-fed worker job
   (P2+, deferred). The runbook stays the source of truth; a container is a
@@ -325,6 +334,13 @@ Resolved (2026-08-31):
    excluded by design - no code references it; audio is fetched per project
    from Pixabay at runtime (`scripts/fetch_pixabay.mjs`). Re-add only if the
    library itself becomes a product asset.
+7. **Toolchain / engineering standards - DECIDED:** fully typed + fully
+   linted + fully formatted everywhere, gated by `make verify`. Python:
+   pyrefly (`python/pyrefly.toml`, default preset, scripts/ as search path)
+   + ruff (lint + format; E501/N806 ignored). JS/TS: biome (`biome.json`,
+   recommended preset) + tsc `--noEmit` against `tsconfig.base.json`
+   (strict). The tsc gate is armed now and activates when TS sources land
+   (P2/P4). Principles: SOLID / DRY / SoC / KISS / YAGNI (§6).
 
 Resolved earlier: source-repo access (cloned into `_sources/` with `gh auth`)
 and board #10 read/write (`gh` scopes granted) - both no longer blockers.

@@ -11,6 +11,7 @@ Usage:
       --origin      for shorts: the old absolute slice start (times are relative to it)
       --new-origin  for shorts: the mapped slice start (subtracted from remapped times)
 """
+
 import argparse
 import json
 import re
@@ -41,6 +42,7 @@ def build_fn(m):
                 return prev["new_end"]
             prev = s
         return prev["new_end"]
+
     return f
 
 
@@ -93,12 +95,16 @@ def main():
     src = re.sub(r'data-duration="([0-9.]+)"', dur_repl, src)
 
     # 4. Progress bar tween duration = new total.
-    src = re.sub(r'(tl\.fromTo\("#progress-line".*?duration: )[\d.]+', rf"\g<1>{new_total:.3f}", src)
+    src = re.sub(
+        r'(tl\.fromTo\("#progress-line".*?duration: )[\d.]+', rf"\g<1>{new_total:.3f}", src
+    )
 
     with open(args.html, "w") as fh:
         fh.write(src)
 
-    print(f"remapped {args.html}: timeline positions through map; new total duration = {new_total:.2f}s")
+    print(
+        f"remapped {args.html}: timeline positions through map; new total duration = {new_total:.2f}s"
+    )
 
 
 if __name__ == "__main__":

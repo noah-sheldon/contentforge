@@ -5,6 +5,7 @@ Rule: scripts contain ONLY deterministic, stable logic. Anything that can
 change (paths, model names, board numbers, lifecycle options) lives in
 config.yaml / skill/persona.yaml.
 """
+
 import json
 import re
 from pathlib import Path

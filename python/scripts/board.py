@@ -15,6 +15,7 @@ Field mapping (resolved against the live board, not hardcoded):
   series -> Series single-select   week -> Week iteration (matched by start date)
 Unknown option names are warned and skipped, never fatal.
 """
+
 import argparse
 import json
 import subprocess
@@ -45,8 +46,7 @@ _FIELDS = CONFIG.get("board_fields", {})
 def run(args):
     r = subprocess.run(args, capture_output=True, text=True)
     if r.returncode != 0:
-        print(f"[warn] gh failed: {' '.join(args)}\n{r.stderr.strip()[:300]}",
-              file=sys.stderr)
+        print(f"[warn] gh failed: {' '.join(args)}\n{r.stderr.strip()[:300]}", file=sys.stderr)
         return None
     return r.stdout.strip()
 
@@ -60,9 +60,17 @@ def project_id(owner, number):
 
 def field_map(project_id_val):
     """Return {field_name: {"id":..., "options": {name: id}, "iterations": {startDate: id}}}"""
-    out = run(["gh", "api", "graphql", "-f",
-               "query=" + FIELD_QUERY % project_id_val,
-               "--jq", ".data.node.fields.nodes"])
+    out = run(
+        [
+            "gh",
+            "api",
+            "graphql",
+            "-f",
+            "query=" + FIELD_QUERY % project_id_val,
+            "--jq",
+            ".data.node.fields.nodes",
+        ]
+    )
     if not out:
         return {}
     nodes = json.loads(out)
@@ -76,8 +84,7 @@ def field_map(project_id_val):
             entry["options"] = {o["name"]: o["id"] for o in (n.get("options") or [])}
         if n.get("configuration"):
             entry["iterations"] = {
-                i["startDate"]: i["id"]
-                for i in n["configuration"].get("iterations") or []
+                i["startDate"]: i["id"] for i in n["configuration"].get("iterations") or []
             }
         m[name] = entry
     return m
@@ -85,10 +92,14 @@ def field_map(project_id_val):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--project", default=str(_BOARDS.get("shorts", {}).get("number", "")),
-                    help="GitHub project number (default: config boards.shorts)")
-    ap.add_argument("--owner", default=_BOARDS.get("shorts", {}).get("owner", ""),
-                    help="project owner")
+    ap.add_argument(
+        "--project",
+        default=str(_BOARDS.get("shorts", {}).get("number", "")),
+        help="GitHub project number (default: config boards.shorts)",
+    )
+    ap.add_argument(
+        "--owner", default=_BOARDS.get("shorts", {}).get("owner", ""), help="project owner"
+    )
     ap.add_argument("items", help="JSON file with the card list")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
@@ -100,8 +111,18 @@ def main():
     fields = field_map(pid)
 
     for it in items:
-        base = ["gh", "project", "item-create", a.project,
-                "--owner", a.owner, "--title", it["title"], "--format", "json"]
+        base = [
+            "gh",
+            "project",
+            "item-create",
+            a.project,
+            "--owner",
+            a.owner,
+            "--title",
+            it["title"],
+            "--format",
+            "json",
+        ]
         if a.dry_run:
             print("DRY:", " ".join(base))
             continue
@@ -115,8 +136,12 @@ def main():
             continue
         print(f"created {it['title']!r}")
 
-        for key, fkey in (("status", "status"), ("form", "form"),
-                          ("series", "series"), ("week", "week")):
+        for key, fkey in (
+            ("status", "status"),
+            ("form", "form"),
+            ("series", "series"),
+            ("week", "week"),
+        ):
             value = it.get(key)
             if not value:
                 continue
@@ -125,8 +150,19 @@ def main():
             if not f:
                 print(f"[warn] no {field_name} field on project {a.project}")
                 continue
-            cmd = ["gh", "project", "item-edit", "--id", item_id,
-                   "--project-id", pid, "--field-id", f["id"], "--format", "json"]
+            cmd = [
+                "gh",
+                "project",
+                "item-edit",
+                "--id",
+                item_id,
+                "--project-id",
+                pid,
+                "--field-id",
+                f["id"],
+                "--format",
+                "json",
+            ]
             if key == "week":
                 iid = (f.get("iterations") or {}).get(value)
                 if not iid:

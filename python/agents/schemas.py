@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 # ─── Enums ────────────────────────────────────────────────────────────
 
+
 class Platform(str, Enum):
     linkedin = "linkedin"
     x = "x"
@@ -34,6 +35,7 @@ class ReviewVerdict(str, Enum):
 
 # ─── Persona / Brand ─────────────────────────────────────────────────
 
+
 class BrandColors(BaseModel):
     obsidian: str = "#12141C"
     alabaster: str = "#FAFAFA"
@@ -53,6 +55,7 @@ class Persona(BaseModel):
 
 # ─── Research Models ─────────────────────────────────────────────────
 
+
 class ResearchRequest(BaseModel):
     query: str = "AI engineering machine learning production"
     max_results: int = 20
@@ -65,6 +68,7 @@ class ResearchResult(BaseModel):
 
 
 # ─── Topic Models ────────────────────────────────────────────────────
+
 
 class TopicProposal(BaseModel):
     topic: str
@@ -81,6 +85,7 @@ class TopicHistoryEntry(BaseModel):
 
 # ─── Copywriter Models ───────────────────────────────────────────────
 
+
 class CopywriterInput(BaseModel):
     topic: str
     persona: Persona
@@ -92,6 +97,7 @@ class CopywriterOutput(BaseModel):
 
 
 # ─── Expert Models ───────────────────────────────────────────────────
+
 
 class ExpertInput(BaseModel):
     draft: str
@@ -107,6 +113,7 @@ class ExpertOutput(BaseModel):
 
 # ─── Review Models ───────────────────────────────────────────────────
 
+
 class ReviewInput(BaseModel):
     draft: str
     platform: Platform
@@ -119,6 +126,7 @@ class ReviewOutput(BaseModel):
 
 
 # ─── Animation Models ────────────────────────────────────────────────
+
 
 class Block(BaseModel):
     type: str  # text_card, code_block, diagram, comparison, metric, quote
@@ -139,6 +147,7 @@ class AnimationOutput(BaseModel):
 
 # ─── Render Models ───────────────────────────────────────────────────
 
+
 class RenderInput(BaseModel):
     hook: str
     body: str
@@ -152,6 +161,7 @@ class RenderOutput(BaseModel):
 
 
 # ─── Pipeline State Models ───────────────────────────────────────────
+
 
 class PipelineStep(BaseModel):
     data: str

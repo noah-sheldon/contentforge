@@ -54,7 +54,7 @@ def _build_composition(blocks: list[Block], brand: dict, fonts: dict) -> str:
 
         inner = ""
         if b.type == "code_block":
-            code = data.get("code", body).replace("\n", "<br>")
+            code = str(data.get("code") or body).replace("\n", "<br>")
             inner = f"""
         <div id="c{i}-h" class="block-code-title">{heading}</div>
         <pre id="c{i}-b" class="block-code">{code}</pre>"""
@@ -109,12 +109,12 @@ def _build_composition(blocks: list[Block], brand: dict, fonts: dict) -> str:
   </head>
   <body>
     <div id="root" data-composition-id="main" data-start="0" data-duration="{total_duration:.1f}" data-width="1080" data-height="1920">
-      {''.join(clips)}
+      {"".join(clips)}
     </div>
     <script>
       window.__timelines = window.__timelines || {{}};
       const tl = gsap.timeline({{ paused: true }});
-      {''.join(timeline)}
+      {"".join(timeline)}
       window.__timelines["main"] = tl;
     </script>
   </body>
@@ -153,18 +153,26 @@ def render_blocks(blocks: list[Block], output_path: Optional[str] = None) -> str
         existing = len(list(OUTPUT_DIR.glob("*.mp4")))
         output_path = str(OUTPUT_DIR / f"animation_{existing + 1}.mp4")
 
-    print(f"  Rendering {len(blocks)} blocks, {total_duration:.1f}s → {total_duration:.1f}s @ {FPS}fps")
+    print(
+        f"  Rendering {len(blocks)} blocks, {total_duration:.1f}s → {total_duration:.1f}s @ {FPS}fps"
+    )
     print(f"  Output: {output_path}")
 
     with tempfile.TemporaryDirectory(prefix="hf_text_") as tmp:
         project = Path(tmp)
         (project / "index.html").write_text(html, encoding="utf-8")
         (project / "hyperframes.json").write_text(
-            json.dumps({
-                "registry": "https://raw.githubusercontent.com/heygen-com/hyperframes/main/registry",
-                "paths": {"blocks": "compositions", "components": "compositions/components", "assets": "assets"},
-                "authoringSkill": "general-video",
-            }),
+            json.dumps(
+                {
+                    "registry": "https://raw.githubusercontent.com/heygen-com/hyperframes/main/registry",
+                    "paths": {
+                        "blocks": "compositions",
+                        "components": "compositions/components",
+                        "assets": "assets",
+                    },
+                    "authoringSkill": "general-video",
+                }
+            ),
             encoding="utf-8",
         )
         (project / "meta.json").write_text(

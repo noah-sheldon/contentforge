@@ -5,6 +5,7 @@ Takes ONE 16:9 master recording (video + audio) and automatically produces:
 1. Full 16:9 Long-Form Master Video with HyperFrames overlays.
 2. Individual 9:16 Vertical Short-Form clips dynamically cropped and chapter-sliced.
 """
+
 import argparse
 import subprocess
 import sys
@@ -35,9 +36,7 @@ def slice_short_clip(
     # 9:16 center crop filter for 1920x1080 horizontal footage -> 1080x1920 or 608x1080
     # In 1080p source (1920x1080): crop to central 607x1080, scale to 1080x1920
     video_filter = (
-        "crop=ih*9/16:ih:(iw-ih*9/16)/2:0,scale=1080:1920"
-        if vertical_crop
-        else "scale=1920:1080"
+        "crop=ih*9/16:ih:(iw-ih*9/16)/2:0,scale=1080:1920" if vertical_crop else "scale=1920:1080"
     )
 
     cmd = [
@@ -78,9 +77,7 @@ def build_argument_parser():
     parser = argparse.ArgumentParser(
         description="Slice 16:9 master recording into 16:9 master and 9:16 vertical shorts"
     )
-    parser.add_argument(
-        "master_file", help="Path to the master 16:9 video or audio recording"
-    )
+    parser.add_argument("master_file", help="Path to the master 16:9 video or audio recording")
     parser.add_argument(
         "--timestamps",
         default=None,

@@ -11,11 +11,13 @@ Usage:
 
 Open http://<host>:<port>/ in a browser.
 """
+
 import argparse
 import http.server
 import json
 import sys
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 
 from common import ROOT
@@ -132,13 +134,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def log_message(self, fmt, *args):
-        sys.stderr.write("[teleprompter] %s\n" % (fmt % args))
+    def log_message(self, format: str, *args: Any) -> None:
+        sys.stderr.write("[teleprompter] %s\n" % (format % args))
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Serve the teleprompter + scripts over your local network")
-    ap.add_argument("--host", default="127.0.0.1", help="Bind address (0.0.0.0 to reachable on LAN)")
+    ap = argparse.ArgumentParser(
+        description="Serve the teleprompter + scripts over your local network"
+    )
+    ap.add_argument(
+        "--host", default="127.0.0.1", help="Bind address (0.0.0.0 to reachable on LAN)"
+    )
     ap.add_argument("--port", type=int, default=8000, help="Port (default 8000)")
     ap.add_argument("--list-only", action="store_true", help="Print discovered scripts and exit")
     args = ap.parse_args()

@@ -6,9 +6,10 @@ DRY: Every agent calls this. No scattered LLM imports.
 """
 
 import os
-from typing import Optional
+from typing import Any, Optional, cast
 
 from openai import OpenAI
+from openai.types.chat import ChatCompletion
 
 from agents.base import SynthesizerInterface
 
@@ -43,12 +44,12 @@ class OpenAISynthesizer(SynthesizerInterface):
         max_tokens: Optional[int] = None,
         system: Optional[str] = None,
     ) -> str:
-        messages = []
+        messages: list[dict[str, str]] = []
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
 
-        kwargs = dict(
+        kwargs: dict[str, Any] = dict(
             model=self.model,
             messages=messages,
             temperature=temperature,
@@ -58,5 +59,10 @@ class OpenAISynthesizer(SynthesizerInterface):
         if max_tokens:
             kwargs["max_tokens"] = max_tokens
 
-        response = self.client.chat.completions.create(**kwargs)
-        return response.choices[0].message.content or ""
+        # DeepSeek accepts OpenAI-compatible params plus extra fields such as
+        # `reasoning_effort`; the SDK's overloads cannot express that union.
+        completion = cast(
+            ChatCompletion,
+            self.client.chat.completions.create(**cast(Any, kwargs)),
+        )
+        return completion.choices[0].message.content or ""

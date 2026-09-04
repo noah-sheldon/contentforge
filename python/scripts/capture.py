@@ -4,10 +4,12 @@
 Captures pixel-perfect browser walkthroughs for YouTube (16:9) and Shorts/X (9:16).
 Supports action recipes (scrolling, clicking, typing, highlighting, waiting).
 """
+
 import argparse
 import json
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING, Literal, Optional, cast
 
 from common import ROOT
 
@@ -15,6 +17,11 @@ try:
     from playwright.sync_api import sync_playwright
 except ImportError:
     sync_playwright = None
+
+if TYPE_CHECKING:
+    from playwright.sync_api._generated import ViewportSize
+
+_ColorScheme = Literal["dark", "light", "no-preference", "null"]
 
 GOLD_ACCENT_CSS = """
 .opencode-spotlight-highlight {
@@ -98,10 +105,10 @@ def record_screen(
     url: str,
     output_dir: Path,
     aspect_ratio: str = "16:9",
-    recipe_path: Path = None,
+    recipe_path: Optional[Path] = None,
     duration_seconds: int = 10,
     headless: bool = True,
-    color_scheme: str = "dark",
+    color_scheme: _ColorScheme = "dark",
 ) -> Path:
     """Records a browser session using Playwright and saves the video artifact."""
     if sync_playwright is None:
@@ -128,9 +135,9 @@ def record_screen(
         )
 
         context = browser.new_context(
-            viewport=viewport,
+            viewport=cast("ViewportSize", viewport),
             record_video_dir=str(output_dir),
-            record_video_size=record_size,
+            record_video_size=cast("ViewportSize", record_size),
             color_scheme=color_scheme,
         )
 
@@ -188,9 +195,7 @@ def record_screen(
 
 
 def build_argument_parser():
-    parser = argparse.ArgumentParser(
-        description="Automated screen capture engine using Playwright"
-    )
+    parser = argparse.ArgumentParser(description="Automated screen capture engine using Playwright")
     parser.add_argument("url", help="URL or local HTML file path to capture")
     parser.add_argument(
         "--output-dir",
@@ -242,7 +247,7 @@ def main():
         recipe_path=recipe_file,
         duration_seconds=args.duration,
         headless=not args.headed,
-        color_scheme=args.theme,
+        color_scheme=cast(_ColorScheme, args.theme),
     )
 
 

@@ -1,0 +1,8 @@
+# Pyrefly type-check configuration for the contentforge python workspace.
+# Runs as: pyrefly check   (from python/); see root Makefile `typecheck` target.
+
+preset = "default"
+# Scripts import their sibling `common.py` as a top-level module (they run
+# with python/scripts on sys.path), so expose scripts/ as an import root.
+search-path = ["scripts"]
+python-version = "3.11"

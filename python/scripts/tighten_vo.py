@@ -10,6 +10,7 @@ Usage:
 Defaults: keep 0.55s breath, cut pauses longer than 0.9s (natural pacing).
 Aggressive (short-form): --keep 0.3 --cut 0.6.
 """
+
 import argparse
 import json
 import re
@@ -17,7 +18,16 @@ import subprocess
 
 
 def silencedetect(path: str, threshold: str = "-38dB") -> list[tuple[float, float]]:
-    cmd = ["ffmpeg", "-i", path, "-af", f"silencedetect=noise={threshold}:d=0.35", "-f", "null", "-"]
+    cmd = [
+        "ffmpeg",
+        "-i",
+        path,
+        "-af",
+        f"silencedetect=noise={threshold}:d=0.35",
+        "-f",
+        "null",
+        "-",
+    ]
     out = subprocess.run(cmd, capture_output=True, text=True).stderr
     starts = [float(m) for m in re.findall(r"silence_start: ([\d.]+)", out)]
     ends = [float(m) for m in re.findall(r"silence_end: ([\d.]+)", out)]
@@ -25,8 +35,16 @@ def silencedetect(path: str, threshold: str = "-38dB") -> list[tuple[float, floa
 
 
 def duration(path: str) -> float:
-    cmd = ["ffprobe", "-v", "error", "-show_entries", "format=duration",
-           "-of", "default=noprint_wrappers=1:nokey=1", path]
+    cmd = [
+        "ffprobe",
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration",
+        "-of",
+        "default=noprint_wrappers=1:nokey=1",
+        path,
+    ]
     return float(subprocess.run(cmd, capture_output=True, text=True).stdout.strip())
 
 
@@ -35,7 +53,9 @@ def main() -> None:
     ap.add_argument("audio")
     ap.add_argument("--out", required=True)
     ap.add_argument("--map", required=True)
-    ap.add_argument("--keep", type=float, default=0.55, help="seconds of silence left after a long pause")
+    ap.add_argument(
+        "--keep", type=float, default=0.55, help="seconds of silence left after a long pause"
+    )
     ap.add_argument("--cut", type=float, default=0.9, help="pauses longer than this get trimmed")
     args = ap.parse_args()
 
@@ -51,7 +71,7 @@ def main() -> None:
         if e - s > CUT:
             cuts.append((s + KEEP, e))
 
-    kept = []            # (old_start, old_end)
+    kept = []  # (old_start, old_end)
     cursor = 0.0
     for cs, ce in cuts:
         if cs < cursor:
@@ -71,16 +91,40 @@ def main() -> None:
     parts = []
     for i, (s, e) in enumerate(kept):
         parts.append(f"[0:a]atrim={s}:{e},asetpts=PTS-STARTPTS[a{i}]")
-    fc = ";".join(parts) + ";" + "".join(f"[a{i}]" for i in range(len(kept))) + "concat=n=" + str(len(kept)) + ":v=0:a=1[out]"
-    subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", args.audio,
-                    "-filter_complex", fc, "-map", "[out]", "-c:a", "pcm_s16le", args.out],
-                   check=True)
+    fc = (
+        ";".join(parts)
+        + ";"
+        + "".join(f"[a{i}]" for i in range(len(kept)))
+        + "concat=n="
+        + str(len(kept))
+        + ":v=0:a=1[out]"
+    )
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-v",
+            "error",
+            "-i",
+            args.audio,
+            "-filter_complex",
+            fc,
+            "-map",
+            "[out]",
+            "-c:a",
+            "pcm_s16le",
+            args.out,
+        ],
+        check=True,
+    )
 
     # Emit the old->new map.
     mapping = []
     new_cursor = 0.0
     for s, e in kept:
-        mapping.append({"old_start": s, "old_end": e, "new_start": new_cursor, "new_end": new_cursor + (e - s)})
+        mapping.append(
+            {"old_start": s, "old_end": e, "new_start": new_cursor, "new_end": new_cursor + (e - s)}
+        )
         new_cursor += e - s
     with open(args.map, "w") as f:
         json.dump({"duration": new_cursor, "segments": mapping}, f, indent=2)

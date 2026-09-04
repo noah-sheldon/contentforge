@@ -4,6 +4,7 @@
 Writes segment + word timing JSON so downstream beat-sync work can find exactly
 where each topic/sentence begins in the (tightened) footage.
 """
+
 import argparse
 import json
 import sys
@@ -39,13 +40,15 @@ def main():
             {"word": w.word, "start": round(w.start, 3), "end": round(w.end, 3)}
             for w in (seg.words or [])
         ]
-        result["segments"].append({
-            "id": seg.id,
-            "start": round(seg.start, 3),
-            "end": round(seg.end, 3),
-            "text": seg.text.strip(),
-            "words": words,
-        })
+        result["segments"].append(
+            {
+                "id": seg.id,
+                "start": round(seg.start, 3),
+                "end": round(seg.end, 3),
+                "text": seg.text.strip(),
+                "words": words,
+            }
+        )
 
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)

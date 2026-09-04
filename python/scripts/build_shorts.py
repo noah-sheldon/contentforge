@@ -5,6 +5,7 @@ Each short plays its corresponding beat segment of the tightened master
 footage in portrait, with a top talking-head video band, narration audio
 (HyperFrames <audio>), and a speech-synced motion-graphics screen.
 """
+
 import subprocess
 from pathlib import Path
 
@@ -16,74 +17,95 @@ TIGHT = "short.mp4"
 SHORTS = [
     {
         "id": "m1l1-what-are-ai-agents",
-        "seg_start": 0.85, "seg_dur": 42.86,
+        "seg_start": 0.85,
+        "seg_dur": 42.86,
         "title": "What Are AI Agents?",
         "sub": "Chatbots answer. Agents finish.",
         "type": "equation",
         "reveals": [
-            ("#card-chatbot", 10.21), ("#card-agent", 12.0),
+            ("#card-chatbot", 10.21),
+            ("#card-agent", 12.0),
         ],
     },
     {
         "id": "m1l2-why-do-we-need-ai-agents",
-        "seg_start": 43.71, "seg_dur": 29.54,
+        "seg_start": 43.71,
+        "seg_dur": 29.54,
         "title": "Why We Need Agents",
         "sub": "Close the execution gap",
         "type": "gap",
         "reveals": [
-            ("#manual-step1", 56.15), ("#manual-step2", 57.77), ("#manual-step3", 59.3),
+            ("#manual-step1", 56.15),
+            ("#manual-step2", 57.77),
+            ("#manual-step3", 59.3),
             ("#agent-card", 61.87),
-            ("#agent-step1", 66.67), ("#agent-step2", 68.5), ("#agent-step3", 70.5),
+            ("#agent-step1", 66.67),
+            ("#agent-step2", 68.5),
+            ("#agent-step3", 70.5),
         ],
     },
     {
         "id": "m1l3-applications-of-ai-agents",
-        "seg_start": 73.25, "seg_dur": 15.50,
+        "seg_start": 73.25,
+        "seg_dur": 15.50,
         "title": "You Already Use Agents",
         "sub": "Running in production today",
         "type": "apps",
         "reveals": [
-            ("#app1", 75.33), ("#app2", 79.05), ("#app3", 84.0),
+            ("#app1", 75.33),
+            ("#app2", 79.05),
+            ("#app3", 84.0),
         ],
     },
     {
         "id": "m1l4-reasoning-llm-decisions",
-        "seg_start": 88.75, "seg_dur": 16.64,
+        "seg_start": 88.75,
+        "seg_dur": 16.64,
         "title": "Reasoning Is a Prompt",
         "sub": "No magic — just structure",
         "type": "compare",
         "reveals": [
-            ("#unstruct", 88.75), ("#struct", 92.45),
+            ("#unstruct", 88.75),
+            ("#struct", 92.45),
         ],
     },
     {
         "id": "m1l5-action-tools-with-llms",
-        "seg_start": 105.39, "seg_dur": 33.32,
+        "seg_start": 105.39,
+        "seg_dur": 33.32,
         "title": "Tools & MCP",
         "sub": "The model's hands",
         "type": "mcp",
         "reveals": [
-            ("#host", 116.79), ("#client", 129.65), ("#server", 130.5),
+            ("#host", 116.79),
+            ("#client", 129.65),
+            ("#server", 130.5),
         ],
     },
     {
         "id": "m1l6-react-pattern",
-        "seg_start": 138.71, "seg_dur": 15.64,
+        "seg_start": 138.71,
+        "seg_dur": 15.64,
         "title": "ReAct",
         "sub": "Reason and Act",
         "type": "react",
         "reveals": [
-            ("#l-think", 142.57), ("#l-act", 144.91), ("#l-observe", 148.47), ("#l-repeat", 150.71),
+            ("#l-think", 142.57),
+            ("#l-act", 144.91),
+            ("#l-observe", 148.47),
+            ("#l-repeat", 150.71),
         ],
     },
     {
         "id": "m1l7-single-vs-multi-agent",
-        "seg_start": 154.35, "seg_dur": 13.28,
+        "seg_start": 154.35,
+        "seg_dur": 13.28,
         "title": "One Agent or a Team?",
         "sub": "Pick by the job",
         "type": "team",
         "reveals": [
-            ("#team1", 158.17), ("#team2", 160.11),
+            ("#team1", 158.17),
+            ("#team2", 160.11),
         ],
     },
 ]
@@ -349,10 +371,12 @@ def build_reveals(short):
     for i, v in enumerate(locals):
         js = js.replace("{" + str(i) + "}", str(v))
     # Replace remaining bracket placeholders in apps/react types
-    return js.replace("[0]", str(locals[0]) if len(locals) > 0 else "0") \
-             .replace("[1]", str(locals[1]) if len(locals) > 1 else "0") \
-             .replace("[2]", str(locals[2]) if len(locals) > 2 else "0") \
-             .replace("[3]", str(locals[3]) if len(locals) > 3 else "0")
+    return (
+        js.replace("[0]", str(locals[0]) if len(locals) > 0 else "0")
+        .replace("[1]", str(locals[1]) if len(locals) > 1 else "0")
+        .replace("[2]", str(locals[2]) if len(locals) > 2 else "0")
+        .replace("[3]", str(locals[3]) if len(locals) > 3 else "0")
+    )
 
 
 def render(short):
@@ -365,11 +389,24 @@ def render(short):
     dst_short = out_dir / "short.mp4"
     if not dst_short.exists():
         cmd = [
-            "ffmpeg", "-y",
-            "-ss", f"{short['seg_start']:.3f}", "-i", str(src_tight),
-            "-t", f"{short['seg_dur']:.3f}",
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
-            "-c:a", "aac", "-b:a", "192k",
+            "ffmpeg",
+            "-y",
+            "-ss",
+            f"{short['seg_start']:.3f}",
+            "-i",
+            str(src_tight),
+            "-t",
+            f"{short['seg_dur']:.3f}",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "veryfast",
+            "-crf",
+            "18",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
             str(dst_short),
         ]
         subprocess.run(cmd, capture_output=True)
@@ -398,6 +435,7 @@ def render(short):
 def main():
     for short in SHORTS:
         render(short)
+
 
 if __name__ == "__main__":
     main()

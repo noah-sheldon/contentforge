@@ -1,0 +1,13 @@
+{
+  "name": "contentforge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo JS/TS toolchain (biome lint/format, tsc type checks). Python lives in the uv workspace.",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
+    "typescript": "^5.0.0"
+  }
+}

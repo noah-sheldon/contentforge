@@ -74,7 +74,7 @@ def run_research():
 
     print("  Synthesising trends...", end=" ", flush=True)
     llm = OpenAISynthesizer()
-    raw = llm.synthesize(
+    raw_synthesis = llm.synthesize(
         load_prompt(
             "research/synthesis",
             youtube_data=yt_block,
@@ -82,14 +82,15 @@ def run_research():
             web_data=web_block,
         ),
         system=f"You are a content strategist for {persona['creator']['name']}, {persona['creator']['title']}. "
-               f"Niche: {content['niche']}. Audience: {content['audience']}. Tone: {content['tone']}. "
-               f"Output JSON only. No explanation.",
+        f"Niche: {content['niche']}. Audience: {content['audience']}. Tone: {content['tone']}. "
+        f"Output JSON only. No explanation.",
         temperature=0.5,
     )
     # Parse JSON synthesis
     import json
     import re
-    match = re.search(r"\[.*\]", raw, re.DOTALL)
+
+    match = re.search(r"\[.*\]", raw_synthesis, re.DOTALL)
     synthesis = json.loads(match.group()) if match else []
     print("done")
 

@@ -6,6 +6,7 @@ dynamic control (compression + limiter), and loudness normalization
 (YouTube target: -14 LUFS, true peak <= -1.0 dBTP). Writes a processed
 audio file ready to mux onto the rendered overlay.
 """
+
 import argparse
 import subprocess
 import sys
@@ -17,11 +18,17 @@ def run(cmd):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Engineer narration audio (cleanup -> EQ -> dynamics -> loudness)")
+    parser = argparse.ArgumentParser(
+        description="Engineer narration audio (cleanup -> EQ -> dynamics -> loudness)"
+    )
     parser.add_argument("input", help="Source video (or audio) with the narration")
     parser.add_argument("output", help="Output engineered audio file (e.g. master_audio.m4a)")
-    parser.add_argument("--lufs", default=-14, help="Integrated loudness target in LUFS (default -14 for YouTube)")
-    parser.add_argument("--true-peak", default=-1.0, help="True peak ceiling in dBTP (default -1.0)")
+    parser.add_argument(
+        "--lufs", default=-14, help="Integrated loudness target in LUFS (default -14 for YouTube)"
+    )
+    parser.add_argument(
+        "--true-peak", default=-1.0, help="True peak ceiling in dBTP (default -1.0)"
+    )
     args = parser.parse_args()
 
     inp = Path(args.input)
@@ -48,11 +55,17 @@ def main():
     )
 
     cmd = [
-        "ffmpeg", "-y",
-        "-i", str(inp),
+        "ffmpeg",
+        "-y",
+        "-i",
+        str(inp),
         "-vn",
-        "-af", afilter,
-        "-c:a", "aac", "-b:a", "192k",
+        "-af",
+        afilter,
+        "-c:a",
+        "aac",
+        "-b:a",
+        "192k",
         str(out),
     ]
     print("Running audio engineering pass...")
@@ -61,7 +74,18 @@ def main():
         print(f"FFmpeg error: {result.stderr[-2000:]}")
         sys.exit(1)
 
-    probe = run(["ffprobe", "-v", "error", "-show_entries", "format=duration:stream=codec_name", "-of", "json", str(out)])
+    probe = run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration:stream=codec_name",
+            "-of",
+            "json",
+            str(out),
+        ]
+    )
     print(f"Engineered audio -> {out} ({probe.stdout.strip()})")
 
 

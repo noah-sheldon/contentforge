@@ -5,6 +5,7 @@ Uses the canonical headshot (assets/noah-headshot.png), circular crop + gold
 ring, bold gold title + server chips on a dark gradient — same visual language
 as the round pip.
 """
+
 import os
 from pathlib import Path
 
@@ -27,11 +28,13 @@ FONT_CANDIDATES = [
 ]
 
 
-def font(size: int, bold: bool = True) -> ImageFont.FreeTypeFont:
+def font(size: int, bold: bool = True) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
     for cand in FONT_CANDIDATES:
         if os.path.exists(cand):
             try:
-                return ImageFont.truetype(cand, size, index=1 if (bold and "Helvetica" in cand) else 0)
+                return ImageFont.truetype(
+                    cand, size, index=1 if (bold and "Helvetica" in cand) else 0
+                )
             except Exception:
                 pass
     return ImageFont.load_default()
@@ -59,7 +62,9 @@ def circular_headshot(bg: Image.Image, cx: int, cy: int, diameter: int) -> None:
     side = int(w * 0.80)  # square crop side — face + headroom, fits 872x1216 portrait
     left = max(0, min(w - side, fc_x - side // 2))
     top = max(0, min(h - side, fc_y - side // 2))
-    sq = hs.crop((left, top, left + side, top + side)).resize((diameter, diameter), Image.LANCZOS)
+    sq = hs.crop((left, top, left + side, top + side)).resize(
+        (diameter, diameter), Image.Resampling.LANCZOS
+    )
     mask = Image.new("L", (diameter, diameter), 0)
     md = ImageDraw.Draw(mask)
     md.ellipse((0, 0, diameter - 1, diameter - 1), fill=255)
@@ -68,13 +73,23 @@ def circular_headshot(bg: Image.Image, cx: int, cy: int, diameter: int) -> None:
     ring_w = max(4, diameter // 90)
     ring.ellipse(
         (cx - diameter // 2, cy - diameter // 2, cx + diameter // 2, cy + diameter // 2),
-        outline=GOLD, width=ring_w,
+        outline=GOLD,
+        width=ring_w,
     )
 
 
-def text_center(d: ImageDraw.ImageDraw, cx: int, y: int, txt: str, fnt, fill, anchor="ma", stroke: int = 0) -> None:
-    d.text((cx, y), txt, font=fnt, fill=fill, anchor=anchor,
-           stroke_width=stroke, stroke_fill=(10, 14, 19))
+def text_center(
+    d: ImageDraw.ImageDraw, cx: int, y: int, txt: str, fnt, fill, anchor="ma", stroke: int = 0
+) -> None:
+    d.text(
+        (cx, y),
+        txt,
+        font=fnt,
+        fill=fill,
+        anchor=anchor,
+        stroke_width=stroke,
+        stroke_fill=(10, 14, 19),
+    )
 
 
 def chip(d: ImageDraw.ImageDraw, cx: int, y: int, txt: str, fnt) -> None:
@@ -82,7 +97,9 @@ def chip(d: ImageDraw.ImageDraw, cx: int, y: int, txt: str, fnt) -> None:
     w = bbox[2] - bbox[0] + 48
     h = bbox[3] - bbox[1] + 28
     x0, y0 = cx - w // 2, y - h // 2
-    d.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=h // 2, outline=GOLD, width=3, fill=(17, 24, 35, 255))
+    d.rounded_rectangle(
+        [x0, y0, x0 + w, y0 + h], radius=h // 2, outline=GOLD, width=3, fill=(17, 24, 35, 255)
+    )
     d.text((cx, y), txt, font=fnt, fill=WHITE, anchor="mm")
 
 
