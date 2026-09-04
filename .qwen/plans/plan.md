@@ -11,6 +11,8 @@ board-sync) and `agentic-video-editing` (production: tighten, transcribe,
 HyperFrames compose, render, deliver) into one fully dynamic, multi-tenant
 content production SaaS. Nothing per-video is hardcoded; a tenant is a
 validated config blob and the pipeline generates everything at runtime.
+Ordering principle: prove the content + editing pipeline correct and fully
+config-driven before any serving infrastructure exists (§5).
 
 ## 2. Source systems — verified research
 
@@ -116,23 +118,46 @@ below is verified against the tree.
 | A11 | Skill path references stale | Planner agents reference `skill/templates/...` and `skill/agents/...`; merged path is `skills/planner/...`. | Update references (same fix as A2). |
 | A12 | Settings persona path + skill/caption-writer | `skills/caption-writer/SKILL.md` reads `persona.yaml` at repo root. | Point to `config/persona.yaml`. |
 
+Status (2026-08-31, commit `37e75ac`): A1-A4, A7-A9, A11-A12 fixed and
+committed — persona path verified (`load_persona()` returns), skill refs
+updated, `pyproject.toml` is the single dep source (legacy `requirements*.txt`
+deleted), `python/.env.example` removed, output dir unified on `outputs/`,
+`silent_gray` canonical, runtime state untracked. A5 (fonts), A6 (per-video
+hardcoding), A10 (prompt registry) remain: A6 + A10 are P1 work, A5 folds
+into the P1.5 font policy.
+
 Acceptance for the audit: `uv run` a repo-root smoke test that (a) imports
 `config.settings` and loads persona, (b) lints all python with ruff, (c)
 runs `python/scripts/{capture,tighten_words,transcribe}.py --help`
 end-to-end on a synthetic fixture, (d) greps for any root-relative
 `scripts/` and macOS font paths. Exit 0.
 
-## 5. Build phases (executed strictly in order)
+## 5. Build phases — pipeline-correctness spine first, serving deferred
+
+Ordering principle: prove the content + editing pipeline is correct and
+fully config-driven BEFORE any serving infrastructure. Everything a customer
+touches in P2-P5 (API, queues, VM, tunnel, auth, billing) is deferred behind
+the P1.5 proof gate, and its final shape is re-decided with real per-stage
+telemetry (durations, resource use, failure modes) — not guessed up front.
 
 ```mermaid
-flowchart LR
-    P0[P0 Merge repair] --> P1[P1 Dynamic config]
-    P1 --> P2[P2 API + pipeline services]
-    P2 --> P3[P3 Multi-tenant]
-    P2 --> P4[P4 Web app]
-    P3 --> P4
-    P4 --> P5[P5 Productize]
+flowchart TD
+    subgraph CORE[Pipeline-correctness spine]
+        P0[P0 Merge repair + green baseline] --> P1[P1 Dynamic config layer]
+        P1 --> P15[P1.5 Pipeline hardening - correct, not just runnable]
+    end
+    subgraph SERVE[Deferred serving track]
+        P15 --> P2[P2 API + pipeline services]
+        P2 --> P3[P3 Multi-tenant]
+        P2 --> P4[P4 Web app]
+        P3 --> P4
+        P4 --> P5[P5 Productize]
+    end
 ```
+
+P0-P1.5 are the only phases that touch pipeline code. The serving track is
+deliberately deferred: P2 starts only when the P1.5 gate is green, and its
+infra design is revisited with real measurements first.
 
 ### P0 — Merge repair + green baseline (issue #1)
 
@@ -170,7 +195,41 @@ AC: new tenant = new validated config blob, zero code changes; invalid
 config rejected with actionable errors; a sample tenant renders a demo
 video end-to-end from config alone.
 
-### P2 — API + pipeline services (issue #3)
+### P1.5 — Pipeline hardening: correct, not just runnable (issue #2 scope)
+
+A single demo video is a milestone, not proof — regression checks are the
+proof. This pass makes the pipeline provably correct and repeatable before
+anything is allowed to serve it.
+
+- Fixture suite: checked-in synthetic + real fixtures per stage, with golden
+  outputs (tightened transcript, SRT, captions, thumbnail) and deterministic
+  assertions — not just "exit 0".
+- Prove the reconstructed scripts against fixtures: `tighten_words.py`
+  (word-boundary silence removal + lead/tail pads), `verify_pip.py`,
+  `audit_pip_collisions.py`, `build_thumbnails.py` (no hardcoded titles or
+  output names, A6).
+- `format_direction` matrix end-to-end: `short`, `long`, `long_to_short`,
+  `short_to_long` all produce valid, aligned deliverables from one master.
+- Editing-quality gates: tightening respects word boundaries and pads; SRT /
+  captions align to the tightened timeline; round-PiP and brand tokens come
+  from config, never code.
+- Font policy (A5): resolve fonts from config with a cross-platform fallback
+  (bundle Inter / JetBrains Mono / Playfair as the source repos did); kill
+  `/System/Library/Fonts` assumptions.
+- Golden render: the P1 sample-tenant render is checked in; a regenerate-diff
+  check catches silent regressions.
+- Repo hygiene: `make lint` + `make test` + `make smoke` all green locally.
+
+AC: fixture suite green; `format_direction` matrix proven; golden render
+reproducible from config alone; zero hardcoded per-video content.
+
+### P2 — API + pipeline services (issue #3) — deferred, gated on P1.5
+
+**Gate:** starts only after the P1.5 AC is green. **Design revisit:** the
+infra shape is re-decided at P2 start using real stage telemetry from P1.5.
+Working default (see §6): durable queue + generic worker containers — one VM
+today, more VMs/containers later with the same image. Avoid a fixed
+tunnel host with cross-network step orchestration.
 
 Edge API on Cloudflare Workers (Hono); pipeline on the Netcup VM; Workflows
 orchestrates via Tunnel. Details in `.qwen/architecture/architecture.md`
@@ -208,7 +267,7 @@ recorded per tenant.
 ### P4 — Web app (issue #5)
 
 - `apps/web` Next.js + shadcn/ui + Tailwind `@theme` brand tokens
-  (obsidian / alabaster / gold / silentGray) on Vercel.
+  (obsidian / alabaster / gold / silent_gray) on Vercel.
 - Dashboard: projects, pipeline runs, HITL approval UX, render queue +
   download.
 - Brand studio: per-tenant editor for brand, voice, templates, recipes,
@@ -233,21 +292,30 @@ sellable demo.
 
 - Conventional commits; keep the repo green before every commit.
 - No emoji in any file. Follow existing SOLID/KISS/DRY conventions.
+- No pipeline or product decision is locked by infra: the pipeline must run
+  identically as a local CLI run (P0-P1.5) and as a queue-fed worker job
+  (P2+, deferred). The runbook stays the source of truth; a container is a
+  thin wrapper over the same stages.
 - `skills/video-agent/SKILL.md` remains the single source of truth for
   video production rules; config references replace any path assumptions.
-- Render concurrency = 1 (VM: 4 vCPU / 8 GB); burst path is Cloudflare
-  Containers with the same image (config swap, not rewrite).
+- Render concurrency = 1 locally (VM: 4 vCPU / 8 GB). Scale path (deferred):
+  the same worker image on more VMs or a container service — a queue +
+  identical containers, never a hand-rolled fleet.
 - Cost discipline: free-tier-first; default model DeepSeek
   `deepseek-v4-flash`; monitor Hetzner egress.
 
-## 7. Open questions / blockers
+## 7. Open questions / decisions
 
-1. **Source repos are private** — `content-planner` and
-   `agentic-video-editing` return 404 unauthenticated. Cloning them for a
-   side-by-side merge verification requires `GITHUB_TOKEN` or `gh auth
-   login` on the host. The merged tree on `main` was audited instead.
-2. **Board #10 / issues not readable without auth** — phase status and
-   per-issue ACs on the board are authoritative; sync with the board once
-   a token is available.
-3. **Pricing model** (per-render credits vs seats) — defer to P5.
-4. **Branding/domain** — defer to P5.
+1. **Lint policy (decide at P0 close):** 134 remaining ruff findings are
+   123 line-length (E501) + 11 uppercase-in-function names (N806), all
+   cosmetic, across 26 files. Options: (A, recommended) ignore E501/N806 in
+   `[tool.ruff.lint]` so `ruff check` is clean at zero code churn; (B) run
+   `ruff format` on all 26 files (mechanical but large noise diff); (C) fix
+   all by hand. Decision drives the `make lint` gate.
+2. **Pricing model** (per-render credits vs seats) - defer to P5.
+3. **Branding/domain** - defer to P5.
+4. **P2 infra shape** - re-decide at P2 start with real stage telemetry
+   (section 5). Working default: queue + generic worker containers.
+
+Resolved: source-repo access (cloned into `_sources/` with `gh auth`) and
+board #10 read/write (`gh` scopes granted) - both no longer blockers.
