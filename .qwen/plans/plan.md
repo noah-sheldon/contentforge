@@ -122,9 +122,14 @@ Status (2026-08-31, commit `37e75ac`): A1-A4, A7-A9, A11-A12 fixed and
 committed — persona path verified (`load_persona()` returns), skill refs
 updated, `pyproject.toml` is the single dep source (legacy `requirements*.txt`
 deleted), `python/.env.example` removed, output dir unified on `outputs/`,
-`silent_gray` canonical, runtime state untracked. A5 (fonts), A6 (per-video
-hardcoding), A10 (prompt registry) remain: A6 + A10 are P1 work, A5 folds
-into the P1.5 font policy.
+`silent_gray` canonical, runtime state untracked. A5 (macOS-only font paths)
+removed in P0 — `build_thumbnails.py` now resolves fonts cross-platform
+(Linux/Windows/macOS) with a `CONTENTFORGE_FONT` env override; the full font
+policy (bundle brand fonts, resolve by family) is P1.5. A6 (per-video
+hardcoding) and A10 (prompt registry) remain and are P1 work. The P0 smoke
+gate (`scripts/smoke_test.sh`) runs persona load, ruff + pyrefly, CLI dry
+runs, and the stale-ref scan — PASS in the local sandbox (Open Question #5
+resolved: sandbox venue).
 
 Acceptance for the audit: `uv run` a repo-root smoke test that (a) imports
 `config.settings` and loads persona, (b) lints all python with ruff, (c)

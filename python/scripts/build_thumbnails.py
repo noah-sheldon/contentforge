@@ -7,6 +7,7 @@ as the round pip.
 """
 
 import os
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -20,23 +21,35 @@ GOLD = (212, 175, 55, 255)
 WHITE = (242, 245, 248, 255)
 DIM = (174, 185, 196, 255)
 
-FONT_CANDIDATES = [
-    "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
-    "/System/Library/Fonts/Supplemental/Arial.ttf",
-    "/System/Library/Fonts/Helvetica.ttc",
-    "/Library/Fonts/Arial Bold.ttf",
-]
+# Cross-platform font resolution (audit A5). P0: remove macOS-only paths so
+# thumbnails render on the Linux VM; P1.5 formalizes the font policy and
+# bundles the brand fonts (Inter/Playfair/JetBrains Mono) by family name.
+_FONT_DIRS = {
+    "linux": [Path("/usr/share/fonts/truetype/dejavu")],
+    "darwin": [
+        Path("/System") / "Library" / "Fonts" / "Supplemental",
+        Path("/Library") / "Fonts",
+    ],
+    "win32": [Path(os.environ.get("WINDIR", "C:\\Windows")) / "Fonts"],
+}
+_FONT_FILES = {
+    True: ["DejaVuSans-Bold.ttf", "Arial Bold.ttf", "arialbd.ttf"],
+    False: ["DejaVuSans.ttf", "Arial.ttf", "arial.ttf"],
+}
 
 
 def font(size: int, bold: bool = True) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-    for cand in FONT_CANDIDATES:
-        if os.path.exists(cand):
+    override = os.environ.get("CONTENTFORGE_FONT")
+    candidates = [Path(override)] if override else []
+    for directory in _FONT_DIRS.get(sys.platform, []):
+        for name in _FONT_FILES[bold]:
+            candidates.append(directory / name)
+    for cand in candidates:
+        if cand.is_file():
             try:
-                return ImageFont.truetype(
-                    cand, size, index=1 if (bold and "Helvetica" in cand) else 0
-                )
+                return ImageFont.truetype(str(cand), size)
             except Exception:
-                pass
+                continue
     return ImageFont.load_default()
 
 
