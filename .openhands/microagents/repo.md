@@ -40,7 +40,9 @@ For each phase:
 6. Conventional commits (feat/fix/docs/chore), push to origin/main.
 
 P0 SCOPE (issue #1)
-- uv workspace layout: apps/web, services/api, workers/pipeline, workers/litellm, python/, skills/, prompts/, templates/, config/, docs/, deploy/
+- uv workspace layout (current, committed): python/, skills/, prompts/,
+  templates/, config/, docs/, deploy/. apps/, services/, workers/ are
+  DEFERRED to P2/P4 per PLAN.md section 5 - do not create them in P0.
 - Merge content-planner in (skill/, scripts/; library/ outputs/ calendar/ workspace/ become gitignored data dirs)
 - Merge agentic-video-editing in (skills/video-agent, python/agents, python/services, config/settings.py, templates/, prompts/, docs/)
 - Dedupe: ONE config/persona.yaml, ONE voice/caption ruleset, brand tokens as config
@@ -50,7 +52,18 @@ P0 SCOPE (issue #1)
 AC: every script from both pipelines runs from contentforge; zero cross-repo absolute paths; one persona/voice/brand source; a LOCAL smoke test (capture + tighten + transcribe dry run) exits 0 — no CI wiring needed in P0 (GitHub Actions comes in P2).
 
 RULES
-- No emoji in any file. Follow existing code conventions. SOLID/KISS/DRY.
+- No emoji in any file. Follow existing code conventions.
+- ENGINEERING STANDARDS (binding for every phase):
+  * Code is built as SMALL files - one responsibility per file (SRP). If a
+    file spans two responsibilities or grows unwieldy, split it into its own
+    folder with subfolders rather than extending the file.
+  * Everything lives in neatly organised folders/subfolders mirroring its
+    bounded context (python/{agents,services,scripts,config}, skills/,
+    prompts/, templates/, config/). New top-level dirs only for new contexts
+    (P2+ apps/, services/, workers/). Never dump loose files at repo root.
+  * Follow SOLID + DRY + KISS + YAGNI. Fully typed + linted + formatted:
+    Python = pyrefly + ruff; JS/TS = biome + tsc. `make verify` (lint +
+    format-check + typecheck + test) must be green before every commit.
 - P0 -> P1 -> P2 strictly sequential; do not start P2 deployment work before P1 ACs pass.
 - Autonomous on implementation details. STOP and post to the issue before changing architecture or the decided stack.
 - Keep the repo green: run available checks before each commit.

@@ -298,6 +298,13 @@ sellable demo.
   YAGNI, and the laws of software engineering apply to every merge. The
   quality gates keep the codebase honest; nothing speculative is added
   ahead of a phase that needs it.
+- File/folder structure: code is built as SMALL files - one responsibility
+  per file (SRP) - organised in folders/subfolders by bounded context
+  (python/{agents,services,scripts,config}, skills/, prompts/, templates/,
+  config/; P2+ adds apps/, services/, workers/). Split, don't grow; never
+  dump loose files at the repo root. As P1 converts the legacy scripts to
+  config-driven generators, oversized files (e.g. build_shorts.py, ingest.py)
+  are split into small modules, not extended.
 - Quality gates (one command: `make verify`): Python = ruff lint + ruff
   format + pyrefly types; JS/TS = biome lint + biome format + tsc --noEmit.
   All code merges with these green. Toolchain policy: §7 item 7.
