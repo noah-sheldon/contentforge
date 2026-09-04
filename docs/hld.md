@@ -213,6 +213,10 @@ Free-tier-first: build on free tiers, pay only when real usage arrives.
 
 Cost discipline: DeepSeek `deepseek-v4-flash` as the default hosted model keeps inference cents-level; R2-style free egress is not available on Hetzner (1 TB included, ~EUR 1/TB after) — monitor the first month of delivery traffic; the VM consolidates compute so there is no per-render cloud bill.
 
+Numbers + scaling limits (VM throughput, API free ceiling, OBJ
+storage/egress, LLM $/day): **[docs/capacity.md](docs/capacity.md)** —
+re-run at the P2 gate with real P1.5 per-stage telemetry.
+
 ## 8. Non-Functional
 
 - **Security**: WorkOS JWTs verified at the edge (JWKS); VM has zero public ports (Cloudflare Tunnel); tenant isolation via tenant_id scoping + OBJ prefixes + signed URLs; secrets in env/Secrets Store, never in images; LiteLLM encrypts BYOK keys.

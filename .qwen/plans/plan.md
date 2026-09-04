@@ -244,7 +244,8 @@ reproducible from config alone; zero hardcoded per-video content.
 ### P2 — API + pipeline services (issue #3) — deferred, gated on P1.5
 
 **Gate:** starts only after the P1.5 AC is green. **Design revisit:** the
-infra shape is re-decided at P2 start using real stage telemetry from P1.5.
+infra shape is re-decided at P2 start using real stage telemetry from
+P1.5 (envelope + limits: `docs/capacity.md`).
 Working default (see §6): durable queue + generic worker containers — one VM
 today, more VMs/containers later with the same image. Avoid a fixed
 tunnel host with cross-network step orchestration.

@@ -336,6 +336,8 @@ flowchart TD
 - Hetzner Object Storage (S3 API; 1 TB storage + 1 TB egress included).
 - Vercel: Next.js web app (Hobby).
 - Nightly `mongodump` -> Hetzner OBJ; Netcup COW snapshots.
+- Capacity/cost envelope + first limits (OBJ egress/storage, VM
+  throughput, Workflows ops): `docs/capacity.md` — re-run at P2 gate.
 
 ### LLD — deployment topology
 
