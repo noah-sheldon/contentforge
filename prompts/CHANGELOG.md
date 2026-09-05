@@ -3,6 +3,40 @@
 All notable changes to agent prompts. Format: [Keep a Changelog](https://keepachangelog.com/).
 Bump the `version` in each prompt's frontmatter with every entry here.
 
+## [post-writer 0.1.0] - 2026-09-05
+### Changed
+- RENAMED from skills/caption-writer to skills/post-writer: the skill writes per-platform social POST copy, not burned-in video captions. Burned captions belong to skills/video-agent (word-synced from transcript). All references updated (video-agent, video-editor legacy, README, registry, course docs).
+
+## [video-agent 1.4.1] - 2026-09-05
+### Added
+- WebGPU/TypeGPU beats are OPTIONAL with a mandatory WebGL2 (Three.js) or 2D Canvas fallback — headless renderers (Docker/CI, SwiftShader/ANGLE) often lack WebGPU; Gate #11 accepts the fallback (no false build rejection)
+- Frame-locked shader rule: custom Three.js/GLSL shaders step by frame (`frame / FPS` or paused-timeline-derived time) — never `performance.now()`, delta-time, or raw `iTime` — for bit-exact `hf-seek` determinism across GPU frame rates
+- Audio mix floor: voice = 0dB reference; every SFX cue peaks ≤ -18dB relative to the voice stem (protects downstream ASR/transcription)
+### Changed
+- Gate #11 wording: WebGPU beats pass via fallback; shaders frame-locked
+- Gate #8 wording: voice-priority mix check (levels, not just cue count)
+
+## [video-agent 1.4.0] - 2026-09-05
+### Added
+- MANDATORY Motion Graphics Standard (every video, both formats): kinetic-type hook, speech-synced keyword moments (`asr-keyword-glow`), animated scene transitions, choreographed diagrams (no static diagram), and ≥1 Three.js/WebGL beat per long-form — rule names from the global hyperframes-animation kit, never invented verbs
+- Gate #11: Motion Graphics Standard compliance check
+### Notes
+- Motion floor is a gate, not a suggestion — every render must meet it.
+
+## [video-agent 1.3.0] - 2026-09-05
+### Changed
+- Caption rule: burned-in on EVERY video, both formats. Shorts are WORD-SYNCED as-I-speak — only the word being spoken on screen, never words ahead of the voice. Long-form may use phrase/sentence chunks (never lagging) + .srt sidecar
+- Gate #6 updated accordingly (word-synced shorts / chunked long-form)
+
+## [video-agent 1.2.0] - 2026-09-05
+### Changed
+- Audio rule: NO music on ANY video, any runtime, any format — music beds don't suit tech content (reverses the ≤1-min music allowance). SFX (2-3 cue points: whoosh/impact/riser) mandatory in BOTH shorts and long-form
+- Gate #7 renamed/replaced: audio = SFX only, both formats
+### Added
+- Delivery rule: captions on all videos; burned-in captions 100% compulsory in shorts (IG/TikTok accept no SRT)
+### Notes
+- Also neutralized music sections in legacy skills/video-editor and CLAUDE.md pipeline description.
+
 ## [video-agent 1.1.2] - 2026-08-23
 ### Changed
 - Scene transitions rule: every scene boundary gets an animated exit (slide/fade ~0.5s) + hard-kill set at the boundary — never a hard unmount or black frame

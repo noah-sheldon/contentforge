@@ -49,11 +49,10 @@ prompts:
   - {name: cp-plan, path: skills/planner/agents/plan.md, version: 1.1.0, status: active, description: Planner stage 6 - calendar + board cards}
   - {name: cp-research, path: skills/planner/agents/research.md, version: 1.1.0, status: active, description: Planner stage 4 - source-cited research brief}
   - {name: cp-review, path: skills/planner/agents/review.md, version: 1.0.0, status: active, description: Planner stage 5c - script fact-check gate}
-  - {name: cp-script, path: skills/planner/agents/script.md, version: 2.2.0, status: active, description: Planner stage 5 - write scripts in voice}
+  - {name: cp-script, path: skills/planner/agents/script.md, version: 2.3.0, status: active, description: Planner stage 5 - write scripts in voice}
 
   # ─── Production / skill masters (markdown; version from frontmatter) ───
-  - {name: video-agent, path: skills/video-agent/SKILL.md, version: 1.1.2, status: active, description: Video production master - tighten to deliver}
-  - {name: video-editor, path: skills/video-editor/SKILL.md, version: 0.1.0, status: active, description: Video editing skill (unversioned baseline)}
-  - {name: caption-writer, path: skills/caption-writer/SKILL.md, version: 0.1.0, status: active, description: Per-platform caption writer (unversioned baseline)}
+  - {name: video-agent, path: skills/video-agent/SKILL.md, version: 1.4.1, status: active, description: Video production master - tighten to deliver (no-music, motion standard, word-synced captions)}
+  - {name: post-writer, path: skills/post-writer/SKILL.md, version: 0.1.0, status: active, description: Per-platform social POST copy - NOT burned video captions (video-agent owns those)}
+  - {name: video-editor, path: skills/video-editor/SKILL.md, version: 0.1.0, status: deprecated, description: Legacy editorial-rules reference superseded by video-agent}
   - {name: content-planner, path: skills/planner/SKILL.md, version: 2.1.0, status: active, description: Planner orchestrator skill master}
-

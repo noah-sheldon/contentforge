@@ -22,8 +22,8 @@ Tell me a topic. I run the pipeline:
 
 ### Video Editing
 Tell me you have footage. I scan the folder, propose a shot list, you approve, I build the composition via HyperFrames.
-- **MASTER = `skills/video-agent/SKILL.md` (v1.1.0, self-contained)** — load it and follow ALL rules inside (workflow, hard rules, screen recording, delivery, self-review gate). It is the single source of truth for video production.
-- Key rules in short: **Round PiP only** (never full-screen, both formats) · **Thumbnails always** (both formats, navy-blue headshot) · **SRT captions always** (both formats, with timings) · **Word-accurate tightening** (never clip a word) · **Self-review gate before preview/render**
+- **MASTER = `skills/video-agent/SKILL.md` (v1.4.1, self-contained)** — load it and follow ALL rules inside (workflow, hard rules, screen recording, delivery, motion standard, self-review gate). It is the single source of truth for video production.
+- Key rules in short: **Round PiP only** (never full-screen, both formats) · **Thumbnails always** (both formats, navy-blue headshot) · **Burned-in captions always** (word-synced as-I-speak in shorts; chunked in long-form + .srt) · **No music — SFX only, both formats** (≤-18dB vs voice) · **Word-accurate tightening** (never clip a word) · **Motion Graphics Standard mandatory** (kinetic hooks, speech-synced keywords, choreographed diagrams, ≥1 Three.js/WebGL beat in long-form) · **Self-review gate before preview/render**
 - HITL: shot list approval -> rough cut review -> final render
 - Quality settings: 1920x1080 / 1080x1920, 30fps, master CRF 10 + social CRF 14
 - See `skills/video-agent/SKILL.md` for the full workflow (it supersedes the older `.qwen/skills/video-editor/` reference)
@@ -50,7 +50,7 @@ make research -> scrapes YouTube, X, web -> niche filter
 Footage folder -> edit_video.py selects best clips
   -> crop to 9:16
   -> build composition from template (HTML + GSAP, HyperFrames)
-  -> Pixabay downloads background music + SFX
+  -> Pixabay downloads SFX only (music is banned on all videos)
   -> npx hyperframes check -> render master -> ffmpeg CRF 14 social
 ```
 
@@ -76,7 +76,7 @@ Each has platform YAML rules + expert adapter + prompt.
 | `python/agents/experts/` | Platform expert adapters (all 8) |
 | `python/agents/platforms/` | Platform YAML rules + templates |
 | `python/agents/prompts/` | All LLM prompts by domain |
-| `python/services/pixabay.py` | Background music + SFX downloader |
+| `python/services/pixabay.py` | SFX downloader (music is banned on all videos) |
 | `python/services/text_animator.py` | HyperFrames animation orchestration |
 | `templates/short-form/` | Format templates: day-in-my-life / desk-setup / transformation (each a HyperFrames project) |
 | `scripts/edit_video.py` | Short-form editing pipeline |

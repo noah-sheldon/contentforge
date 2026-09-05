@@ -66,7 +66,7 @@
 | 3 | Riser-led (build into climax) | Medium |
 | 4 | Impact-driven (stamps, hits) | Medium |
 | 5 | Tick/countdown | Low |
-| 6 | Silent montage (music only) | None |
+| 6 | Silence at a key beat | None |
 
 ## Dimension 7 — Length
 
@@ -146,5 +146,5 @@
 - Fonts: D1#1 · Palette: D2#1 · Hook: D3#1 · CTA: D4#1
 - Beat: D5#2 · SFX: D6#1 · Length: D7#2 · Grade: D8#3
 - Text: D9#5 · Transitions: D10#2 · Title anim: D11#1 · Aspect: D12#1
-- Music: <track> · Template: <format>
+- Music: none (banned — SFX only, ≤-18dB vs voice) · Template: <format>
 ```

@@ -1,8 +1,13 @@
 ---
-description: "Video Editor — AI edits footage folders into short-form videos via HyperFrames. Full technical detail for autonomous execution."
+description: "LEGACY — superseded by skills/video-agent/SKILL.md (v1.4+). Keep ONLY as an editorial-rules reference (Hollywood gate, GSAP patterns, caption timing) cited by docs/motion-graphics-spec.md. Do NOT use for production builds — video-agent is the master."
 ---
 
 # Video Editor
+
+> **LEGACY — production rule of record is `skills/video-agent/SKILL.md` (v1.4+).**
+> This file is kept as the editorial-rules reference only. If a rule here conflicts with
+> video-agent, video-agent wins. Notably: NO MUSIC on any video (all music sections below
+> are dead), SFX ≤ -18dB vs voice, burned-in word-synced captions in shorts.
 
 ## Workflow
 
@@ -25,13 +30,12 @@ ffmpeg -y -ss <OFFSET> -i <SOURCE_FILE> -t <DURATION> \
 # Renumber sequentially: 01.mp4, 02.mp4, etc.
 ```
 
-### 2. Download Music & SFX (Playwright MCP)
+### 2. Download SFX (Playwright MCP)
 
-Use Playwright MCP browser to download from pixabay.com:
+Use Playwright MCP browser to download from pixabay.com. NO music ever — superseded by the video-agent v1.2.0 no-music rule (music banned on all videos, any runtime):
 
 | File | Search term | Purpose |
 |---|---|---|
-| `bg_music.mp3` | pixabay.com/music/search/corporate/ | Background music (65% volume, fade in/out) |
 | `whoosh_sfx.mp3` | pixabay.com/sound-effects/search/whoosh/ | Scene transitions |
 | `impact_sfx.mp3` | pixabay.com/sound-effects/search/impact/ | Title card reveals, numbered pills |
 | `riser_sfx.mp3` | pixabay.com/sound-effects/search/riser/ | Build tension before climax |
@@ -94,13 +98,13 @@ npx hyperframes render   # from the project dir; see hyperframes-cli for flags
 2. **Rough cut** — first render → you review (mute clips? change titles? adjust filters?)
 3. **Final** — apply changes → render master → deliver
 
-## Captions (AUTOMATIC after final render)
+## Posts (AUTOMATIC after final render — social copy, not burned captions)
 
-After the master renders, write per-platform captions using the caption-writer skill (`skills/caption-writer/SKILL.md`) and save to `<project>/captions.md`. Always run AFTER the render so the hook text, beat times, and CTA in the captions match the final edit.
+After the master renders, write per-platform post copy using the post-writer skill (`skills/post-writer/SKILL.md`) and save to `<project>/captions.md`. Always run AFTER the render so the hook text, beat times, and CTA in the posts match the final edit.
 
 1. Give the LLM the exact final hook text, beat structure with REAL times, and CTA from the composition.
 2. Apply the hard voice rules: zero em-dashes, zero emoji, Grade 5-6 words, human typed-quickly feel, no day numbers, no employer names.
-3. Detailed captions that max out platform limits; first ~100 chars = hook + save CTA.
+3. Detailed posts that max out platform limits; first ~100 chars = hook + save CTA.
 4. Verify YouTube Long timestamps against the actual edit times (not guessed).
 5. Save to `<project>/captions.md`.
 
@@ -236,20 +240,14 @@ Only when needed — not every scene. Key spoken lines only.
 
 ## Sound Design Rules
 
+### NO MUSIC (video-agent v1.2.0 rule, supersedes everything below)
+Music beds are BANNED on all videos, any runtime. SFX only — see the SFX Cue Points table below.
+
 ### Music Automation (per-act)
-Music ducks under dialogue (0.08-0.15), swells at transitions (0.25), drops for intimate moments (0.08). Animate `volume` on the music `<audio>` element with GSAP tweens — keep 12-18 keyframes max, strictly increasing.
+REMOVED — no music element exists. Do not add a music `<audio>` track or volume automation to any composition.
 
 ### Music Selection by Content Tone
-
-| Transcript Tone | Music Style | BPM | Mood |
-|---|---|---|---|
-| Serious, technical | Ambient piano, soft cinematic | 60-80 | Calm, focused |
-| Energetic, passionate | Upbeat orchestral, driving | 100-130 | Motivating |
-| Personal, reflective | Acoustic guitar, soft strings | 70-90 | Intimate |
-| Humorous, light | Lo-fi, light electronic | 80-100 | Playful |
-| Leadership, authority | Cinematic orchestral | 90-120 | Powerful |
-
-If unsure, default to ambient piano. Never use music with vocals.
+REMOVED — no music. Skip this table entirely.
 
 ### SFX Cue Points
 
@@ -260,7 +258,7 @@ If unsure, default to ambient piano. Never use music with vocals.
 | Riser | 1 | 1s before kicker climax | 0.20 |
 
 ### Beat Sync
-When music has a clear beat: time title reveals, transition cuts, and impact SFX to the beat. No discernible beat → smooth interpolations.
+No music — beat sync applies only when the footage itself has a detectable beat. Otherwise smooth interpolations.
 
 ## No Two Videos Look Alike — Variety System
 
@@ -269,7 +267,7 @@ Every video MUST differ from the last on ALL of these dimensions:
 1. **VFX Treatment:** film grain, light leaks, color halation, lens flare, analog noise, chromatic aberration. Never same combo twice.
 2. **Cut Rhythm:** Fibonacci-like durations. Never 3 consecutive clips the same duration. `[2s, 3s, 5s, 3s, 2s, 4s, 6s, 2s, 5s, 3s, 4s]` good; `[3s,3s,3s,4s,4s,4s]` bad.
 3. **Motion Graphic Template:** pillars, hero-word blur-in, split-screen, charts, timeline reveal, card flip. Never repeat back-to-back.
-4. **Music Mood:** cinematic, ambient piano, upbeat electronic, lo-fi, acoustic. Never same twice in a row.
+4. **Motion/Audio Variation:** SFX pattern (whoosh/impact/riser placement), beat structure, sound-design texture. Never same twice in a row. (No music dimension — music is banned.)
 5. **Title Animation:** word-by-word bounce, single-line slide-up, blur-in, letter-by-letter, mask wipe, scale settle. Never repeat.
 6. **Color Grade:** warm golden, cool teal, neutral clean, high-contrast BW-split, vintage film. Never repeat.
 7. **Font Pairing:** Playfair+Space Grotesk, Inter+JetBrains Mono, DM Serif+Work Sans, Fraunces+Satoshi. Never same twice.
@@ -281,8 +279,8 @@ Every video MUST differ from the last on ALL of these dimensions:
 - [ ] Clips in director's order (01→02→03→...)
 - [ ] Each clip used exactly once
 - [ ] Transition clips identified and muted
-- [ ] Captions only on key beats, not every scene
-- [ ] Music automation has strictly increasing keyframes
+- [ ] Burned-in captions present on ALL videos — compulsory in shorts, no exceptions
+- [ ] No music track present (banned — SFX only)
 - [ ] Full-screen motion graphics at key moments
 - [ ] Color grade progression matches emotional arc
 - [ ] SFX at 2-3 key moments (not every transition)
@@ -290,11 +288,11 @@ Every video MUST differ from the last on ALL of these dimensions:
 - [ ] Progress bar active (gold gradient, top)
 - [ ] Film grain + vignette active
 - [ ] Duration respects story pace (not forced to 60s)
-- [ ] VFX/title/font/music all different from last video (post-tracker)
+- [ ] VFX/title/font/SFX all different from last video (post-tracker)
 - [ ] Fingerprint (D1-D12) different from last video — check docs/font-color-rotation.md + post-tracker
 - [ ] `npx hyperframes check` passes
 - [ ] Post tracker updated after render (fingerprint row)
-- [ ] Captions written to <project>/captions.md after render (caption-writer skill)
+- [ ] Posts written to <project>/captions.md after render (post-writer skill)
 
 ## Pre-Render Approval Workflow
 
@@ -303,7 +301,7 @@ Every video MUST differ from the last on ALL of these dimensions:
 | Field | What to describe |
 |---|---|
 | **Video** | Which clip, what it shows, what grade/filter |
-| **Audio** | Music volume + SFX at this moment |
+| **Audio** | SFX at this moment |
 | **Motion Graphics** | What overlay, what animation, where |
 | **Transition** | How it ends (hard cut, zoom, SFX) |
 
@@ -313,7 +311,7 @@ Plus a creativity assessment: color arc, sound design, motion graphics, transiti
 Before starting any edit, verify:
 - [ ] Full-screen motion graphic at the kicker moment?
 - [ ] Visual treatment for transition clips? (Muted + desaturated + shorter)
-- [ ] Music volume automation? (Not flat)
+- [ ] No music track present (banned — SFX only)
 - [ ] Color grade progression? (Changes across the arc)
 - [ ] At least 2 SFX cue points?
 - [ ] A personality/humor moment?
@@ -333,7 +331,7 @@ When given a new footage folder and asked to make a video:
 4. **Pick the format template** from `templates/short-form/` that matches the story — never the same as the previous video.
 5. **Choose fonts** — different pairing from last time.
 6. **Set brightness** — dynamically by clip lighting + skin tone. Default 1.25 minimum for brown skin.
-7. **Design music automation** — never flat. Duck under speech, swell at transitions.
+7. **Design SFX placement** — 2-3 cue points, never flat. No music track at all.
 8. **Add SFX** — 2-3 cue points. Never 0, never more than 5.
 9. **Build the composition** — clips in order, each once. No black gaps. Full-screen motion at key moments.
 10. **Present scene-by-scene breakdown** — get approval before rendering.
@@ -401,8 +399,8 @@ Vox's visual explainer style is the gold standard for educational short-form. Th
 - **1 frame = 1 idea.** No screen with more than one main visual plus supporting text.
 - **3-5 second rule.** If a frame stays the same >5s, viewer loses interest.
 - **Text first, then audio, then visual.** Text appears (0.5s) → narrator reads (2s) → visual illustrates (2s) → cut.
-- **Sound design minimal.** Light whoosh on transitions, subtle pop on data. Music ducks to 0.08 during explanations.
-- **Voice is king.** Voice = 0dB, SFX = -6dB, Music = -12dB to -20dB.
+- **Sound design minimal.** Light whoosh on transitions, subtle pop on data. No music track.
+- **Voice is king.** Voice = 0dB, SFX = -6dB.
 
 ### GSAP Patterns
 

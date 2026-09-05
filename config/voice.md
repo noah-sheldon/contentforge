@@ -9,6 +9,13 @@ LLM, API, tool call, context window, function calling, embedding, vector store a
 vocabulary here. Define only non-standard or coined terms. Simplicity means *clear
 sentence structure*, not baby words.
 
+**ICP (junior developers, 0-3 years):** junior devs are the ideal customer profile. In
+explainer content — benchmarks, evaluations, AGI levels, autonomy — the depth floor is set
+by them: state what a benchmark does, how the test runs, and why the number matters BEFORE
+quoting any result. A junior dev should finish a beat able to repeat the definition in
+their own words. The spoken register and mechanism-first rule below stay identical; only
+the define-first obligation changes per content mode.
+
 ## Core rules
 
 - **Spoken flow, not short sentences.** Noah speaks in flowing multi-clause

@@ -15,7 +15,7 @@ apps/        web app (Next.js, P4)
 services/    Cloudflare Workers API (Hono, P2)
 workers/     pipeline + LiteLLM containers (P2)
 python/      agents + pipeline scripts (merged from both source repos)
-skills/      production runbooks (planner, video-agent, caption-writer, engineering, video-editor)
+skills/      production runbooks (planner, video-agent, post-writer; video-editor = legacy editorial reference)
 prompts/     versioned prompt registry
 templates/   HyperFrames composition templates
 config/      persona.yaml (single source), voice.md, planner.yaml, brand

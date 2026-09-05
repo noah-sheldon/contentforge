@@ -83,7 +83,7 @@ Supporting scripts (all ported, present in `python/scripts/`): `tighten*`,
 
 The P0 monorepo consolidation is committed (`293eb23`). Present today:
 uv workspace root (`pyproject.toml`, member `python/`), merged `skills/`
-(planner, video-agent, video-editor, caption-writer, engineering), merged
+(planner, video-agent, video-editor, post-writer, engineering), merged
 `python/` (agents, services, scripts, config, state), `config/` (persona,
 voice, planner), `prompts/` (registry), `templates/` (short-form, courses),
 `docs/`, `deploy/`, unified `.env.example`. No `apps/`, `services/`, or
@@ -94,7 +94,7 @@ flowchart LR
     A[content-planner<br/>planning: ingest, research, script, capture, board] --> M[contentforge<br/>uv workspace monorepo]
     B[agentic-video-editing<br/>production: tighten, transcribe, compose, render, deliver] --> M
     M --> C[config/ - single source<br/>persona + voice + brand]
-    M --> D[skills/ - planner + video-agent + caption-writer]
+    M --> D[skills/ - planner + video-agent + post-writer]
     M --> E[python/ - agents + services + scripts]
 ```
 
@@ -116,7 +116,7 @@ below is verified against the tree.
 | A9 | Committed runtime state | `python/state/pipeline.json` and `topic_history.json` are committed. | Gitignore `python/state/*.json` (P1 replaces with DB-backed state anyway). |
 | A10 | Prompt sources split | Video pipeline prompts in `python/agents/prompts/`; planner stage agents in `skills/planner/agents/`; registry at `prompts/registry.yaml` only partially covers both. | P1 consolidates into the registry with versions (registry already defines the pattern). |
 | A11 | Skill path references stale | Planner agents reference `skill/templates/...` and `skill/agents/...`; merged path is `skills/planner/...`. | Update references (same fix as A2). |
-| A12 | Settings persona path + skill/caption-writer | `skills/caption-writer/SKILL.md` reads `persona.yaml` at repo root. | Point to `config/persona.yaml`. |
+| A12 | Settings persona path + skill/post-writer | `skills/post-writer/SKILL.md` reads `persona.yaml` at repo root. | Point to `config/persona.yaml`. |
 
 Status (2026-08-31, commit `37e75ac`): A1-A4, A7-A9, A11-A12 fixed and
 committed — persona path verified (`load_persona()` returns), skill refs

@@ -1,8 +1,8 @@
 ---
 name: video-agent
-version: 1.1.2
-description: Self-contained video production master (HyperFrames) — round-pip-only footage, thumbnails + SRT always, word-accurate tightening, screen recording, render pipeline, self-review gate
-updated: 2026-08-23
+version: 1.4.1
+description: Self-contained video production master (HyperFrames) — round-pip-only footage, thumbnails always, word-accurate tightening, word-SYNCED burned captions (shorts as-I-speak, long-form chunked), NO MUSIC (SFX only both formats, ≤-18dB voice-priority mix), MANDATORY Motion Graphics Standard incl. Three.js/WebGL beat (WebGL2 fallback + frame-locked shaders), screen recording, self-review gate
+updated: 2026-09-05
 status: active
 ---
 
@@ -56,9 +56,9 @@ graph TD
 - **Word-accurate no-dead-air**: see step 1. After any tighten, re-transcribe and re-sync every window.
 - **No black gaps between scenes** — every scene boundary gets an ANIMATED transition: outgoing clip slides/fades out (~0.5s, power2.in) with a hard-kill `tl.set(..., { autoAlpha: 0 })` at the boundary; the incoming scene lands on the boundary. Never a hard unmount, never a black frame.
 - **Browser footage is LIVE, never static**: any web/UI content in a video comes from a LIVE recording with DYNAMIC scroll + zoom (browser-use agent or scripted Playwright recipe) — never screenshots, never frozen full-page grabs. Stage the webm into assets/ with a timed `data-media-start` window.
-- **Music (videos ≤1 min ONLY)**: ducks under speech, swells at transitions. **Videos >1 min: NO music bed — SFX cues only.** SFX: 2-3 cue points (whoosh, impact, riser) in EVERY video regardless of runtime. Text scrim for legibility; text between y=20% and y=65% (platform safe zones).
+- **NO MUSIC — any runtime, any format**: music beds don't suit tech videos (vocal tracks and lo-fi chill are banned too). **SFX in BOTH shorts AND long-form — mandatory**: 2-3 cue points (whoosh, impact, riser) in EVERY video regardless of runtime or format. **Audio mix floor: voice = 0dB reference; every SFX cue peaks ≤ -18dB relative to the voice stem** — duck SFX under speech, never compete with it (loud SFX also corrupts downstream ASR/transcription). Text scrim for legibility; text between y=20% and y=65% (platform safe zones).
 - **Brightness**: brown/Indian skin needs 1.2-1.6 brightness — when in doubt, go brighter.
-- **Every video differs from the last**: VFX treatment, cut rhythm, font pairing, music mood, title animation.
+- **Every video differs from the last**: VFX treatment, cut rhythm, font pairing, SFX pattern, title animation.
 - **Post tracker updated** after every render.
 
 ## Screen Recording & Integration
@@ -78,9 +78,9 @@ Verified URL facts (2026-08-23): `docs.langchain.com/use-these-docs` = walkthrou
 
 ## Delivery (ALWAYS, both formats)
 
-- **SRT captions**: `.srt` with timings from the final word-accurate transcript, timed to the rendered audio (sentence-level cues by default). Upload with timestamps on YouTube/Facebook. IG Reels/TikTok don't accept SRT — offer burned-in captions.
+- **Burned-in captions on EVERY video — both formats, no exceptions. Shorts are WORD-SYNCED (as-I-speak)**: in SHORT-FORM only the word currently being spoken appears on screen — one word at a time (or the active word highlighted in a just-spoken run), timed to the final word-accurate transcript. Never show words ahead of the voice in shorts; never a sentence block lagging or leading the voice. LONG-FORM may display more words at once — natural phrase/sentence chunks are fine (viewers read ahead on longer formats) — but burned-in captions must still be present and must never lag behind the spoken line. `.srt` sidecar ships with long-form for YouTube/Facebook upload/accessibility. Caption font styling follows the designer font pairing for the video.
 - **Thumbnails**: long-form 1280×720, short-form 1080×1920 via `build_thumbnails.py` — face-centered SQUARE crop of `assets/noah-headshot.png` (never stretch a portrait into a square — crop first), circular crop + gold ring, bold gold title with dark text STROKE, ≤5 words, server/topic chips, dark gradient. Short cover safe zone = center 1080×1350; cover frame ~1.2s into the edit.
-- **Social captions**: per-platform post captions per the caption-writer skill voice rules (zero em-dashes, zero emoji, Grade 5-6, hook + save CTA in first ~100 chars, maxed detail).
+- **Social posts**: per-platform post copy per the post-writer skill voice rules (zero em-dashes, zero emoji, Grade 5-6, hook + save CTA in first ~100 chars, maxed detail). Separate from the burned-in captions above — post text lives under the video, not on it.
 - **README.md**: delivery doc (files, specs, production notes, captions, commands shown).
 
 ## Self-Review Gate (MANDATORY before preview/render)
@@ -92,12 +92,27 @@ Review agents MUST self-reflect on the actual output — never deliver from assu
 3. **Thumbnails from the canonical headshot** — file content matches the navy-blue photo, not a stale frame.
 4. **Timing synced to the ACTUAL media** — re-transcribed after any tighten; no stale beat timings.
 5. **A/V sync** — audio + pip = same source file, matched offsets.
-6. **Checks pass** — `npx hyperframes check` exit 0 on the exact delivered files.
-7. **Audio per runtime** — ≤1 min: music bed present, ducked under speech; >1 min: NO music, but 2-3 SFX cue points present (whoosh/impact/riser).
-8. **Scene transitions** — every scene boundary has an animated exit with a hard-kill set; no black gaps, no hard unmounts.
-9. **Browser footage (if any)** — recorded LIVE (browser-use/Playwright) with dynamic scroll + zoom; never static screenshots.
+6. **Captions burned-in — shorts word-synced, long-form chunked** — captions visible IN the video frames. Shorts: only the word being spoken is on screen (or active-word highlight), never words ahead of the voice. Long-form: phrase/sentence chunks permitted but never lagging the spoken line. Long-form also ships .srt.
+7. **Checks pass** — `npx hyperframes check` exit 0 on the exact delivered files.
+8. **Audio — SFX only, BOTH formats, voice-priority mix** — NO music bed at any runtime (tech-content rule); shorts AND long-form each carry 2-3 SFX cue points (whoosh/impact/riser) at ≤ -18dB relative to the 0dB voice stem — check levels, not just cue count.
+9. **Scene transitions** — every scene boundary has an animated exit with a hard-kill set; no black gaps, no hard unmounts.
+10. **Browser footage (if any)** — recorded LIVE (browser-use/Playwright) with dynamic scroll + zoom; never static screenshots.
+11. **Motion Graphics Standard met** — kinetic-type hook, speech-synced keyword moment, animated scene transitions, choreographed diagrams (no static diagram), and (long-form) one Three.js/WebGL beat — per the Motion Graphics Standard section. Motion verbs are real kit rule names, not invented. WebGPU beats pass via their WebGL2/Canvas fallback in headless renderers; custom shaders are frame-locked (no `performance.now()`/delta-time/`iTime`).
 
 Tooling: `verify_pip.py` (pip geometry), `audit_pip_collisions.py` (timed elements vs pip bbox).
+
+## Motion Graphics Standard (MANDATORY — every video, both formats)
+
+Motion is the content (hard rule above). This is the minimum creative bar for ALL videos — every build must include each item, then push further where the beat earns it. Rule names come from the global animation kit `~/.qwen/skills/hyperframes-animation/rules-index.md` (load it; never invent motion verbs — the build agent animates directly from these lines).
+
+1. **Kinetic-type hook** — the hook lands as kinetic type from the kit's named text-animation effects (slam/stamp/typewriter/waterfall — rotate per video, never the same twice in a row).
+2. **Speech-synced keyword moments** — key terms GLOW or LOCK IN on the spoken word (`asr-keyword-glow`, `discrete-text-sequence`). Word-accurate transcripts drive it: the element that matches what's said lights up the instant it's spoken.
+3. **Animated scene transitions** — every scene boundary uses a real HyperFrames transition (crossfade / blur / push / wipe from the transitions catalog), never a bare cut between scenes.
+4. **Diagram/chart choreography** — recurring technical visuals (loops, routes, comparisons, ladders) move: routes draw themselves (`svg-path-draw`), cards enter staggered (`waterfall-entry`, `spring-pop-entrance`), numbers count/roll up (`discrete-text-sequence`). No static diagram ever sits on screen.
+5. **At least one Three.js / WebGL beat per long-form** — a 3D data-scape, shader post-fx, or WebGPU particle field that physically dramatizes the concept (model worlds lifting on a score, a benchmark ladder in 3D, token-flow particles). Shorts use 3D when the beat needs it (≥1 per video once the shot demands it). Earned, never wallpaper: if the 3D doesn't clarify the concept, cut it and keep the GSAP treatment. **WebGPU/TypeGPU beats are optional, not required** — headless render environments (Docker/CI with SwiftShader/ANGLE) often lack WebGPU, so any WebGPU beat MUST ship a WebGL2 (Three.js) or 2D Canvas fallback path; Gate #11 accepts the fallback (never false-reject a build for missing WebGPU in a headless renderer).
+6. **Seek-safe determinism holds for 3D too — frame-locked stepping** — single paused timeline, `hf-seek`, `AnimationMixer` for Three; no `Math.random`/`Date.now`; 3D motion is keyframed, not drifting. Custom Three.js/GLSL shaders MUST step by frame (`frame / FPS`, or a time value derived from the paused master timeline) — never `performance.now()`, delta-time accumulation, or a raw `iTime` clock. Frame-based stepping gives bit-exact `hf-seek` determinism across GPU frame rates.
+
+SFX (whoosh/impact/riser, both formats) land ON the motion beats — impact on title reveals, riser before the payoff diagram — at ≤ -18dB relative to the 0dB voice stem.
 
 ## Templates & Tech Stack
 

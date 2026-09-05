@@ -1,10 +1,14 @@
 ---
-description: "Write per-platform social captions for a video or topic. Reads config/persona.yaml for voice, platform YAMLs for rules, docs/platform-caption-limits.md for verified char limits. Outputs one caption per platform."
+name: post-writer
+version: 0.1.0
+description: "Write per-platform social POSTS for a video or topic (LinkedIn/X/Threads text, IG/TikTok post copy). NOT burned-in video captions — those belong to skills/video-agent (word-synced from transcript). Reads config/persona.yaml for voice, platform YAMLs for rules, docs/platform-caption-limits.md for verified char limits. Outputs one post per platform."
 ---
 
-# Caption Writer
+# Post Writer
 
-Writes captions for every platform from one source video or topic. Human voice, Grade 5-6 plain speech, platform-optimized.
+Writes the text POST for every platform from one source video or topic. Human voice, Grade 5-6 plain speech, platform-optimized.
+
+> **Not a caption burner.** This skill writes social post copy (the text under/around the video). Burned-in video captions are generated inside video-agent from the word-accurate transcript — never here.
 
 ## Inputs
 
@@ -30,9 +34,9 @@ Writes captions for every platform from one source video or topic. Human voice, 
 - **No meta-commentary** ("Here is the lesson", "The takeaway").
 - **No triple-structure closings** ("Learn X. Understand Y. Know Z."). End naturally.
 
-## Caption Design Rules (from platform-caption-limits.md)
+## Post Design Rules (from platform-caption-limits.md)
 
-- Captions are EXTREMELY DETAILED by default — context paragraph, every point expanded, save CTA, series tease; max out the platform limit.
+- Posts are EXTREMELY DETAILED by default — context paragraph, every point expanded, save CTA, series tease; max out the platform limit.
 - First ~100 chars = hook + save CTA. Every platform truncates in the feed.
 - Full breakdown goes below the "more" fold.
 - Detail drives saves, comments, reading time. Video watch time is owned by the video.
@@ -55,28 +59,28 @@ Tone per platform from its YAML (instagram=visually-driven aspirational; linkedi
 ## Output Format
 
 ```markdown
-# Captions — <video title>
+# Posts — <video title>
 
 ## Instagram
-<caption text>
+<post text>
 
 ## TikTok
-<caption text>
+<post text>
 
 ## YouTube Shorts
 <description text>
 
 ## LinkedIn
-<caption text>
+<post text>
 
 ## X
-<caption or thread>
+<post or thread>
 
 ## Threads
-<caption text>
+<post text>
 
 ## Facebook
-<caption text>
+<post text>
 
 ## YouTube Long
 <description text>

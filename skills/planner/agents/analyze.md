@@ -24,7 +24,7 @@ Write to `outputs/<slug>/`:
 
 1. `analysis.md` — human-readable analysis:
    - **Core thesis** of the source (2-3 sentences)
-   - **Key concepts** in teaching order, each with: name, plain-English explanation (grade 5-6), why it matters
+   - **Key concepts** in teaching order, each with: name, plain-English explanation (grade 5-6 words — clear sentence structure, defined for the junior AI-engineer ICP), why it matters
    - **Teaching structure** — how the source explains things (builds up? examples first? analogies?)
    - **Terminology list** — every technical term used, with the simple-word replacement Noah would use
    - **Gaps & hooks** — things the source assumes, skips, or could be challenged on; 5+ opportunities for Noah's own take

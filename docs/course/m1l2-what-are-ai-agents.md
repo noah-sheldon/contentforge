@@ -52,4 +52,4 @@ One gesture per beat, max two. `beatIn` (fade+rise on spoken word), `drawOn` (se
 ## Deliverables
 
 - `workspace/courses/2026.08.12_m1l2/` — lesson project (copy of lesson-whiteboard + transcript + rendered MP4s)
-- Cover frame ~1.2s; captions per platform via caption-writer (separate step)
+- Cover frame ~1.2s; per-platform posts via post-writer (separate step)

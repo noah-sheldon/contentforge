@@ -19,7 +19,7 @@ input: idea / url / script / customer assets   (mode picks the entry stage)
   -> PLAN    ingest -> analyze -> ideate -> research -> script -> storyboard
   -> PRODUCE capture (live web) -> tighten -> transcribe -> compose (HyperFrames)
              -> render -> slice -> caption + thumbnail -> deliver
-  -> PUBLISH per-platform copy (caption-writer), board/calendar sync
+  -> PUBLISH per-platform copy (post-writer), board/calendar sync
 ```
 
 | Capability | Today (source) | Merged home |

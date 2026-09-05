@@ -36,7 +36,7 @@ User pastes a URL, file path, or text and asks to plan content from it. Or asks 
 
 ## Rules
 
-1. **Voice is mandatory** — every script/caption must follow `voice.md`. Grade 5-6 words, short sentences, one idea per line, Indian English, no jargon, no marketing voice, must read human-written.
+1. **Voice is mandatory** — every script/caption must follow `../../config/voice.md`: spoken-flow register (multi-clause, or-chains, rhetorical questions), Indian English, no jargon, no marketing voice, must read human-written. ICP = AI engineers (junior/beginner, 0-3 yrs) — explainer content (benchmarks, evals, AGI, autonomy) uses define-from-zero mode from voice.md (state what something does before quoting any result). No "short sentences, one idea per line" — that rule was removed from voice.md (short lines are the caption register only).
 2. **No fabrication** — research briefs cite sources; when facts can't be verified, say so.
 3. **One card per video** on the boards (shorts → project 7, long-form → project 8); update card status as stages complete.
 4. **Platform profiles, not separate pipelines** — one asset, per-platform variants (caption/hashtags/CTA/aspect).

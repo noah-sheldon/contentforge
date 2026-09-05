@@ -36,7 +36,7 @@ Every lesson logs its fingerprint in `docs/post-tracker.md` after render:
 - Module: M# (brand palette, D2 fixed) · Hook: D3#N · CTA: D4#N
 - Beat: D5#N · SFX: D6#N · Length: D7#N · Trans: D10#N · Title: D11#N
 - Template: lesson-whiteboard | lesson-graph | lesson-code
-- Music: <track> · VO: <recording file>
+- Music: none (banned, all videos) · VO: <recording file>
 ```
 
 Constraint: within a module, no two consecutive lessons share the same option number in D3/D4/D5/D6/D10/D11.

@@ -18,6 +18,14 @@ content:
   niche: "AI/ML engineering, LLMOps, RAG, agentic AI, building in public"
   audience: "engineers, AI/ML practitioners, tech leaders"
   audience_level: "technical — LLMs, APIs, tools, and code are assumed knowledge; define only non-standard or coined terms"
+  icp: "AI engineers — junior and beginner developers (0-3 years) building toward applied AI/ML roles; also aspiring engineers from other dev backgrounds"
+  icp_customer_profile: "AI engineers are the ideal customer profile (ICP) — the audience that converts into course and community leads. They decide the depth floor: benchmarks, evaluations, AGI, and autonomy levels get explained from zero, one benchmark per beat."
+  content_mode_explainer: >
+    For evaluation / benchmark / AGI explainer content (e.g. "what does ARC-AGI-3 actually
+    measure", "how to read a frontier-model launch"), switch to define-from-zero mode:
+    state what the benchmark does, how the test runs, and why the number matters BEFORE
+    quoting results. Technical vocabulary (LLM, context window, tool call) is still assumed;
+    benchmark names, AGI level scales, and eval jargon are NOT.
   themes:
     - "Applied AI engineering in production"
     - "LLMOps and RAG infrastructure"

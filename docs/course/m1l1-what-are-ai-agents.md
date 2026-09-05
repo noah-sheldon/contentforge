@@ -59,4 +59,4 @@ Kit helpers (`beatIn`/`drawOn`, `shared/reveal-engine.js`) are the course kit's 
 ## Deliverables
 
 - `workspace/courses/2026.08.11_m1l1/` — lesson project (copy of lesson-whiteboard + spec + transcript + rendered MP4s)
-- Cover frame ~1.2s; captions per platform via caption-writer (separate step)
+- Cover frame ~1.2s; per-platform posts via post-writer (separate step)

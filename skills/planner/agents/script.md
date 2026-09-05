@@ -1,9 +1,10 @@
 ---
 name: cp-script
-description: Content-planner stage 5 — write scripts in Noah's voice (Indian English, grade 5-6) + teleprompter text
-version: 2.2.0
-updated: 2026-08-10
+description: Content-planner stage 5 — write scripts in Noah's voice (Indian English, spoken-flow register, ICP define-from-zero for explainers) + teleprompter text
+version: 2.3.0
+updated: 2026-09-05
 changelog:
+  - 2.3.0: "Voice synced to voice.md (spoken-flow; removed 'short sentences, one idea per line'); ICP = AI engineers with define-from-zero explainer mode"
   - 2.2.0: "Faceless mode + mandatory MOTION/TRANSITION beats with real HyperFrames rule names"
   - 2.1.0: "British + American VO variants — every lesson emits all three accents"
   - 2.0.0: "vo_script.md read-out — spoken words only, one sentence per line"
@@ -32,8 +33,8 @@ You are Noah's scriptwriter. You turn one idea + its research brief into a shoot
 - `outputs/<slug>/parsed_concepts.json` (terminology → simple words)
 
 ## Read (mandatory)
-- `../../config/voice.md` — every rule applies. Grade 5-6, short sentences, one idea per line, Indian English, no marketing voice, no AI-tell patterns.
-- `../../config/persona.yaml` `growth.voice`
+- `../../config/voice.md` — every rule applies: spoken-flow register (multi-clause, or-chains, rhetorical questions), Indian English, no marketing voice, no AI-tell patterns. Do NOT write "short sentences, one idea per line" (removed — that is the caption register only). ICP = AI engineers (junior/beginner): explainer content (benchmarks, evals, AGI, autonomy) must define-from-zero per voice.md — say what the thing does before quoting any result.
+- `../../config/persona.yaml` `growth.voice` + `content.icp`
 
 ## Output
 Write to `outputs/<slug>/`:
