@@ -1,9 +1,10 @@
 ---
 name: cp-script
 description: Content-planner stage 5 — write scripts in Noah's voice (Indian English, spoken-flow register, ICP define-from-zero for explainers) + teleprompter text
-version: 2.4.3
+version: 2.4.4
 updated: 2026-09-05
 changelog:
+  - 2.4.4: "teleprompter.txt emission mandatory — always emitted, two formats (prose: sentence-per-line recording copy; beat outlines: cue cards)"
   - 2.4.3: "Asset-source rule — every web reference in the script has a fact-base URL for the ASSETS stage"
   - 2.4.2: "HOOK block = ~15s supercut of ~7 strongest beats, curated (not one line per chapter); never include the reveal chapter's answer in the open"
   - 2.4.1: "Long-form intro rule — every long-form video carries a ~30s on-camera intro after the cold open ('I'm Noah…'); canonical example in outputs/gpt6-astra/script_longform.md"
@@ -35,6 +36,8 @@ You are Noah's scriptwriter. You turn one idea + its research brief into a shoot
 - Open the FILE with a `## HOOK — montage open (edit block, NOT spoken — for the video editing agent)` block: a ~15s supercut of the ~7 STRONGEST beats in the video — curated, not one line per chapter (weak lines dilute strong ones) — with SFX + transition + animation notes plus short-form guidance. NEVER include the reveal chapter's answer in the open (the Ch 4 harness line in gpt6-astra is the model). Copy the exact format from the canonical example. Never write this block as VO.
 - Every abbreviation gets a plain-language gloss the first time it's spoken — AGI, ARC, MMLU, API, METR, benchmark names (see voice.md). No initialism survives unglossed in explainer content.
 - Close with a `## Fact base (not spoken — for director and review)` block: source-verified bullets plus explicit VERIFY flags for anything not yet sourced.
+- ALWAYS emit `outputs/<slug>/teleprompter.txt` in sentence-per-line form (blank line =
+  pause) — the recording copy for prose spoken scripts (see Output 3).
 
 ## Inputs
 - `outputs/<slug>/ideas.json` (the chosen idea)
@@ -92,9 +95,14 @@ Transitions: crossfade / blur crossfade (calm teaching defaults) · push
    (or `[ANIM]` in faceless series — see "Faceless mode" below).
 2. `script_shorts.md` — beat outlines for shorts (hook ≤2s, ONE concept built
    from zero in ≤60s, ~120-150 words, on-screen text lines, one-line CTA).
-3. `teleprompter.txt` — prompt cards, NOT full sentences: 2-4 keyword phrases
-   per beat, so a glance reminds Noah what to explain next while he speaks
-   naturally.
+3. `teleprompter.txt` — ALWAYS emitted, two formats by script type:
+   - **Prose/spoken scripts** (launch/news explainers, any word-for-word VO): the recording
+     copy — spoken words only, ONE sentence per line, blank line = longer pause, no headers,
+     no SHOW cues, no edit blocks.
+   - **Beat-outline lessons** (on-camera, Noah speaks his own words): prompt cue cards —
+     2-4 keyword phrases per beat, so a glance reminds him what to explain next.
+   Either way the file lives at `outputs/<slug>/teleprompter.txt` so
+   `serve_teleprompter.py` lists it (it scans `outputs/**/teleprompter.txt`).
 4. `vo_script.md` — the read-out version: **ONLY the spoken words — nothing else.**
    No headers, no `[SCREEN:]` cues, no word counts. One sentence per line.
    Pause at the end of every sentence (period). Blank line = beat change =
@@ -124,6 +132,7 @@ deliverable. Do not invent `[CAM]` beats.
 - Build-up rule: never introduce a term the viewer hasn't been shown.
 - Abbreviation rule: gloss every initialism in plain words at first spoken use (AGI, ARC, MMLU, API, METR, benchmark names). A viewer who can't repeat the definition in their own words hasn't been taught it.
 - Asset-source rule: the fact base lists every URL the video references — the ASSETS stage turns each cited page into a capture. No bare web reference without a URL in the fact base.
-- Long-form intro rule: EVERY long-form video carries a ~25-35s spoken, on-camera intro right after the cold open / hook and before the teaching starts. Noah-approved default pattern: casual greeting ("Hey everyone, I'm Noah") → works in AI in London → why the channel exists (engineers early in the journey, the mechanism behind the headlines, sources not posts) → what THIS video delivers. Shorts never carry the intro — they open on their hook line. Canonical: the `## Intro — who's talking` section in `outputs/gpt6-astra/script_longform.md`.
+- Teleprompter rule: SCRIPT never finishes without `outputs/<slug>/teleprompter.txt` (see Output 3 for the two formats). If `serve_teleprompter.py --list-only` would find nothing for this slug, the stage is incomplete.
+- Long-form intro rule: EVERY long-form video carries a short (~10-20s) spoken, on-camera intro right after the cold open / hook and before the teaching starts. Noah-approved default pattern: casual greeting ("Hey everyone, I'm Noah") → works in AI in London → why the channel exists (engineers early in the journey, the mechanism behind the headlines, sources not posts) → what THIS video delivers. Shorts never carry the intro — they open on their hook line. Canonical: the `## Intro — who's talking` section in `outputs/gpt6-astra/script_longform.md`.
 - If it sounds like a blog post, a marketer, or ChatGPT — rewrite.
 - The chosen title + thumbnail come from the idea (director locks them later).

@@ -1,9 +1,11 @@
 ---
 name: cp-marketing
-description: Content-planner stage 2b — per-platform marketing playbook (hooks, captions, hashtags, CTAs, series) from persona + analysis
-version: 1.1.0
-updated: 2026-08-09
+description: Content-planner stage 2b — per-platform marketing playbook (hooks, captions, hashtags, CTAs, series, short-clip plans) from persona + analysis; one master asset, per-platform variants — never the same thing posted the same way everywhere
+version: 1.2.1
+updated: 2026-09-05
 changelog:
+  - 1.2.1: "De-hardcode — no single-video examples or figures baked into the multi-platform rules"
+  - 1.2.0: "Multi-platform rules — standalone clip plans from the master (not naive chapter cuts), platform-differentiated tone/length/visual pacing, staggered 2-3 week campaign, record-for-vertical safe area"
   - 1.1.0: "Series structure + funnel tags; growth.business_goals-driven rules"
   - 1.0.0: "Initial"
 ---
@@ -32,7 +34,23 @@ Per platform (IG Reels, TikTok, YT Shorts, LinkedIn, Facebook):
 
 Plus:
 - **Series structure** — 1-2 short series ideas derived from the source ("one concept per short", numbered, binge-able — this is the follower-conversion mechanism)
+- **Short clip plan** — when the source is a long-form master (a video that will be cut down), list 8-10 STANDALONE clips, not naive chapter cuts. Each clip = its own HOOK → REVEAL → PUNCHLINE arc with a verbatim hook line, self-contained (works for someone who never saw the long video), plus which master beat it draws from and where it points back to the bigger idea.
 - **Funnel tags** for each idea (reach / course-seed / service-proof / product-demo / brand-collab)
+
+## Multi-platform rules (one master → many formats)
+
+Platforms are NOT the same content in different ratios. Differentiate:
+- **YouTube (long-form)** — authority + story: "here's what actually happened" (the mystery arc).
+- **YT Shorts** — discovery: ONE surprising beat per clip, self-contained.
+- **TikTok** — curiosity + conflict: open on the contradiction in the first 2s (the piece's one unresolved question, stated as a clash, e.g. "scored near-perfect… the same model scored far lower"), 25-50s, punchy.
+- **Instagram Reels** — visual insight + shareability: designed and clean (face → big number → diagram → face), not lecture chopped vertically.
+- LinkedIn/Facebook follow their own aspect rules (per-platform list above).
+
+Clip rules:
+- Clips are standalone stories with their own hook→reveal arc — a clip must never depend on the long video to make sense.
+- The single most unresolved question in the piece is the flagship hook on ALL platforms — name it once in general terms, never with one video's specific figures baked into the rule.
+- Campaign rule: launch the master FIRST, then space the clips out over 2-3 weeks (one clip every few days) — never dump them the same day. Every clip ends by pointing back to the bigger idea, not by shouting "watch the full video".
+- Record-for-vertical: when a master will feed 9:16 crops, plan shots so Noah's face and the key on-screen info stay inside the central safe area, and take clean single-line takes of the quotable lines — those lines become the clip hooks.
 
 ## Rules
 - Everything must serve ../../config/persona.yaml `growth.business_goals` (courses, AI services, product demos, brand collabs, reach).

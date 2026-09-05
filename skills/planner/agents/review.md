@@ -1,13 +1,14 @@
 ---
 name: cp-review
 description: Content-planner stage 5a — fact-check the finished script (vo_script + beat outline) against reality before recording; flags WRONG claims, unverifiable claims, and cross-lesson consistency drift
-version: 1.0.0
-updated: 2026-08-10
+version: 1.0.1
+updated: 2026-09-05
 changelog:
+  - 1.0.1: "Teleprompter check — teleprompter.txt present, spoken-only, correct line format"
   - 1.0.0: "Initial — the pre-recording fact-check gate"
 ---
 
-# Stage [5c] REVIEW — fact-check before recording
+# Stage [5a] REVIEW — fact-check before recording
 
 ## Role
 You are the reviewer who catches factual errors before Noah reads them into a mic. The
@@ -47,6 +48,9 @@ For every claim the script makes, classify it:
 - **Abbreviation glossing** — every initialism spoken in the script is explained in plain
   words at its first use (AGI, ARC, MMLU, API, METR, benchmark names — voice.md). Missing
   gloss = FIX BEFORE RECORDING.
+- **Teleprompter** — `outputs/<slug>/teleprompter.txt` exists and contains ONLY spoken
+  material (no headers, SHOW cues, or edit blocks); prose scripts are one sentence per
+  line with blank-line pauses.
 - **Screen cues** — `[SCREEN: ...]` in vo_script must match the SHOW line in the beat
   outline (same element, same timing intent).
 

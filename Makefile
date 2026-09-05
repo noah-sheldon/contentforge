@@ -4,7 +4,7 @@
 # JS/TS:  biome (lint + format) and tsc (types) run from the root npm package.
 # `make verify` is the single green check: lint + format-check + typecheck + test.
 
-.PHONY: help install sync lint format format-check typecheck pyrefly tsc test smoke verify clean
+.PHONY: help install sync lint format format-check typecheck pyrefly tsc test smoke verify clean teleprompter teleprompter-lan teleprompter-list
 
 VENV      = .venv
 PY        = $(VENV)/bin/python
@@ -63,3 +63,12 @@ verify: ## Full local gate: lint + format-check + typecheck + test
 clean: ## Remove toolchains and caches
 	rm -rf $(VENV) node_modules
 	find . -path './_sources' -prune -o -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null
+
+teleprompter-list: ## List scripts the teleprompter can serve
+	uv run --project python python python/scripts/serve_teleprompter.py --list-only
+
+teleprompter: ## Serve the teleprompter UI on localhost:8000
+	uv run --project python python python/scripts/serve_teleprompter.py
+
+teleprompter-lan: ## Serve the teleprompter on your LAN (phone/iPad while recording)
+	uv run --project python python python/scripts/serve_teleprompter.py --host 0.0.0.0

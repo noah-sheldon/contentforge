@@ -22,6 +22,9 @@ from urllib.parse import urlparse
 
 from common import ROOT
 
+# common.ROOT resolves to python/ — the teleprompter scans repo-root outputs/ + workspace/
+PROJECT_ROOT = ROOT.parent
+
 PROMPTER_DIR = ROOT / "scripts" / "teleprompter"
 PROMPTER_HTML = PROMPTER_DIR / "index.html"
 
@@ -29,11 +32,11 @@ PROMPTER_HTML = PROMPTER_DIR / "index.html"
 def collect_scripts() -> list:
     """Finds every teleprompter.txt in outputs/ and workspace/ (with a label)."""
     found = []
-    for base in (ROOT / "outputs", ROOT / "workspace"):
+    for base in (PROJECT_ROOT / "outputs", PROJECT_ROOT / "workspace"):
         if not base.exists():
             continue
         for path in sorted(base.rglob("teleprompter.txt")):
-            rel = path.relative_to(ROOT)
+            rel = path.relative_to(PROJECT_ROOT)
             found.append(
                 {
                     "name": str(rel),
@@ -106,9 +109,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if parsed.path == "/read":
             query = dict(x.split("=", 1) for x in parsed.query.split("&") if "=" in x)
             rel = query.get("path", "")
-            target = (ROOT / rel).resolve()
+            target = (PROJECT_ROOT / rel).resolve()
             # Security: only allow paths inside the project root
-            if not str(target).startswith(str(ROOT)):
+            if not str(target).startswith(str(PROJECT_ROOT)):
                 self._send(403, "text/plain", b"forbidden")
                 return
             if target.is_file() and target.suffix in (".txt", ".md"):

@@ -1,9 +1,10 @@
 ---
 name: content-planner
 description: Turn ANY input — YouTube video/playlist, blog, website, audio file, or pasted text — into short-form + long-form content ideas, researched briefs, scripts in Noah's voice, storyboards with equipment call sheets, teleprompter text, and 7/14-day publishing plans synced to GitHub Projects boards (7=short, 8=long).
-version: 2.2.0
+version: 2.2.1
 updated: 2026-09-05
 changelog:
+  - 2.2.1: "teleprompter.txt emission mandatory per video (SCRIPT always emits it; serve_teleprompter.py lists it)"
   - 2.2.0: "ASSETS stage (5b) — parallel web capture of every page a script references + per-video asset_manifest.md the video agent stages from (long + short form)"
   - 2.1.0: "Course-builder workflow + course.yaml template (no hardcoding)"
   - 2.0.0: "High-level overview video mode + course-module source (skip INGEST)"
@@ -55,6 +56,7 @@ User pastes a URL, file path, or text and asks to plan content from it. Or asks 
 8. **Originality — never re-tell the source.** Ingested material is raw material for gaps, angles, and verified facts ONLY. No copied framing, structure, code, or examples from the source — in scripts, storyboards, demos, or demo code. Every build is Noah's own, written from scratch, tested by him, said in his words. If an idea is "the source explained again", kill it.
 9. **User topics win — Noah's topics are the curriculum.** When he provides topics (e.g. "framework vs from scratch — trade-offs", "what's an agent loop"), build research/scripts/storyboards around HIS topics. Skip IDEATE when topics are given; gap-ideas are fillers he can reject, never substitutes.
 10. **Assets are a stage, not an afterthought** — every beat that shows a real page/post/browser view needs an asset: WEB (live webm — footage) / POST (replica card or real capture) / MOTION (built by the video agent). The ASSETS stage (5b) derives its list from the script + fact base, captures pages in parallel, and queues bot-walled pages for Noah's own browser (manual drop). Chapters without a WEB/POST capture must carry an explicit MOTION note — the video agent never improvises a static screenshot.
+11. **teleprompter.txt is mandatory per video** — SCRIPT always emits `outputs/<slug>/teleprompter.txt` (prose scripts: sentence-per-line recording copy; beat outlines: keyword cue cards — see agents/script.md Output 3). If `serve_teleprompter.py --list-only` finds nothing for a slug, that stage is incomplete.
 
 ## Stage prompts
 
