@@ -16,6 +16,16 @@ quoting any result. A junior dev should finish a beat able to repeat the definit
 their own words. The spoken register and mechanism-first rule below stay identical; only
 the define-first obligation changes per content mode.
 
+**Abbreviation glossing (launch/news explainers):** in launch explainer content (reading a
+model launch — benchmarks, AGI, new model names), the define-first obligation extends to
+EVERY abbreviation. Gloss each initialism in plain words the first time it is spoken — AGI
+(artificial general intelligence, a machine that could do any intellectual job a human can),
+ARC (abstraction and reasoning — spotting a pattern and applying it), MMLU (the giant
+multiple-choice knowledge quiz), API (what developers pay to call the model), METR (a
+nonprofit that measures how long an AI can work on its own). No initialism survives
+unglossed, even ones the audience half-knows. Letter-by-letter expansions are not the gloss;
+a functional one-liner in plain words is.
+
 ## Core rules
 
 - **Spoken flow, not short sentences.** Noah speaks in flowing multi-clause

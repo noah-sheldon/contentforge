@@ -44,6 +44,9 @@ For every claim the script makes, classify it:
     that is M1L3's lesson; tease it in the CTA only).
 - **Voice drift** — `../../config/voice.md`: no formal transitions, conversational connectors
   present, no three-item parallelism in spoken lines, mechanism-first.
+- **Abbreviation glossing** — every initialism spoken in the script is explained in plain
+  words at its first use (AGI, ARC, MMLU, API, METR, benchmark names — voice.md). Missing
+  gloss = FIX BEFORE RECORDING.
 - **Screen cues** — `[SCREEN: ...]` in vo_script must match the SHOW line in the beat
   outline (same element, same timing intent).
 

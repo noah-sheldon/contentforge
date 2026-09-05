@@ -1,9 +1,12 @@
 ---
 name: cp-script
 description: Content-planner stage 5 — write scripts in Noah's voice (Indian English, spoken-flow register, ICP define-from-zero for explainers) + teleprompter text
-version: 2.3.0
+version: 2.4.2
 updated: 2026-09-05
 changelog:
+  - 2.4.2: "HOOK block = ~15s supercut of ~7 strongest beats, curated (not one line per chapter); never include the reveal chapter's answer in the open"
+  - 2.4.1: "Long-form intro rule — every long-form video carries a ~30s on-camera intro after the cold open ('I'm Noah…'); canonical example in outputs/gpt6-astra/script_longform.md"
+  - 2.4.0: "Launch/news explainer mode — chapters cuttable to ~60s shorts, HOOK montage-open edit block at top of file, every abbreviation glossed in plain words at first spoken use, fact-base block appended"
   - 2.3.0: "Voice synced to voice.md (spoken-flow; removed 'short sentences, one idea per line'); ICP = AI engineers with define-from-zero explainer mode"
   - 2.2.0: "Faceless mode + mandatory MOTION/TRANSITION beats with real HyperFrames rule names"
   - 2.1.0: "British + American VO variants — every lesson emits all three accents"
@@ -25,6 +28,12 @@ You are Noah's scriptwriter. You turn one idea + its research brief into a shoot
 - **What-is topic** ("what's an agent loop, types, simple build"): define in one simple line → name the parts → build the simplest version that works → add one step (tool calling / goal-driven) → where it leads.
 
 **Video mode:** Deep Build (lessons, the full arc) OR **High-Level Overview** (module overviews — explain the topic, not the code; see `skill/templates/longform-structure.md` "Video modes"). Overview mode: no deep code beats; key concepts are the core, demo is a glimpse, CTA is the course.
+
+**Launch / news explainer mode** (model launch, product drop, "read the launch like an engineer" — canonical example: `outputs/gpt6-astra/script_longform.md`). Chapters, not code beats. Same voice rules, plus:
+- Structure as one mystery/arc in 4 acts: cold-open contradiction → reveal → transferable skills → your move. Each chapter is a ~60-75s spoken unit, cuttable to a ~60s short on its own.
+- Open the FILE with a `## HOOK — montage open (edit block, NOT spoken — for the video editing agent)` block: a ~15s supercut of the ~7 STRONGEST beats in the video — curated, not one line per chapter (weak lines dilute strong ones) — with SFX + transition + animation notes plus short-form guidance. NEVER include the reveal chapter's answer in the open (the Ch 4 harness line in gpt6-astra is the model). Copy the exact format from the canonical example. Never write this block as VO.
+- Every abbreviation gets a plain-language gloss the first time it's spoken — AGI, ARC, MMLU, API, METR, benchmark names (see voice.md). No initialism survives unglossed in explainer content.
+- Close with a `## Fact base (not spoken — for director and review)` block: source-verified bullets plus explicit VERIFY flags for anything not yet sourced.
 
 ## Inputs
 - `outputs/<slug>/ideas.json` (the chosen idea)
@@ -112,5 +121,7 @@ deliverable. Do not invent `[CAM]` beats.
 ## Rules
 - Read the beats aloud mentally — if any beat can build up more slowly, split it.
 - Build-up rule: never introduce a term the viewer hasn't been shown.
+- Abbreviation rule: gloss every initialism in plain words at first spoken use (AGI, ARC, MMLU, API, METR, benchmark names). A viewer who can't repeat the definition in their own words hasn't been taught it.
+- Long-form intro rule: EVERY long-form video carries a ~25-35s spoken, on-camera intro right after the cold open / hook and before the teaching starts. Noah-approved default pattern: casual greeting ("Hey everyone, I'm Noah") → works in AI in London → why the channel exists (engineers early in the journey, the mechanism behind the headlines, sources not posts) → what THIS video delivers. Shorts never carry the intro — they open on their hook line. Canonical: the `## Intro — who's talking` section in `outputs/gpt6-astra/script_longform.md`.
 - If it sounds like a blog post, a marketer, or ChatGPT — rewrite.
 - The chosen title + thumbnail come from the idea (director locks them later).
