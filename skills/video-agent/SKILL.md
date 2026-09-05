@@ -1,7 +1,7 @@
 ---
 name: video-agent
-version: 1.4.1
-description: Self-contained video production master (HyperFrames) — round-pip-only footage, thumbnails always, word-accurate tightening, word-SYNCED burned captions (shorts as-I-speak, long-form chunked), NO MUSIC (SFX only both formats, ≤-18dB voice-priority mix), MANDATORY Motion Graphics Standard incl. Three.js/WebGL beat (WebGL2 fallback + frame-locked shaders), screen recording, self-review gate
+version: 1.5.0
+description: Self-contained video production master (HyperFrames) — round-pip-only footage, thumbnails always, word-accurate tightening, word-SYNCED burned captions (shorts as-I-speak, long-form chunked), NO MUSIC (SFX only both formats, ≤-18dB voice-priority mix), MANDATORY Motion Graphics Standard incl. Three.js/WebGL beat (WebGL2 fallback + frame-locked shaders), WEB/POST assets staged from the video's asset_manifest.md (long-form + short-form), screen recording, self-review gate
 updated: 2026-09-05
 status: active
 ---
@@ -35,18 +35,19 @@ graph TD
    Uses whisper word timestamps (transcript.json). Cut ONLY between words; keeps 0.35s breathing each side; removes only gaps >0.7s. Amplitude-only `silencedetect` tightening is BANNED (clips word tails).
 2. **Transcribe the tightened file** — new word timestamps (never reuse old beat timings after any media change).
 3. **Beat-map** every scene window to the actual speech segments (title/hook, chips, captures, cards, terminal, demo, CTA, end).
-4. **Compose** per the rules below. A/V sync: audio + pip video use the SAME source file with matched `data-start`/`data-media-start` offsets.
-5. **Lint + check** (must exit 0):
+4. **Stage assets from the manifest (both formats)** — read `outputs/<slug>/assets/asset_manifest.md`; stage each WEB webm/png for the chapters it maps to, with `data-media-start` windows matched to the beat-map. A live webm is footage; PNGs are reference-only and NEVER appear in-frame. A chapter with no WEB/POST asset and no MOTION note = incomplete manifest → route back to ASSETS, never improvise a static screenshot.
+5. **Compose** per the rules below. A/V sync: audio + pip video use the SAME source file with matched `data-start`/`data-media-start` offsets.
+6. **Lint + check** (must exit 0):
    ```bash
    npx hyperframes lint && npx hyperframes check
    ```
    Fix `gsap_exit_missing_hard_kill` (add `tl.set(..., {autoAlpha:0}, boundary)`), scrim opacity-0 initial states, and any errors.
-6. **Render** master CRF 10, then social CRF 14 (avoids platform re-compression):
+7. **Render** master CRF 10, then social CRF 14 (avoids platform re-compression):
    ```bash
    npx hyperframes render --quality high --crf 10 --output <name>-master.mp4
    ffmpeg -i <name>-master.mp4 -vcodec libx264 -crf 14 -preset slow -pix_fmt yuv420p -movflags +faststart -c:a copy <name>.mp4
    ```
-7. **Deliver** — SRT, thumbnails, social captions, README (see Delivery section).
+8. **Deliver** — SRT, thumbnails, social captions, README (see Delivery section).
 
 ## Hard Rules (all formats)
 
@@ -61,6 +62,37 @@ graph TD
 - **Brightness**: brown/Indian skin needs 1.2-1.6 brightness — when in doubt, go brighter.
 - **Every video differs from the last**: VFX treatment, cut rhythm, font pairing, SFX pattern, title animation.
 - **Post tracker updated** after every render.
+
+## Assets in the edit — WEB + POST (long-form and short-form)
+
+Every WEB/POST frame in BOTH formats comes from the staged asset set
+(`outputs/<slug>/assets/`), bound to the beats in `asset_manifest.md` (production step 4).
+Noah's face stays a round pip; assets and motion graphics carry the screen.
+
+- **Staging** — only files the manifest lists as WEB are footage (the `.webm`). PNGs
+  (`-top/-mid/-full`) are reference only (storyboard, thumbnails, review) and never burned
+  in-frame. POST rows become replica cards built from the manifest's verified quotes, or
+  real captures when present.
+- **Timing** — each asset window is tied to the beat that SHOW-cues it: `data-media-start`
+  matches the recorded utterance so the page motion lands on the spoken line (re-transcribe
+  and re-beat-map after any tighten — stale timings are a self-review reject). Window opens
+  on the beat's trigger word, holds while the beat speaks, closes at the scene transition.
+  No asset outlives its beat.
+- **Transitions** — asset scenes enter/exit with real kit transitions (crossfade / blur for
+  calm proof pages, push / wipe for claim-vs-contrast turns, hard cuts ONLY inside the HOOK
+  montage open). No bare unmounts, no black frames (existing rule).
+- **Zoom / reframe on webm** — the recording already scrolls; add a slow reframe to push
+  emphasis to the figure the beat names: GSAP transform on the FOOTAGE wrapper (punch-in up
+  to ~1.3×, pan to the number/table; easing never linear). NEVER transform the face-pip
+  wrapper (transform-banned — fade-only entrance). 9:16 shorts re-crop the same clip to the
+  vertical center band (1080×1350 safe zone) and punch tighter on the numbers.
+- **Effects over assets** — SFX (whoosh / impact / riser, ≤-18 dB vs the 0 dB voice stem)
+  land on asset entry and on the emphasized figure; the gold spotlight class
+  (`.opencode-spotlight-highlight`) marks the exact number/table being spoken; word-synced
+  captions continue over assets (shorts as-I-speak, long-form chunked — delivery rule).
+- **Short-form cuts** — shorts pull from the master; each short's single beat re-stages the
+  same asset windows (cropped 9:16, tighter punches), so timing, captions, and SFX stay
+  consistent between formats.
 
 ## Screen Recording & Integration
 
@@ -99,6 +131,11 @@ Review agents MUST self-reflect on the actual output — never deliver from assu
 9. **Scene transitions** — every scene boundary has an animated exit with a hard-kill set; no black gaps, no hard unmounts.
 10. **Browser footage (if any)** — recorded LIVE (browser-use/Playwright) with dynamic scroll + zoom; never static screenshots.
 11. **Motion Graphics Standard met** — kinetic-type hook, speech-synced keyword moment, animated scene transitions, choreographed diagrams (no static diagram), and (long-form) one Three.js/WebGL beat — per the Motion Graphics Standard section. Motion verbs are real kit rule names, not invented. WebGPU beats pass via their WebGL2/Canvas fallback in headless renderers; custom shaders are frame-locked (no `performance.now()`/delta-time/`iTime`).
+
+12. **Assets staged from the manifest** — every WEB frame in both formats is a `.webm`
+    from `outputs/<slug>/assets/` per `asset_manifest.md`; no static PNG in-frame anywhere;
+    every manifest row is resolved (WEB staged, POST built as a card, MOTION beat present) —
+    unresolved row = reject and route back to ASSETS.
 
 Tooling: `verify_pip.py` (pip geometry), `audit_pip_collisions.py` (timed elements vs pip bbox).
 

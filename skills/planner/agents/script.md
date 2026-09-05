@@ -1,9 +1,10 @@
 ---
 name: cp-script
 description: Content-planner stage 5 — write scripts in Noah's voice (Indian English, spoken-flow register, ICP define-from-zero for explainers) + teleprompter text
-version: 2.4.2
+version: 2.4.3
 updated: 2026-09-05
 changelog:
+  - 2.4.3: "Asset-source rule — every web reference in the script has a fact-base URL for the ASSETS stage"
   - 2.4.2: "HOOK block = ~15s supercut of ~7 strongest beats, curated (not one line per chapter); never include the reveal chapter's answer in the open"
   - 2.4.1: "Long-form intro rule — every long-form video carries a ~30s on-camera intro after the cold open ('I'm Noah…'); canonical example in outputs/gpt6-astra/script_longform.md"
   - 2.4.0: "Launch/news explainer mode — chapters cuttable to ~60s shorts, HOOK montage-open edit block at top of file, every abbreviation glossed in plain words at first spoken use, fact-base block appended"
@@ -122,6 +123,7 @@ deliverable. Do not invent `[CAM]` beats.
 - Read the beats aloud mentally — if any beat can build up more slowly, split it.
 - Build-up rule: never introduce a term the viewer hasn't been shown.
 - Abbreviation rule: gloss every initialism in plain words at first spoken use (AGI, ARC, MMLU, API, METR, benchmark names). A viewer who can't repeat the definition in their own words hasn't been taught it.
+- Asset-source rule: the fact base lists every URL the video references — the ASSETS stage turns each cited page into a capture. No bare web reference without a URL in the fact base.
 - Long-form intro rule: EVERY long-form video carries a ~25-35s spoken, on-camera intro right after the cold open / hook and before the teaching starts. Noah-approved default pattern: casual greeting ("Hey everyone, I'm Noah") → works in AI in London → why the channel exists (engineers early in the journey, the mechanism behind the headlines, sources not posts) → what THIS video delivers. Shorts never carry the intro — they open on their hook line. Canonical: the `## Intro — who's talking` section in `outputs/gpt6-astra/script_longform.md`.
 - If it sounds like a blog post, a marketer, or ChatGPT — rewrite.
 - The chosen title + thumbnail come from the idea (director locks them later).

@@ -1,6 +1,6 @@
 ---
 name: cp-director
-description: Content-planner stage 5b — storyboard, equipment call sheet, title/thumbnail lock, and diagram specs for one video
+description: Content-planner stage 5c — storyboard, equipment call sheet, title/thumbnail lock, and diagram specs for one video
 version: 1.1.0
 updated: 2026-08-10
 changelog:

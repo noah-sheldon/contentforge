@@ -1,6 +1,6 @@
 ---
 name: cp-review
-description: Content-planner stage 5c — fact-check the finished script (vo_script + beat outline) against reality before recording; flags WRONG claims, unverifiable claims, and cross-lesson consistency drift
+description: Content-planner stage 5a — fact-check the finished script (vo_script + beat outline) against reality before recording; flags WRONG claims, unverifiable claims, and cross-lesson consistency drift
 version: 1.0.0
 updated: 2026-08-10
 changelog:
